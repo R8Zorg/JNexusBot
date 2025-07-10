@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
-@SlashCommands
+// @SlashCommands
 public class GuildInfo {
     @Command(description = "Get guild's owner")
     public void guild(SlashCommandInteractionEvent event) {

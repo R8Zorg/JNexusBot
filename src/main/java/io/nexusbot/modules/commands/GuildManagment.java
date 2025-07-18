@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 @SlashCommands
-public class GuildManagmentCommands {
+public class GuildManagment {
 
     GuildEntityService guildService = new GuildEntityService();
 

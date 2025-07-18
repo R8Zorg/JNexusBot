@@ -43,33 +43,36 @@ public class GuildManagmentCommands {
         event.reply(replyMessage).queue();
     }
 
+    private Guild getGuildOrRepyError(SlashCommandInteractionEvent event, String guildId) {
+        try {
+            Guild guild = event.getJDA().getGuildById(guildId);
+            if (guild == null) {
+            event.reply("Guild with given id not found").setEphemeral(true).queue();
+            return null;
+            }
+            return guild;
+        } catch (NumberFormatException e) {
+            event.reply("Introduced invalid guild id").setEphemeral(true).queue();
+            return null;
+        }
+    }
     @Subcommand(parentNames = "guilds")
     public void add(SlashCommandInteractionEvent event,
             @Option(name = "guild_id", description = "Specific guild") String guildId) {
-        // TODO: combine this
-        Guild providedGuild;
-        try {
-            providedGuild = event.getJDA().getGuildById(guildId);
-        } catch (NumberFormatException e) {
-            event.reply("Introduced invalid guild id").setEphemeral(true).queue();
-            return;
-        }
+        Guild providedGuild = getGuildOrRepyError(event, guildId);
         GuildEntity guild = new GuildEntity(providedGuild.getIdLong(), providedGuild.getOwnerIdLong());
+        try {
         guildService.save(guild);
         event.reply("Added").setEphemeral(true).queue();
+        } catch (Exception e) {
+            event.reply("An error occured: " + e.getMessage()).setEphemeral(true).queue();
+        }
     }
 
     @Subcommand(parentNames = "guilds")
     public void remove(SlashCommandInteractionEvent event,
             @Option(name = "guild_id", description = "Specific guild") String guildId) {
-        // TODO: with this
-        Guild providedGuild;
-        try {
-            providedGuild = event.getJDA().getGuildById(guildId);
-        } catch (NumberFormatException e) {
-            event.reply("Introduced invalid guild id").setEphemeral(true).queue();
-            return;
-        }
+        Guild providedGuild = getGuildOrRepyError(event, guildId);
         try {
             GuildEntity guild = guildService.get(guildId);
             guildService.remove(guild);

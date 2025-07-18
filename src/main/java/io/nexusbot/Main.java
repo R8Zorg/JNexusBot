@@ -1,15 +1,14 @@
-package com.bot;
+package io.nexusbot;
 
 import java.util.EnumSet;
-
-import com.bot.core.CommandManager;
-import com.bot.core.ListenersRegistrar;
-import com.bot.core.SlashCommandsHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import io.github.r8zorg.jdatools.CommandsManager;
+import io.github.r8zorg.jdatools.ListenersManager;
+import io.github.r8zorg.jdatools.SlashCommandsHandler;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -20,8 +19,8 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         Dotenv dotenv = Dotenv.load();
 
-        CommandManager commandManager = new CommandManager("com.bot.modules.commands");
-        ListenersRegistrar listenersRegistrar = new ListenersRegistrar("com.bot.modules.listeners");
+        CommandsManager commandsManager = new CommandsManager("io.nexusbot.modules.commands");
+        ListenersManager listenersManager = new ListenersManager("io.nexusbot.modules.listeners");
 
         EnumSet<GatewayIntent> gatewayIntents = EnumSet.of(
                 GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES,
@@ -29,14 +28,14 @@ public class Main {
                 GatewayIntent.SCHEDULED_EVENTS);
 
         JDA jda = JDABuilder.createDefault(dotenv.get("TOKEN"), gatewayIntents)
-                .addEventListeners(new SlashCommandsHandler(commandManager))
+                .addEventListeners(new SlashCommandsHandler(commandsManager))
                 .build();
-        // jda.updateCommands().complete();
-        // jda.updateCommands().addCommands(commandManager.getSlashCommandData()).queue();
+        // jda.updateCommands().queue();
+        // jda.updateCommands().addCommands(commandsManager.getSlashCommandData()).queue();
         jda.awaitReady();
         // jda.getGuildById("1251126347502325851").updateCommands().queue();
-        jda.getGuildById("1251126347502325851").updateCommands().addCommands(commandManager.getSlashCommandData()).queue();
-        listenersRegistrar.RegisterAllListeners(jda);
+        jda.getGuildById("1251126347502325851").updateCommands().addCommands(commandsManager.getSlashCommandData()).queue();
+        listenersManager.registerListeners(jda);
 
         logger.info("Bot {} started", jda.getSelfUser().getName());
     }

@@ -1,18 +1,17 @@
-package com.bot.database.dao;
+package io.nexusbot.database.dao;
 
 import java.util.List;
 
-import com.bot.database.HibernateUtil;
-import com.bot.database.entities.GuildEntity;
-import com.bot.database.interfaces.IGuildEntityDao;
+import io.nexusbot.database.HibernateUtil;
+import io.nexusbot.database.entities.GuildEntity;
+import io.nexusbot.database.interfaces.IGuildEntityDao;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 public class GuildEntityDao implements IGuildEntityDao {
-
     @Override
-    public GuildEntity getOwnerId(long guildId) {
+    public GuildEntity get(long guildId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.get(GuildEntity.class, guildId);
         }
@@ -29,22 +28,13 @@ public class GuildEntityDao implements IGuildEntityDao {
     public void save(GuildEntity guild) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Transaction ta = session.beginTransaction();
-            session.persist(guild);
-            ta.commit();
-        }
-    }
-
-    @Override
-    public void update(GuildEntity guild) {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Transaction ta = session.beginTransaction();
             session.merge(guild);
             ta.commit();
         }
     }
 
     @Override
-    public void delete(GuildEntity guild) {
+    public void remove(GuildEntity guild) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Transaction ta = session.beginTransaction();
             session.remove(guild);

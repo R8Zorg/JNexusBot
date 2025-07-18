@@ -1,6 +1,6 @@
-package com.bot.database;
+package io.nexusbot.database;
 
-import com.bot.database.entities.GuildEntity;
+import io.nexusbot.database.entities.GuildEntity;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;

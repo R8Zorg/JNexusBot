@@ -1,8 +1,7 @@
-package com.bot.modules.commands;
+package io.nexusbot.modules.commands;
 
-import com.bot.core.annotations.Command;
-import com.bot.core.annotations.SlashCommands;
-
+import io.github.r8zorg.jdatools.annotations.Command;
+import io.github.r8zorg.jdatools.annotations.SlashCommands;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 @SlashCommands

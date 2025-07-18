@@ -1,4 +1,4 @@
-package com.bot.database.entities;
+package io.nexusbot.database.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

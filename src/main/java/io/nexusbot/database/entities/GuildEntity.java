@@ -11,15 +11,15 @@ public class GuildEntity {
     @Id
     private long id;
     @Column
-    private long owner_id;
+    private long ownerId;
 
     public GuildEntity() {
 
     }
 
-    public GuildEntity(long id, long owner_id) {
+    public GuildEntity(long id, long ownerId) {
         this.id = id;
-        this.owner_id = owner_id;
+        this.ownerId = ownerId;
     }
 
     public long getId() {
@@ -31,15 +31,15 @@ public class GuildEntity {
     }
 
     public long getOwnerId() {
-        return owner_id;
+        return ownerId;
     }
 
     public void setOwnerId(long id) {
-        owner_id = id;
+        ownerId = id;
     }
 
     @Override
     public String toString() {
-        return "GuildEntity{id=" + id + ", owner_id=" + owner_id + "}";
+        return "GuildEntity{id=" + id + ", owner_id=" + ownerId + "}";
     }
 }

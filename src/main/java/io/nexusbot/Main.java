@@ -33,8 +33,8 @@ public class Main {
         // jda.updateCommands().queue();
         // jda.updateCommands().addCommands(commandsManager.getSlashCommandData()).queue();
         jda.awaitReady();
-        // jda.getGuildById("1251126347502325851").updateCommands().queue();
-        jda.getGuildById("1251126347502325851").updateCommands().addCommands(commandsManager.getSlashCommandData()).queue();
+        // jda.getGuildById("1129063388018921532").updateCommands().queue();
+        jda.getGuildById("1129063388018921532").updateCommands().addCommands(commandsManager.getSlashCommandData()).queue();
         listenersManager.registerListeners(jda);
 
         logger.info("Bot {} started", jda.getSelfUser().getName());

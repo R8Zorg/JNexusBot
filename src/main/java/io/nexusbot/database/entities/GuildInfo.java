@@ -1,25 +1,36 @@
 package io.nexusbot.database.entities;
 
-import jakarta.persistence.Column;
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "guilds")
-public class GuildEntity {
+@Table
+public class GuildInfo {
     @Id
     private long id;
-    @Column
+
     private long ownerId;
 
-    public GuildEntity() {
+    @OneToOne(mappedBy = "guild", cascade = CascadeType.ALL, orphanRemoval = true)
+    private TempVoiceChannelCreatorRole tempVoiceChannelCreatorRole;
 
+    @OneToMany(mappedBy = "guild", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SpecialGuildRoles> roles;
+
+    public GuildInfo() {
     }
 
-    public GuildEntity(long id, long ownerId) {
+    public GuildInfo(long id, long ownerId) {
         this.id = id;
         this.ownerId = ownerId;
+        roles = new ArrayList<>();
     }
 
     public long getId() {
@@ -42,4 +53,5 @@ public class GuildEntity {
     public String toString() {
         return "GuildEntity{id=" + id + ", owner_id=" + ownerId + "}";
     }
+
 }

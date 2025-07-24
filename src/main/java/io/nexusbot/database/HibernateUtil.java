@@ -39,7 +39,7 @@ public class HibernateUtil {
                     System.out.println("Error: " + e);
                 }
             } catch (Exception e) {
-                System.out.println("Исключение! " + e);
+                System.out.println("Exception: " + e);
             }
         }
         return sessionFactory;

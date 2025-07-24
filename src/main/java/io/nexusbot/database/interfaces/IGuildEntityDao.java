@@ -2,13 +2,13 @@ package io.nexusbot.database.interfaces;
 
 import java.util.List;
 
-import io.nexusbot.database.entities.GuildEntity;
+import io.nexusbot.database.entities.GuildInfo;
 
 public interface IGuildEntityDao {
-    GuildEntity get(long guildId);
-    List<GuildEntity> getAll();
-    void save(GuildEntity guild);
-    void remove(GuildEntity guild);
+    GuildInfo get(long guildId);
+    List<GuildInfo> getAll();
+    void save(GuildInfo guild);
+    void remove(GuildInfo guild);
     
     
 }

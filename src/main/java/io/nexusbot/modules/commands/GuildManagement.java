@@ -2,7 +2,7 @@ package io.nexusbot.modules.commands;
 
 import java.util.List;
 
-import io.nexusbot.database.entities.GuildEntity;
+import io.nexusbot.database.entities.GuildInfo;
 import io.nexusbot.database.services.GuildEntityService;
 
 import io.github.r8zorg.jdatools.annotations.Command;
@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 @SlashCommands
-public class GuildManagment {
+public class GuildManagement {
 
     GuildEntityService guildService = new GuildEntityService();
 
@@ -29,14 +29,14 @@ public class GuildManagment {
 
     @Subcommand(parentNames = "guilds get")
     public void all(SlashCommandInteractionEvent event) {
-        List<GuildEntity> guildEntities = guildService.getAll();
+        List<GuildInfo> guildEntities = guildService.getAll();
         if (guildEntities.isEmpty()) {
             event.reply("Gulds not found").setEphemeral(true).queue();
             return;
         }
         String replyMessage = "";
         JDA jda = event.getJDA();
-        for (GuildEntity guildEntity : guildEntities) {
+        for (GuildInfo guildEntity : guildEntities) {
             Guild guild = jda.getGuildById(guildEntity.getId());
             replyMessage += "- " + guild.getName() + " [`" + guildEntity.getId() + "`]";
         }
@@ -60,7 +60,7 @@ public class GuildManagment {
     public void add(SlashCommandInteractionEvent event,
             @Option(name = "guild_id", description = "Specific guild") String guildId) {
         Guild providedGuild = getGuildOrRepyError(event, guildId);
-        GuildEntity guild = new GuildEntity(providedGuild.getIdLong(), providedGuild.getOwnerIdLong());
+        GuildInfo guild = new GuildInfo(providedGuild.getIdLong(), providedGuild.getOwnerIdLong());
         try {
         guildService.save(guild);
         event.reply("Added").setEphemeral(true).queue();
@@ -74,7 +74,7 @@ public class GuildManagment {
             @Option(name = "guild_id", description = "Specific guild") String guildId) {
         Guild providedGuild = getGuildOrRepyError(event, guildId);
         try {
-            GuildEntity guild = guildService.get(guildId);
+            GuildInfo guild = guildService.get(guildId);
             guildService.remove(guild);
             event.reply("Guild (" + providedGuild.getName() + ") [" + providedGuild.getId() + "] removed")
                     .setEphemeral(true).queue();

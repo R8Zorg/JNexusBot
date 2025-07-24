@@ -22,7 +22,7 @@
 
         <property name="hibernate.transaction.jta.platform">false</property>
 
-
+        <property name="hibernate.physical_naming_strategy">io.nexusbot.database.SnakeCaseNamingStrategy</property>
     </session-factory>
 </hibernate-configuration>
 

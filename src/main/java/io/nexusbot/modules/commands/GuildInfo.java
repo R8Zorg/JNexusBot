@@ -2,7 +2,6 @@ package io.nexusbot.modules.commands;
 
 import io.github.r8zorg.jdatools.annotations.Command;
 import io.github.r8zorg.jdatools.annotations.Option;
-import io.github.r8zorg.jdatools.annotations.SlashCommands;
 import io.github.r8zorg.jdatools.annotations.Subcommand;
 import io.github.r8zorg.jdatools.annotations.SubcommandGroup;
 import net.dv8tion.jda.api.entities.Member;

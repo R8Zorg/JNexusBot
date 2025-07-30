@@ -1,6 +1,5 @@
 package io.nexusbot.modules.listeners;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,11 +9,11 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 @EventListeners
 public class MessagesListener extends ListenerAdapter {
-    final static Logger logger = LoggerFactory.getLogger(MessagesListener.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(MessagesListener.class);
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         String message = event.getMessage().getContentRaw();
-        logger.info("{} wrote: {}", event.getAuthor().getName(), message);
+        LOGGER.info("{} wrote: {}", event.getAuthor().getName(), message);
     }
 }

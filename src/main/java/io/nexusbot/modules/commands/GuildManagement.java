@@ -3,7 +3,7 @@ package io.nexusbot.modules.commands;
 import java.util.List;
 
 import io.nexusbot.database.entities.GuildInfo;
-import io.nexusbot.database.services.GuildEntityService;
+import io.nexusbot.database.services.GuildInfoService;
 
 import io.github.r8zorg.jdatools.annotations.Command;
 import io.github.r8zorg.jdatools.annotations.Option;
@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 @SlashCommands
 public class GuildManagement {
 
-    GuildEntityService guildService = new GuildEntityService();
+    GuildInfoService guildService = new GuildInfoService();
 
     @Command
     public void guilds(SlashCommandInteractionEvent event) {
@@ -74,7 +74,7 @@ public class GuildManagement {
             @Option(name = "guild_id", description = "Specific guild") String guildId) {
         Guild providedGuild = getGuildOrRepyError(event, guildId);
         try {
-            GuildInfo guild = guildService.get(guildId);
+            GuildInfo guild = guildService.get(Long.parseLong(guildId));
             guildService.remove(guild);
             event.reply("Guild (" + providedGuild.getName() + ") [" + providedGuild.getId() + "] removed")
                     .setEphemeral(true).queue();

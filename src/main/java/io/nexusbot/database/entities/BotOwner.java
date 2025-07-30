@@ -6,15 +6,15 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table
-public class BotAuthor {
+public class BotOwner {
     @Id
     private long id;
 
-    public BotAuthor(long id) {
+    public BotOwner(long id) {
         this.id = id;
     }
 
-    public BotAuthor() {
+    public BotOwner() {
     }
 
     public long getId() {
@@ -27,6 +27,6 @@ public class BotAuthor {
 
     @Override
     public String toString() {
-        return "BotAuthor{id=" + id + "}";
+        return "BotOwner{id=" + id + "}";
     }
 }

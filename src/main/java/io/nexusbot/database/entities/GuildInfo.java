@@ -7,7 +7,6 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -18,11 +17,17 @@ public class GuildInfo {
 
     private long ownerId;
 
-    @OneToOne(mappedBy = "guild", cascade = CascadeType.ALL, orphanRemoval = true)
-    private TempVoiceChannelCreatorRole tempVoiceChannelCreatorRole;
+    @OneToMany(mappedBy = "guild", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TempVoiceChannelCreator> tempVoiceChannelCreators;
 
     @OneToMany(mappedBy = "guild", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SpecialGuildRoles> roles;
+    private List<TempVoiceChannel> tempVoiceChannels;
+
+    @OneToMany(mappedBy = "guild", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SpecialRole> roles;
+
+    @OneToMany(mappedBy = "guild", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GuildRole> guildRoles;
 
     public GuildInfo() {
     }

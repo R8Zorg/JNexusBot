@@ -2,44 +2,43 @@ package io.nexusbot.database.dao;
 
 import java.util.List;
 
-import io.nexusbot.database.HibernateUtil;
-import io.nexusbot.database.entities.GuildInfo;
-import io.nexusbot.database.interfaces.IGuildEntityDao;
-
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-public class GuildEntityDao implements IGuildEntityDao {
+import io.nexusbot.database.HibernateUtil;
+import io.nexusbot.database.entities.GuildRole;
+import io.nexusbot.database.interfaces.IGuildRole;
+
+public class GuildRoleDao implements IGuildRole {
     @Override
-    public GuildInfo get(long guildId) {
+    public GuildRole get(long roleId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.get(GuildInfo.class, guildId);
+            return session.get(GuildRole.class, roleId);
         }
     }
 
     @Override
-    public List<GuildInfo> getAll() {
+    public List<GuildRole> getAll(long guildId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery("From GuildEntity", GuildInfo.class).list();
+            return session.createQuery("From GuildRole", GuildRole.class).list();
         }
     }
 
     @Override
-    public void save(GuildInfo guild) {
+    public void add(GuildRole guildRole) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Transaction ta = session.beginTransaction();
-            session.merge(guild);
+            session.merge(guildRole);
             ta.commit();
         }
     }
 
     @Override
-    public void remove(GuildInfo guild) {
+    public void remove(GuildRole guildRole) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Transaction ta = session.beginTransaction();
-            session.remove(guild);
+            session.remove(guildRole);
             ta.commit();
         }
     }
-
 }

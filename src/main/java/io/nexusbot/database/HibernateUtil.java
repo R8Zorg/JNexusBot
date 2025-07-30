@@ -5,6 +5,8 @@ import java.util.List;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
@@ -13,10 +15,9 @@ import jakarta.persistence.Entity;
 
 public class HibernateUtil {
     private static SessionFactory sessionFactory;
-    private static String packagesPath;
+    final static Logger logger = LoggerFactory.getLogger(HibernateUtil.class);
 
-    private HibernateUtil(String packagesPath) {
-        HibernateUtil.packagesPath = packagesPath;
+    private HibernateUtil() {
     }
 
     public static SessionFactory getSessionFactory() {
@@ -24,7 +25,7 @@ public class HibernateUtil {
             try {
                 Configuration configuration = new Configuration().configure();
                 try (ScanResult scanResult = new ClassGraph()
-                        .acceptPackages(packagesPath)
+                        .acceptPackages("io.nexusbot.database")
                         .enableAnnotationInfo()
                         .scan()) {
                     List<ClassInfo> classInfos = scanResult.getClassesWithAnnotation(Entity.class);

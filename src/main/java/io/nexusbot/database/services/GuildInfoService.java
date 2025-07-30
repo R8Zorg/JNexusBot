@@ -3,27 +3,24 @@ package io.nexusbot.database.services;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import io.nexusbot.database.dao.GuildEntityDao;
-import io.nexusbot.database.entities.GuildInfo;
-
 import org.hibernate.ObjectNotFoundException;
 
-public class GuildEntityService {
-    private final GuildEntityDao guildDao = new GuildEntityDao();
+import io.nexusbot.database.dao.GuildInfoDao;
+import io.nexusbot.database.entities.GuildInfo;
+import io.nexusbot.database.interfaces.IGuildInfo;
 
-    public GuildEntityService() {
+public class GuildInfoService implements IGuildInfo {
+    private final GuildInfoDao guildDao = new GuildInfoDao();
+
+    public GuildInfoService() {
     }
 
+    @Override
     public GuildInfo get(long guildId) throws ObjectNotFoundException {
         return guildDao.get(guildId);
     }
 
-    public GuildInfo get(String guildId) throws ObjectNotFoundException {
-        long guildIdLong = Long.parseLong(guildId);
-        return guildDao.get(guildIdLong);
-    }
-
-    public long getOwnerId(long guildId) throws ObjectNotFoundException {
+    public long getOwnerId(long guildId) throws ObjectNotFoundException, NoSuchElementException {
         GuildInfo guild = guildDao.get(guildId);
         if (guild == null) {
             throw new NoSuchElementException("Guild with id " + guildId + " not found in database");
@@ -31,14 +28,17 @@ public class GuildEntityService {
         return guild.getOwnerId();
     }
 
+    @Override
     public List<GuildInfo> getAll() {
         return guildDao.getAll();
     }
 
+    @Override
     public void save(GuildInfo guild) {
         guildDao.save(guild);
     }
 
+    @Override
     public void remove(GuildInfo guild) throws IllegalArgumentException {
         guildDao.remove(guild);
     }

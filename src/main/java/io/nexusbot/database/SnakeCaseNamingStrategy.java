@@ -38,6 +38,9 @@ public class SnakeCaseNamingStrategy implements PhysicalNamingStrategy {
     }
 
     private String toSnakeCase(String text) {
+        if (text == null) {
+            return null;
+        }
         return text.replaceAll("([a-z])([A-Z]+)", "$1_$2").toLowerCase();
     }
 }

@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.r8zorg.jdatools.CommandsManager;
 import io.github.r8zorg.jdatools.ListenersManager;
-import io.github.r8zorg.jdatools.SlashCommandsHandler;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -20,7 +19,7 @@ public class Main {
         Dotenv dotenv = Dotenv.load();
 
         CommandsManager commandsManager = new CommandsManager("io.nexusbot.modules.commands");
-        ListenersManager listenersManager = new ListenersManager("io.nexusbot.modules.listeners");
+        ListenersManager listenersManager = new ListenersManager("io.nexusbot.modules.listeners", commandsManager);
 
         EnumSet<GatewayIntent> gatewayIntents = EnumSet.of(
                 GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES,
@@ -28,15 +27,16 @@ public class Main {
                 GatewayIntent.SCHEDULED_EVENTS);
 
         JDA jda = JDABuilder.createDefault(dotenv.get("TOKEN"), gatewayIntents)
-                .addEventListeners(new SlashCommandsHandler(commandsManager))
+                .addEventListeners(listenersManager.getAllListeners())
                 .build();
-        // jda.updateCommands().queue();
-        // jda.updateCommands().addCommands(commandsManager.getSlashCommandData()).queue();
         jda.awaitReady();
-        // jda.getGuildById("1129063388018921532").updateCommands().queue();
-        jda.getGuildById("1129063388018921532").updateCommands().addCommands(commandsManager.getSlashCommandData()).queue();
-        listenersManager.registerListeners(jda);
+        jda.getGuildById("1129063388018921532").updateCommands().addCommands(commandsManager.getSlashCommandData())
+                .queue();
 
         logger.info("Bot {} started", jda.getSelfUser().getName());
+        // jda.updateCommands().queue();
+        // jda.updateCommands().addCommands(commandsManager.getSlashCommandData()).queue();
+        // jda.getGuildById("1129063388018921532").updateCommands().queue();
+        // listenersManager.registerListeners(jda);
     }
 }

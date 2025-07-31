@@ -22,7 +22,7 @@ public class GuildInfoDao implements IGuildInfo {
         }
     }
 
-    public void save(GuildInfo guild) {
+    public void saveOrUpdate(GuildInfo guild) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Transaction ta = session.beginTransaction();
             session.merge(guild);

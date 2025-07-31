@@ -34,8 +34,8 @@ public class GuildInfoService implements IGuildInfo {
     }
 
     @Override
-    public void save(GuildInfo guild) {
-        guildDao.save(guild);
+    public void saveOrUpdate(GuildInfo guild) {
+        guildDao.saveOrUpdate(guild);
     }
 
     @Override

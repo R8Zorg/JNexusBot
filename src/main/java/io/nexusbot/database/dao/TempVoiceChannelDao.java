@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import io.nexusbot.database.HibernateUtil;
 import io.nexusbot.database.entities.TempVoiceChannel;
@@ -21,10 +22,10 @@ public class TempVoiceChannelDao implements ITempVoiceChannel {
     public long getOwnerId(long voiceChannelId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery(
-                "FROM TempVoiceChannel t WHERE t.ownerId = :voiceChannelId", Long.class)
-                .setParameter("voiceChannelId", voiceChannelId)
-                .uniqueResult();
-                
+                    "FROM TempVoiceChannel t WHERE t.ownerId = :voiceChannelId", Long.class)
+                    .setParameter("voiceChannelId", voiceChannelId)
+                    .uniqueResult();
+
         }
     }
 
@@ -40,4 +41,21 @@ public class TempVoiceChannelDao implements ITempVoiceChannel {
         }
     }
 
+    @Override
+    public void saveOrUpdate(TempVoiceChannel voiceChannel) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Transaction ta = session.beginTransaction();
+            session.merge(voiceChannel);
+            ta.commit();
+        }
+    }
+
+    @Override
+    public void remove(TempVoiceChannel voiceChannel) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Transaction ta = session.beginTransaction();
+            session.remove(voiceChannel);
+            ta.commit();
+        }
+    }
 }

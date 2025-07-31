@@ -59,4 +59,14 @@ public class TempVoiceChannelCreatorService implements ITempVoiceChannelCreator 
     public long getLogChannelId(long voiceChannelId) {
         return voiceCreatorDao.getLogChannelId(voiceChannelId);
     }
+
+    @Override
+    public void saveOrUpdate(TempVoiceChannelCreator voiceChannelCreator) {
+        voiceCreatorDao.saveOrUpdate(voiceChannelCreator);
+    }
+
+    @Override
+    public void remove(TempVoiceChannelCreator voiceChannelCreator) {
+        voiceCreatorDao.remove(voiceChannelCreator);
+    }
 }

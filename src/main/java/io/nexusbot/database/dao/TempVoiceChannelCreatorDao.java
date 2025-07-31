@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import io.nexusbot.database.HibernateUtil;
 import io.nexusbot.database.entities.TempVoiceChannelCreator;
@@ -20,9 +21,9 @@ public class TempVoiceChannelCreatorDao implements ITempVoiceChannelCreator {
 
     private <T> T getFieldByVoiceChannelId(long voiceChannelId, String fieldName, Class<T> fieldType) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            String hql = "SELECT t." + fieldName
+            String query = "SELECT t." + fieldName
                     + " FROM TempVoiceChannelCreator t WHERE t.voiceChannelId = :voiceChannelId";
-            return session.createQuery(hql, fieldType)
+            return session.createQuery(query, fieldType)
                     .setParameter("voiceChannelId", voiceChannelId)
                     .uniqueResult();
         }
@@ -73,5 +74,23 @@ public class TempVoiceChannelCreatorDao implements ITempVoiceChannelCreator {
     @Override
     public long getLogChannelId(long voiceChannelId) {
         return getFieldByVoiceChannelId(voiceChannelId, "logChannelId", Long.class);
+    }
+
+    @Override
+    public void saveOrUpdate(TempVoiceChannelCreator voiceChannelCreator) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Transaction ta = session.beginTransaction();
+            session.merge(voiceChannelCreator);
+            ta.commit();
+        }
+    }
+
+    @Override
+    public void remove(TempVoiceChannelCreator voiceChannelCreator) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Transaction ta = session.beginTransaction();
+            session.remove(voiceChannelCreator);
+            ta.commit();
+        }
     }
 }

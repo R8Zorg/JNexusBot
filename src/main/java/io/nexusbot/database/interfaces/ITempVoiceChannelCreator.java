@@ -7,6 +7,8 @@ import io.nexusbot.database.enums.ChannelMode;
 
 public interface ITempVoiceChannelCreator {
     TempVoiceChannelCreator get(long voiceChannelId);
+    void saveOrUpdate(TempVoiceChannelCreator voiceChannelCreator);
+    void remove(TempVoiceChannelCreator voiceChannelCreator);
     long getTempVoiceChannelCategoryId(long voiceChannelId);
     int getUserLimit(long voiceChannelId);
     String getDefaultTempChannelName(long voiceChannelId);

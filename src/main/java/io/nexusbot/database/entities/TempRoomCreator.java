@@ -3,9 +3,6 @@ package io.nexusbot.database.entities;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
 import io.nexusbot.database.enums.ChannelMode;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -15,21 +12,15 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table
-public class TempVoiceChannelCreator {
+public class TempRoomCreator {
     @Id
     private long id;
 
-    @OneToOne
-    @JoinColumn(name = "guild_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private GuildInfo guild;
-
-    private long tempVoiceChannelCategoryId;
+    private long tempRoomCategoryId;
     private int userLimit = 0;
     private String defaultTempChannelName;
 
@@ -46,12 +37,11 @@ public class TempVoiceChannelCreator {
 
     private Long logChannelId;
 
-    public TempVoiceChannelCreator() {
+    public TempRoomCreator() {
     }
 
-    public TempVoiceChannelCreator(long id, GuildInfo guild) {
+    public TempRoomCreator(long id) {
         this.id = id;
-        this.guild = guild;
     }
 
     public long getId() {
@@ -62,20 +52,12 @@ public class TempVoiceChannelCreator {
         this.id = id;
     }
 
-    public GuildInfo getGuild() {
-        return guild;
+    public long getTempRoomCategoryId() {
+        return tempRoomCategoryId;
     }
 
-    public void setGuild(GuildInfo guild) {
-        this.guild = guild;
-    }
-
-    public long getTempVoiceChannelCategoryId() {
-        return tempVoiceChannelCategoryId;
-    }
-
-    public void setTempVoiceChannelCategoryId(long tempVoiceChannelCategoryId) {
-        this.tempVoiceChannelCategoryId = tempVoiceChannelCategoryId;
+    public void setTempRoomCategoryId(long tempRoomCategoryId) {
+        this.tempRoomCategoryId = tempRoomCategoryId;
     }
 
     public int getUserLimit() {

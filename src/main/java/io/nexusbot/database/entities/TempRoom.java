@@ -6,18 +6,18 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table
-public class GuildInfo {
+public class TempRoom {
     @Id
     private long id;
 
     private long ownerId;
+    private long categoryId;
 
-    public GuildInfo() {
+    public TempRoom(long id) {
+        this.id = id;
     }
 
-    public GuildInfo(long id, long ownerId) {
-        this.id = id;
-        this.ownerId = ownerId;
+    public TempRoom() {
     }
 
     public long getId() {
@@ -32,13 +32,15 @@ public class GuildInfo {
         return ownerId;
     }
 
-    public void setOwnerId(long id) {
-        ownerId = id;
+    public void setOwnerId(long ownerId) {
+        this.ownerId = ownerId;
     }
 
-    @Override
-    public String toString() {
-        return "GuildEntity{id=" + id + ", owner_id=" + ownerId + "}";
+    public long getCategoryId() {
+        return categoryId;
     }
 
+    public void setCategoryId(long categoryId) {
+        this.categoryId = categoryId;
+    }
 }

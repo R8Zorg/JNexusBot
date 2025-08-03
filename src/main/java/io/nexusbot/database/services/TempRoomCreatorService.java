@@ -2,31 +2,37 @@ package io.nexusbot.database.services;
 
 import java.util.List;
 
-import org.hibernate.ObjectNotFoundException;
-
-import io.nexusbot.database.dao.TempVoiceChannelCreatorDao;
-import io.nexusbot.database.entities.TempVoiceChannelCreator;
+import io.nexusbot.database.dao.TempRoomCreatorDao;
+import io.nexusbot.database.entities.TempRoomCreator;
 import io.nexusbot.database.enums.ChannelMode;
-import io.nexusbot.database.interfaces.ITempVoiceChannelCreator;
+import io.nexusbot.database.interfaces.ITempRoomCreator;
 
-public class TempVoiceChannelCreatorService implements ITempVoiceChannelCreator {
-    private final TempVoiceChannelCreatorDao voiceCreatorDao = new TempVoiceChannelCreatorDao();
+public class TempRoomCreatorService implements ITempRoomCreator {
+    private final TempRoomCreatorDao voiceCreatorDao = new TempRoomCreatorDao();
 
-    public TempVoiceChannelCreatorService() {
+    public TempRoomCreatorService() {
     }
 
     @Override
-    public TempVoiceChannelCreator get(long voiceChannelId) throws ObjectNotFoundException {
+    public TempRoomCreator get(long voiceChannelId) {
         return voiceCreatorDao.get(voiceChannelId);
     }
 
-    @Override
-    public long getTempVoiceChannelCategoryId(long voiceChannelId) {
-        return voiceCreatorDao.getTempVoiceChannelCategoryId(voiceChannelId);
+    public TempRoomCreator getOrCreate(long voiceChannelId) {
+        TempRoomCreator tempRoomCreator = get(voiceChannelId);
+        if (tempRoomCreator == null) {
+            tempRoomCreator = new TempRoomCreator(voiceChannelId);
+        }
+        return tempRoomCreator;
     }
 
     @Override
-    public int getUserLimit(long voiceChannelId) {
+    public Long getTempRoomCategoryId(long voiceChannelId) {
+        return voiceCreatorDao.getTempRoomCategoryId(voiceChannelId);
+    }
+
+    @Override
+    public Integer getUserLimit(long voiceChannelId) {
         return voiceCreatorDao.getUserLimit(voiceChannelId);
     }
 
@@ -41,8 +47,8 @@ public class TempVoiceChannelCreatorService implements ITempVoiceChannelCreator 
     }
 
     @Override
-    public boolean getRoleNeeded(long voiceChannelId) {
-        return voiceCreatorDao.getRoleNeeded(voiceChannelId);
+    public boolean isRoleNeeded(long voiceChannelId) {
+        return voiceCreatorDao.isRoleNeeded(voiceChannelId);
     }
 
     @Override
@@ -56,17 +62,17 @@ public class TempVoiceChannelCreatorService implements ITempVoiceChannelCreator 
     }
 
     @Override
-    public long getLogChannelId(long voiceChannelId) {
+    public Long getLogChannelId(long voiceChannelId) {
         return voiceCreatorDao.getLogChannelId(voiceChannelId);
     }
 
     @Override
-    public void saveOrUpdate(TempVoiceChannelCreator voiceChannelCreator) {
+    public void saveOrUpdate(TempRoomCreator voiceChannelCreator) {
         voiceCreatorDao.saveOrUpdate(voiceChannelCreator);
     }
 
     @Override
-    public void remove(TempVoiceChannelCreator voiceChannelCreator) {
+    public void remove(TempRoomCreator voiceChannelCreator) {
         voiceCreatorDao.remove(voiceChannelCreator);
     }
 }

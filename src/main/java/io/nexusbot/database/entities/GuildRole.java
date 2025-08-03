@@ -1,12 +1,7 @@
 package io.nexusbot.database.entities;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -16,10 +11,15 @@ public class GuildRole {
     @Id
     private long id;
 
-    @ManyToOne
-    @JoinColumn(name = "guild_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private GuildInfo guild;
+    private long guildId;
+
+    public GuildRole(long id, long guildId) {
+        this.id = id;
+        this.guildId = guildId;
+    }
+
+    public GuildRole() {
+    }
 
     public long getId() {
         return id;
@@ -29,11 +29,11 @@ public class GuildRole {
         this.id = id;
     }
 
-    public GuildInfo getGuild() {
-        return guild;
+    public long getGuildId() {
+        return guildId;
     }
 
-    public void setGuild(GuildInfo guild) {
-        this.guild = guild;
+    public void setGuildId(long guildId) {
+        this.guildId = guildId;
     }
 }

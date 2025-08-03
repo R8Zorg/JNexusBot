@@ -62,7 +62,7 @@ public class GuildManagement {
         Guild providedGuild = getGuildOrRepyError(event, guildId);
         GuildInfo guild = new GuildInfo(providedGuild.getIdLong(), providedGuild.getOwnerIdLong());
         try {
-        guildService.save(guild);
+        guildService.saveOrUpdate(guild);
         event.reply("Added").setEphemeral(true).queue();
         } catch (Exception e) {
             event.reply("An error occured: " + e.getMessage()).setEphemeral(true).queue();

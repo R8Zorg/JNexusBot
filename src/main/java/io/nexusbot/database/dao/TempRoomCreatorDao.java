@@ -8,7 +8,6 @@ import org.hibernate.Transaction;
 
 import io.nexusbot.database.HibernateUtil;
 import io.nexusbot.database.entities.TempRoomCreator;
-import io.nexusbot.database.enums.ChannelMode;
 import io.nexusbot.database.interfaces.ITempRoomCreator;
 
 public class TempRoomCreatorDao implements ITempRoomCreator {
@@ -40,7 +39,7 @@ public class TempRoomCreatorDao implements ITempRoomCreator {
     }
 
     @Override
-    public ChannelMode getChannelMode(long voiceChannelId) {
+    public String getChannelMode(long voiceChannelId) {
         return extractField(voiceChannelId, TempRoomCreator::getChannelMode);
     }
 

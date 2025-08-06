@@ -3,13 +3,11 @@ package io.nexusbot.database.entities;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.nexusbot.database.enums.ChannelMode;
+import io.nexusbot.componentsData.ChannelMode;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
@@ -24,8 +22,7 @@ public class TempRoomCreator {
     private int userLimit = 0;
     private String defaultTempChannelName;
 
-    @Enumerated(EnumType.STRING)
-    private ChannelMode channelMode = ChannelMode.BASIC;
+    private String channelMode = ChannelMode.basic;
 
     private boolean roleNeeded = false;
     private String roleNotFoundMessage;
@@ -76,14 +73,6 @@ public class TempRoomCreator {
         this.defaultTempChannelName = defaultTempChannelName;
     }
 
-    public ChannelMode getChannelMode() {
-        return channelMode;
-    }
-
-    public void setChannelMode(ChannelMode channelMode) {
-        this.channelMode = channelMode;
-    }
-
     public boolean isRoleNeeded() {
         return roleNeeded;
     }
@@ -114,5 +103,13 @@ public class TempRoomCreator {
 
     public void setLogChannelId(Long logChannelId) {
         this.logChannelId = logChannelId;
+    }
+
+    public String getChannelMode() {
+        return channelMode;
+    }
+
+    public void setChannelMode(String channelMode) {
+        this.channelMode = channelMode;
     }
 }

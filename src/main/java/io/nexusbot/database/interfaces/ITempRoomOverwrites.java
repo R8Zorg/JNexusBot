@@ -1,10 +1,9 @@
 package io.nexusbot.database.interfaces;
 
-import java.util.Map;
-
 import io.nexusbot.database.entities.TempRoomOverwrites;
+import io.nexusbot.database.entities.TempRoomOverwritesPK;
 
 public interface ITempRoomOverwrites {
-    Map<String, Object> getSettings(long ownerId);
+    TempRoomOverwrites get(long ownerId, long guildId);
     void saveOrUpdate(TempRoomOverwrites voiceChannelOverwrites);
 }

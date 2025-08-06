@@ -12,12 +12,12 @@ public class TempRoomService implements ITempRoom {
         return voiceChannelDao.get(voiceChannelId);
     }
 
-    public TempRoom getOrCreate(long voiceChannelId) {
+    public TempRoom getOrCreate(long voiceChannelId, long ownerId, long categoryId) {
         TempRoom tempRoom = get(voiceChannelId);
         if (tempRoom == null) {
-            tempRoom = new TempRoom(voiceChannelId);
+            tempRoom = new TempRoom(voiceChannelId, ownerId, categoryId);
         }
-        return tempRoom;
+        return tempRoom != null ? tempRoom : null;
     }
 
     @Override

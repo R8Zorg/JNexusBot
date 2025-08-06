@@ -12,9 +12,13 @@ public class TempRoom {
 
     private long ownerId;
     private long categoryId;
+    private Long channelLogId;
+    private Long logMessageId;
 
-    public TempRoom(long id) {
+    public TempRoom(long id, long ownerId, long categoryId) {
         this.id = id;
+        this.ownerId = ownerId;
+        this.categoryId = categoryId;
     }
 
     public TempRoom() {
@@ -42,5 +46,21 @@ public class TempRoom {
 
     public void setCategoryId(long categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public Long getChannelLogId() {
+        return channelLogId;
+    }
+
+    public void setChannelLogId(long channelCreatorId) {
+        this.channelLogId = channelCreatorId;
+    }
+
+    public Long getLogMessageId() {
+        return logMessageId;
+    }
+
+    public void setLogMessageId(Long logMessageId) {
+        this.logMessageId = logMessageId;
     }
 }

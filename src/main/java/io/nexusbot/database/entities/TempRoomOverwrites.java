@@ -1,47 +1,47 @@
 package io.nexusbot.database.entities;
 
-import java.util.Map;
+import java.util.List;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
 
 import org.hibernate.annotations.Type;
 
+import io.nexusbot.componentsData.PermissionOverwrite;
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
 @Table
 public class TempRoomOverwrites {
-    @Id
-    private long ownerId;
+    @EmbeddedId
+    private TempRoomOverwritesPK tempRoomOverwritesPK;
 
     @Type(JsonType.class)
-    @Column(columnDefinition = "jsonb")
-    private Map<String, Object> overwrites;
+    @Column(columnDefinition = "json")
+    private List<PermissionOverwrite> overwrites;
 
     public TempRoomOverwrites() {
     }
 
-    public TempRoomOverwrites(long ownerId, Map<String, Object> channelSettings) {
-        this.ownerId = ownerId;
-        this.overwrites = channelSettings;
+    public TempRoomOverwrites(long ownerId, long guildId) {
+        tempRoomOverwritesPK = new TempRoomOverwritesPK(ownerId, guildId);
     }
 
-    public long getOwnerId() {
-        return ownerId;
+    public TempRoomOverwritesPK getTempRoomOverwritesPK() {
+        return tempRoomOverwritesPK;
     }
 
-    public void setOwnerId(long ownerId) {
-        this.ownerId = ownerId;
+    public void setTempRoomOverwritesPK(TempRoomOverwritesPK tempRoomOverwritesPK) {
+        this.tempRoomOverwritesPK = tempRoomOverwritesPK;
     }
 
-    public Map<String, Object> getOverwrites() {
+    public List<PermissionOverwrite> getOverwrites() {
         return overwrites;
     }
 
-    public void setOverwrites(Map<String, Object> channelSettings) {
-        this.overwrites = channelSettings;
+    public void setOverwrites(List<PermissionOverwrite> overwrites) {
+        this.overwrites = overwrites;
     }
 }

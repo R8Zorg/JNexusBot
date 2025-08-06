@@ -1,25 +1,19 @@
 package io.nexusbot.database.dao;
 
-import java.util.Map;
-import java.util.NoSuchElementException;
-
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import io.nexusbot.database.HibernateUtil;
 import io.nexusbot.database.entities.TempRoomOverwrites;
+import io.nexusbot.database.entities.TempRoomOverwritesPK;
 import io.nexusbot.database.interfaces.ITempRoomOverwrites;
 
 public class TempRoomOverwritesDao implements ITempRoomOverwrites {
-
     @Override
-    public Map<String, Object> getSettings(long ownerId) {
+    public TempRoomOverwrites get(long ownerId, long guildId) {
+        TempRoomOverwritesPK pk = new TempRoomOverwritesPK(ownerId, guildId);
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            TempRoomOverwrites channelOverwrites = session.get(TempRoomOverwrites.class, ownerId);
-            if (channelOverwrites == null) {
-                throw new NoSuchElementException("tempRoomOverwrites not found for ownerId:" + ownerId);
-            }
-            return channelOverwrites.getOverwrites();
+            return session.get(TempRoomOverwrites.class, pk);
         }
     }
 
@@ -31,5 +25,4 @@ public class TempRoomOverwritesDao implements ITempRoomOverwrites {
             ta.commit();
         }
     }
-
 }

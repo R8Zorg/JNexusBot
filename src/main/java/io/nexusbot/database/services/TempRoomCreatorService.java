@@ -4,7 +4,6 @@ import java.util.List;
 
 import io.nexusbot.database.dao.TempRoomCreatorDao;
 import io.nexusbot.database.entities.TempRoomCreator;
-import io.nexusbot.database.enums.ChannelMode;
 import io.nexusbot.database.interfaces.ITempRoomCreator;
 
 public class TempRoomCreatorService implements ITempRoomCreator {
@@ -42,7 +41,7 @@ public class TempRoomCreatorService implements ITempRoomCreator {
     }
 
     @Override
-    public ChannelMode getChannelMode(long voiceChannelId) {
+    public String getChannelMode(long voiceChannelId) {
         return voiceCreatorDao.getChannelMode(voiceChannelId);
     }
 

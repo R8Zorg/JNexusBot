@@ -8,21 +8,21 @@ public class TempRoomService implements ITempRoom {
     private final TempRoomDao voiceChannelDao = new TempRoomDao();
 
     @Override
-    public TempRoom get(long voiceChannelId) {
-        return voiceChannelDao.get(voiceChannelId);
+    public TempRoom get(long roomId) {
+        return voiceChannelDao.get(roomId);
     }
 
-    public TempRoom getOrCreate(long voiceChannelId, long ownerId, long categoryId) {
-        TempRoom tempRoom = get(voiceChannelId);
+    public TempRoom getOrCreate(long roomId, long ownerId, long categoryId) {
+        TempRoom tempRoom = get(roomId);
         if (tempRoom == null) {
-            tempRoom = new TempRoom(voiceChannelId, ownerId, categoryId);
+            tempRoom = new TempRoom(roomId, ownerId, categoryId);
         }
         return tempRoom != null ? tempRoom : null;
     }
 
     @Override
-    public Long getOwnerId(long voiceChannelId) {
-        return voiceChannelDao.getOwnerId(voiceChannelId);
+    public Long getOwnerId(long roomId) {
+        return voiceChannelDao.getOwnerId(roomId);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class TempRoomService implements ITempRoom {
     }
 
     @Override
-    public Long getCategoryId(long voiceChannelId) {
-        return voiceChannelDao.getCategoryId(voiceChannelId);
+    public Long getCategoryId(long roomId) {
+        return voiceChannelDao.getCategoryId(roomId);
     }
 }

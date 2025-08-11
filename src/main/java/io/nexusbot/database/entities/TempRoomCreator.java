@@ -28,7 +28,7 @@ public class TempRoomCreator {
     private String roleNotFoundMessage;
 
     @ElementCollection
-    @CollectionTable(name = "temp_voice_channel_creator_needed_roles_ids", joinColumns = @JoinColumn(name = "guild_id"))
+    @CollectionTable(name = "temp_room_creator_needed_roles_ids", joinColumns = @JoinColumn(name = "guild_id"))
     @Column(name = "role_id")
     private List<Long> neededRolesIds = new ArrayList<>();
 

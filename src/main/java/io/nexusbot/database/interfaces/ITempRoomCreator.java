@@ -5,15 +5,16 @@ import java.util.List;
 import io.nexusbot.database.entities.TempRoomCreator;
 
 public interface ITempRoomCreator {
-    TempRoomCreator get(long voiceChannelId);
-    void saveOrUpdate(TempRoomCreator voiceChannelCreator);
-    void remove(TempRoomCreator voiceChannelCreator);
-    Long getTempRoomCategoryId(long voiceChannelId);
-    Integer getUserLimit(long voiceChannelId);
-    String getDefaultTempChannelName(long voiceChannelId);
-    String getChannelMode(long voiceChannelId);
-    boolean isRoleNeeded(long voiceChannelId);
-    String getRoleNotFoundMessage(long voiceChannelId);
-    List<Long> getNeededRolesIds(long voiceChannelId);
-    Long getLogChannelId(long voiceChannelId);
+    TempRoomCreator get(long roomCreatorId);
+    void saveOrUpdate(TempRoomCreator roomCreator);
+    void remove(TempRoomCreator roomCreator);
+    Long getTempRoomCategoryId(long roomCreatorId);
+    Integer getUserLimit(long roomCreatorId);
+    String getDefaultTempChannelName(long roomCreatorId);
+    String getChannelMode(long roomCreatorId);
+    boolean isRoleNeeded(long roomCreatorId);
+    String getRoleNotFoundMessage(long roomCreatorId);
+    List<Long> getNeededRolesIds(long roomCreatorId);
+    void setNeededRolesIds(long roomCreatorId, List<Long> rolesIds);
+    Long getLogChannelId(long roomCreatorId);
 }

@@ -13,61 +13,66 @@ public class TempRoomCreatorService implements ITempRoomCreator {
     }
 
     @Override
-    public TempRoomCreator get(long voiceChannelId) {
-        return voiceCreatorDao.get(voiceChannelId);
+    public TempRoomCreator get(long roomCreatorId) {
+        return voiceCreatorDao.get(roomCreatorId);
     }
 
-    public TempRoomCreator getOrCreate(long voiceChannelId) {
-        TempRoomCreator tempRoomCreator = get(voiceChannelId);
+    public TempRoomCreator getOrCreate(long roomCreatorId) {
+        TempRoomCreator tempRoomCreator = get(roomCreatorId);
         if (tempRoomCreator == null) {
-            tempRoomCreator = new TempRoomCreator(voiceChannelId);
+            tempRoomCreator = new TempRoomCreator(roomCreatorId);
         }
         return tempRoomCreator;
     }
 
     @Override
-    public Long getTempRoomCategoryId(long voiceChannelId) {
-        return voiceCreatorDao.getTempRoomCategoryId(voiceChannelId);
+    public Long getTempRoomCategoryId(long roomCreatorId) {
+        return voiceCreatorDao.getTempRoomCategoryId(roomCreatorId);
     }
 
     @Override
-    public Integer getUserLimit(long voiceChannelId) {
-        return voiceCreatorDao.getUserLimit(voiceChannelId);
+    public Integer getUserLimit(long roomCreatorId) {
+        return voiceCreatorDao.getUserLimit(roomCreatorId);
     }
 
     @Override
-    public String getDefaultTempChannelName(long voiceChannelId) {
-        return voiceCreatorDao.getDefaultTempChannelName(voiceChannelId);
+    public String getDefaultTempChannelName(long roomCreatorId) {
+        return voiceCreatorDao.getDefaultTempChannelName(roomCreatorId);
     }
 
     @Override
-    public String getChannelMode(long voiceChannelId) {
-        return voiceCreatorDao.getChannelMode(voiceChannelId);
+    public String getChannelMode(long roomCreatorId) {
+        return voiceCreatorDao.getChannelMode(roomCreatorId);
     }
 
     @Override
-    public boolean isRoleNeeded(long voiceChannelId) {
-        return voiceCreatorDao.isRoleNeeded(voiceChannelId);
+    public boolean isRoleNeeded(long roomCreatorId) {
+        return voiceCreatorDao.isRoleNeeded(roomCreatorId);
     }
 
     @Override
-    public String getRoleNotFoundMessage(long voiceChannelId) {
-        return voiceCreatorDao.getRoleNotFoundMessage(voiceChannelId);
+    public String getRoleNotFoundMessage(long roomCreatorId) {
+        return voiceCreatorDao.getRoleNotFoundMessage(roomCreatorId);
     }
 
     @Override
-    public List<Long> getNeededRolesIds(long voiceChannelId) {
-        return voiceCreatorDao.getNeededRolesIds(voiceChannelId);
+    public List<Long> getNeededRolesIds(long roomCreatorId) {
+        return voiceCreatorDao.getNeededRolesIds(roomCreatorId);
     }
 
     @Override
-    public Long getLogChannelId(long voiceChannelId) {
-        return voiceCreatorDao.getLogChannelId(voiceChannelId);
+    public void setNeededRolesIds(long roomCreatorId, List<Long> rolesIds) {
+        voiceCreatorDao.setNeededRolesIds(roomCreatorId, rolesIds);
     }
 
     @Override
-    public void saveOrUpdate(TempRoomCreator voiceChannelCreator) {
-        voiceCreatorDao.saveOrUpdate(voiceChannelCreator);
+    public Long getLogChannelId(long roomCreatorId) {
+        return voiceCreatorDao.getLogChannelId(roomCreatorId);
+    }
+
+    @Override
+    public void saveOrUpdate(TempRoomCreator roomCreator) {
+        voiceCreatorDao.saveOrUpdate(roomCreator);
     }
 
     @Override

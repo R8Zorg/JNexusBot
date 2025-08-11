@@ -11,20 +11,20 @@ import io.nexusbot.database.interfaces.ITempRoom;
 
 public class TempRoomDao implements ITempRoom {
     @Override
-    public TempRoom get(long voiceChannelId) {
+    public TempRoom get(long roomId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.get(TempRoom.class, voiceChannelId);
+            return session.get(TempRoom.class, roomId);
         }
     }
 
-    private <T> T extractField(long voiceChannelId, Function<TempRoom, T> extractor) {
-        TempRoom tempRoom = get(voiceChannelId);
+    private <T> T extractField(long roomId, Function<TempRoom, T> extractor) {
+        TempRoom tempRoom = get(roomId);
         return tempRoom == null ? null : extractor.apply(tempRoom);
     }
 
     @Override
-    public Long getOwnerId(long voiceChannelId) {
-        return extractField(voiceChannelId, TempRoom::getOwnerId);
+    public Long getOwnerId(long roomId) {
+        return extractField(roomId, TempRoom::getOwnerId);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class TempRoomDao implements ITempRoom {
     }
 
     @Override
-    public Long getCategoryId(long voiceChannelId) {
-        return extractField(voiceChannelId, TempRoom::getCategoryId);
+    public Long getCategoryId(long roomId) {
+        return extractField(roomId, TempRoom::getCategoryId);
     }
 }

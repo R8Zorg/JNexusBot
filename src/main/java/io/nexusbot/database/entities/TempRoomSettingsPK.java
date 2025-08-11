@@ -5,16 +5,16 @@ import java.io.Serializable;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
-public class TempRoomOverwritesPK implements Serializable {
+public class TempRoomSettingsPK implements Serializable {
     protected long ownerId;
     protected long guildId;
 
-    public TempRoomOverwritesPK(long ownerId, long guildId) {
+    public TempRoomSettingsPK(long ownerId, long guildId) {
         this.ownerId = ownerId;
         this.guildId = guildId;
     }
 
-    public TempRoomOverwritesPK() {
+    public TempRoomSettingsPK() {
     }
 
     public long getOwnerId() {
@@ -53,7 +53,7 @@ public class TempRoomOverwritesPK implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        TempRoomOverwritesPK other = (TempRoomOverwritesPK) obj;
+        TempRoomSettingsPK other = (TempRoomSettingsPK) obj;
         if (ownerId != other.ownerId) {
             return false;
         }

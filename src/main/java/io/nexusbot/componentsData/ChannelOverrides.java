@@ -1,19 +1,19 @@
 package io.nexusbot.componentsData;
 
-public class PermissionOverwrite {
+public class ChannelOverrides {
     private String id;
     private String type;
     private long allow;
     private long deny;
 
-    public PermissionOverwrite(String id, String type, long allow, long deny) {
+    public ChannelOverrides(String id, String type, long allow, long deny) {
         this.id = id;
         this.type = type;
         this.allow = allow;
         this.deny = deny;
     }
 
-    public PermissionOverwrite() {
+    public ChannelOverrides() {
     }
 
     public String getId() {
@@ -70,7 +70,7 @@ public class PermissionOverwrite {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        PermissionOverwrite other = (PermissionOverwrite) obj;
+        ChannelOverrides other = (ChannelOverrides) obj;
         if (id == null) {
             if (other.id != null) {
                 return false;

@@ -1,37 +1,41 @@
 package io.nexusbot.modules.listeners.tempRooms;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.github.r8zorg.jdatools.annotations.EventListeners;
-import io.nexusbot.componentsData.PermissionOverwrite;
+import io.nexusbot.componentsData.ChannelOverrides;
 import io.nexusbot.database.entities.TempRoom;
-import io.nexusbot.database.entities.TempRoomOverwrites;
-import io.nexusbot.database.services.TempRoomOverwritesService;
+import io.nexusbot.database.entities.TempRoomSettings;
 import io.nexusbot.database.services.TempRoomService;
+import io.nexusbot.database.services.TempRoomSettingsService;
+import io.nexusbot.utils.OverridesUtil;
 import net.dv8tion.jda.api.entities.PermissionOverride;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 @EventListeners
 public class OnLeftTempChannel extends ListenerAdapter {
+    private final Logger LOGGER = LoggerFactory.getLogger(OnLeftTempChannel.class);
     private TempRoomService tempRoomService = new TempRoomService();
-    private TempRoomOverwritesService roomOverwritesService = new TempRoomOverwritesService();
+    private TempRoomSettingsService roomOverridesService = new TempRoomSettingsService();
 
-    private void saveRoomOverwrites(VoiceChannel voiceChannel, long ownerId, List<PermissionOverride> newOverwrites) {
-        List<PermissionOverwrite> overwrites = new ArrayList<>();
-        newOverwrites.forEach(po -> {
-            String id = po.getId();
-            String type = po.isMemberOverride() ? "member" : "role";
-            long allow = po.getAllowedRaw();
-            long deny = po.getDeniedRaw();
+    private void saveRoomSettings(VoiceChannel voiceChannel, long ownerId, List<PermissionOverride> newOverrides) {
+        List<ChannelOverrides> overwrites = OverridesUtil.serrializeOverrides(newOverrides);
+        TempRoomSettings roomOverrides = roomOverridesService.getOrCreate(ownerId, voiceChannel.getGuild().getIdLong());
+        roomOverrides.setOverrides(overwrites);
+        roomOverridesService.saveOrUpdate(roomOverrides);
+    }
 
-            overwrites.add(new PermissionOverwrite(id, type, allow, deny));
-        });
-        TempRoomOverwrites roomOverwrites = roomOverwritesService.getOrCreate(ownerId, voiceChannel.getGuild().getIdLong());
-        roomOverwrites.setOverwrites(overwrites);
-        roomOverwritesService.saveOrUpdate(roomOverwrites);
+    private void deleteInfoMessage(GuildVoiceUpdateEvent event, TempRoom room) {
+        TextChannel infoChannel = event.getGuild().getChannelById(TextChannel.class, room.getChannelLogId());
+        infoChannel.deleteMessageById(room.getLogMessageId()).queue();
     }
 
     @Override
@@ -40,19 +44,24 @@ public class OnLeftTempChannel extends ListenerAdapter {
             return;
         }
         VoiceChannel leftChannel = (VoiceChannel) event.getChannelLeft();
+
         TempRoom tempRoom = tempRoomService.get(leftChannel.getIdLong());
+        // LOGGER.info("Left from channel: {} [{}]", leftChannel.getName(), leftChannel.getIdLong());
         if (tempRoom == null) {
             return;
         }
+        // LOGGER.info("{} [{}] is temp room\n", leftChannel.getName(), leftChannel.getIdLong());
 
         if (leftChannel.getMembers().isEmpty()) {
-            saveRoomOverwrites(leftChannel, tempRoom.getOwnerId(), leftChannel.getPermissionOverrides());
+            saveRoomSettings(leftChannel, tempRoom.getOwnerId(), leftChannel.getPermissionOverrides());
             leftChannel.delete().queue();
             if (tempRoom.getLogMessageId() != null) {
-                // TODO: delete message
+                deleteInfoMessage(event, tempRoom);
             }
             tempRoomService.remove(tempRoom);
             return;
         }
+        // CompletableFuture.runAsync(() -> {
+        // }, CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS));
     }
 }

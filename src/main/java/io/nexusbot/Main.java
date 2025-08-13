@@ -24,7 +24,7 @@ public class Main {
         EnumSet<GatewayIntent> gatewayIntents = EnumSet.of(
                 GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES,
                 GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_EXPRESSIONS,
-                GatewayIntent.SCHEDULED_EVENTS);
+                GatewayIntent.SCHEDULED_EVENTS, GatewayIntent.GUILD_VOICE_STATES);
 
         JDA jda = JDABuilder.createDefault(dotenv.get("TOKEN"), gatewayIntents)
                 .addEventListeners(listenersManager.getAllListeners())

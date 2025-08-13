@@ -165,10 +165,10 @@ public class SetupTempRooms {
         }
     }
 
-    private void resetSettings(TempRoomCreator tempRoomCreator, VoiceChannel roomCreator, Boolean all,
-            Boolean userLimit, Boolean defalutChannelName, Boolean channelMode,
-            Boolean isRoleNeeded, Boolean roleNotFoundMessage, Boolean neededRolesIds, Boolean logChannel) {
-        if (all) {
+    private void resetSettings(TempRoomCreator tempRoomCreator, VoiceChannel roomCreator, String all,
+            String userLimit, String defalutChannelName, String channelMode,
+            String isRoleNeeded, String roleNotFoundMessage, String neededRolesIds, String logChannel) {
+        if (all != null) {
             tempRoomCreator.setUserLimit(0);
             tempRoomCreator.setDefaultTempChannelName(null);
             tempRoomCreator.setChannelMode(ChannelMode.basic);
@@ -179,25 +179,25 @@ public class SetupTempRooms {
             creatorService.setNeededRolesIds(roomCreator.getIdLong(), Collections.emptyList());
             return;
         }
-        if (userLimit) {
+        if (userLimit != null) {
             tempRoomCreator.setUserLimit(0);
         }
-        if (defalutChannelName) {
+        if (defalutChannelName != null) {
             tempRoomCreator.setDefaultTempChannelName(null);
         }
-        if (channelMode) {
+        if (channelMode != null) {
             tempRoomCreator.setChannelMode(ChannelMode.basic);
         }
-        if (isRoleNeeded) {
+        if (isRoleNeeded != null) {
             tempRoomCreator.setRoleNeeded(false);
         }
-        if (roleNotFoundMessage) {
+        if (roleNotFoundMessage != null) {
             tempRoomCreator.setRoleNotFoundMessage(null);
         }
-        if (neededRolesIds) {
+        if (neededRolesIds != null) {
             creatorService.setNeededRolesIds(roomCreator.getIdLong(), Collections.emptyList());
         }
-        if (logChannel) {
+        if (logChannel != null) {
             tempRoomCreator.setLogChannelId(null);
         }
         creatorService.saveOrUpdate(tempRoomCreator);
@@ -208,22 +208,31 @@ public class SetupTempRooms {
             @Option(name = "creator", description = "Канал-создатель", channelType = ChannelType.VOICE) VoiceChannel roomCreator,
             @Option(name = "category", description = "Категория для нового канала", channelType = ChannelType.CATEGORY) Category category,
 
-            @Option(name = "all", description = "Сбросить все настройки", required = false) Boolean all,
-            @Option(name = "limit", description = "Сбросить лимит пользователей в новом канале", required = false) Boolean userLimit,
-            @Option(name = "name", description = "Сбросить начальное название нового канала", required = false) Boolean defalutChannelName,
-            @Option(name = "mode", description = "Сбросить тип канала", required = false) Boolean channelMode,
-            @Option(name = "role-needed", description = "Сбросить нужна ли роль для канала", required = false) Boolean isRoleNeeded,
-            @Option(name = "empty-role-message", description = "Сбросить сообщение, которое отправит бот, если у участника нет нужной роли", required = false) Boolean roleNotFoundMessage,
-            @Option(name = "roles-ids", description = "Сбросить ID ролей для доступа к каналу. Перечислить сразу все через пробел", required = false) Boolean neededRolesIds,
-            @Option(name = "log-channel", description = "Сбросить канал, в который будет отправляться информация о созданных ОБЫЧНЫХ каналах", required = false) Boolean logChannel) {
+            @Option(name = "all", description = "Сбросить все настройки", required = false, choices = {
+                    @Choice(name = "Да", value = "yes") }) String all,
+            @Option(name = "limit", description = "Сбросить лимит пользователей в новом канале", required = false, choices = {
+                    @Choice(name = "Да", value = "yes") }) String userLimit,
+            @Option(name = "name", description = "Сбросить начальное название нового канала", required = false, choices = {
+                    @Choice(name = "Да", value = "yes") }) String defalutChannelName,
+            @Option(name = "mode", description = "Сбросить тип канала", required = false, choices = {
+                    @Choice(name = "Да", value = "yes") }) String channelMode,
+            @Option(name = "role-needed", description = "Сбросить нужна ли роль для канала", required = false, choices = {
+                    @Choice(name = "Да", value = "yes") }) String isRoleNeeded,
+            @Option(name = "empty-role-message", description = "Сбросить сообщение, которое отправит бот, если у участника нет нужной роли", required = false, choices = {
+                    @Choice(name = "Да", value = "yes") }) String roleNotFoundMessage,
+            @Option(name = "roles-ids", description = "Сбросить ID ролей для доступа к каналу. Перечислить сразу все через пробел", required = false, choices = {
+                    @Choice(name = "Да", value = "yes") }) String neededRolesIds,
+            @Option(name = "log-channel", description = "Сбросить канал, в который будет отправляться информация о созданных ОБЫЧНЫХ каналах", required = false, choices = {
+                    @Choice(name = "Да", value = "yes") }) String logChannel) {
         event.deferReply(true).queue();
         TempRoomCreator tempRoomCreator = creatorService.get(roomCreator.getIdLong());
         if (tempRoomCreator == null) {
             EmbedUtil.replyEmbed(event.getHook(), "Указанный канал и категория не найдены в базе данных", Color.RED);
             return;
         }
-        resetSettings(tempRoomCreator, roomCreator, all, userLimit, defalutChannelName, channelMode, isRoleNeeded, roleNotFoundMessage, neededRolesIds, logChannel);
-        EmbedUtil.replyEmbed(event, "Настройки успешно сброшены", Color.GREEN);
+        resetSettings(tempRoomCreator, roomCreator, all, userLimit, defalutChannelName, channelMode, isRoleNeeded,
+                roleNotFoundMessage, neededRolesIds, logChannel);
+        EmbedUtil.replyEmbed(event.getHook(), "Настройки успешно сброшены", Color.GREEN);
     }
 
     @Subcommand(parentNames = "setup rooms", description = "Отвязать комнату от бота. Удаляет все настройки заданного канала")

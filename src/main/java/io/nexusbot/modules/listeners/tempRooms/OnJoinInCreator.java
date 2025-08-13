@@ -2,6 +2,8 @@ package io.nexusbot.modules.listeners.tempRooms;
 
 import java.awt.Color;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,8 @@ import io.nexusbot.database.entities.TempRoomSettings;
 import io.nexusbot.database.services.TempRoomCreatorService;
 import io.nexusbot.database.services.TempRoomService;
 import io.nexusbot.database.services.TempRoomSettingsService;
+import io.nexusbot.utils.EmbedUtil;
+import io.nexusbot.utils.MessageActionUtil;
 import io.nexusbot.utils.OverridesUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -27,6 +31,7 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 
 @EventListeners
 public class OnJoinInCreator extends ListenerAdapter {
@@ -35,18 +40,10 @@ public class OnJoinInCreator extends ListenerAdapter {
     private TempRoomService tempRoomService = new TempRoomService();
     private TempRoomSettingsService roomSettingsService = new TempRoomSettingsService();
 
-    private void saveRoomToDb(VoiceChannel createdRoom, long memberId, long channelLogId, long sentLogMessageId) {
-        TempRoom voiceChannel = new TempRoom(
-                createdRoom.getIdLong(), memberId, createdRoom.getParentCategoryIdLong());
-        voiceChannel.setChannelLogId(channelLogId);
-        voiceChannel.setLogMessageId(sentLogMessageId);
-        tempRoomService.saveOrUpdate(voiceChannel);
-    }
-
-    private void saveRoomToDb(VoiceChannel createdRoom, long memberId) {
-        TempRoom voiceChannel = new TempRoom(
-                createdRoom.getIdLong(), memberId, createdRoom.getParentCategoryIdLong());
-        tempRoomService.saveOrUpdate(voiceChannel);
+    private void deleteSentInfoMessage(Guild guild, TempRoom tempRoom) {
+        Long channelId = tempRoom.getChannelLogId();
+        Long messageId = tempRoom.getLogMessageId();
+        MessageActionUtil.deleteInfoMessage(guild, channelId, messageId);
     }
 
     private void deleteRoomFromDbAndGuild(VoiceChannel createdRoom) {
@@ -54,10 +51,9 @@ public class OnJoinInCreator extends ListenerAdapter {
         if (tempRoom != null) {
             tempRoomService.remove(tempRoom);
         }
-        try {
-            createdRoom.delete().queue();
-        } catch (Exception e) {
-        }
+        createdRoom.delete().queue(_ -> {
+        }, _ -> {
+        });
     }
 
     private MessageEmbed generateInitialEmbedMessage(VoiceChannel voiceChannel, TempRoomCreator roomCreator,
@@ -83,16 +79,6 @@ public class OnJoinInCreator extends ListenerAdapter {
         return false;
     }
 
-    private void updateRoomOverrides(VoiceChannel createdRoom, Member member) {
-        List<ChannelOverrides> ownerOverrides = roomSettingsService.getOverrides(member.getIdLong(),
-                member.getGuild().getIdLong());
-        List<ChannelOverrides> initialOverrides = OverridesUtil
-                .serrializeOverrides(createdRoom.getPermissionOverrides());
-
-        OverridesUtil.updateChannelOverrides(createdRoom, ownerOverrides);
-        OverridesUtil.updateChannelOverrides(createdRoom, initialOverrides);
-    }
-
     private Role getNeededRole(GuildVoiceUpdateEvent event, List<Long> neededRolesIds) {
         List<Role> memberRoles = event.getMember().getRoles();
         for (Long roleId : neededRolesIds) {
@@ -105,7 +91,7 @@ public class OnJoinInCreator extends ListenerAdapter {
     }
 
     private void sendAndSaveInfoMessageAndRoom(GuildVoiceUpdateEvent event, VoiceChannel createdRoom,
-            TempRoomCreator roomCreator, Role neededRole) {
+            TempRoomCreator roomCreator, Role neededRole, TempRoom tempRoom) {
         Color color = Color.decode("#2f3136");
         String iconUrl = null;
         if (neededRole != null) {
@@ -119,11 +105,21 @@ public class OnJoinInCreator extends ListenerAdapter {
         TextChannel infoChannel = event.getGuild().getChannelById(TextChannel.class, roomCreator.getLogChannelId());
         try {
             infoChannel.sendMessageEmbeds(embed).queue(sentMessage -> {
-                saveRoomToDb(createdRoom, event.getMember().getIdLong(), roomCreator.getLogChannelId(),
-                        sentMessage.getIdLong());
+                tempRoom.setChannelLogId(roomCreator.getLogChannelId());
+                tempRoom.setLogMessageId(sentMessage.getIdLong());
+                tempRoomService.saveOrUpdate(tempRoom);
             });
-        } catch (Exception e) {
-            LOGGER.warn("Не удалось отправить сообщение в канал {}", infoChannel.getIdLong());
+        } catch (InsufficientPermissionException e) {
+            tempRoomService.saveOrUpdate(tempRoom);
+            EmbedUtil.sendEmbed(createdRoom,
+                    "Нет прав для отправки сообщения в канал " + infoChannel.getAsMention() + "(`"
+                            + infoChannel.getIdLong() + ")`",
+                    Color.RED);
+            return;
+        } catch (IllegalStateException e) {
+            tempRoomService.saveOrUpdate(tempRoom);
+            EmbedUtil.sendEmbed(createdRoom, "Не найден канал для отправки сообщения. Возможно, он был удалён",
+                    Color.RED);
             return;
         }
 
@@ -132,7 +128,7 @@ public class OnJoinInCreator extends ListenerAdapter {
     private void sendRoleNotFoundMessage(GuildVoiceUpdateEvent event, VoiceChannel createdRoom,
             TempRoomCreator roomCreator, List<Long> neededRolesIds) {
         String roleNotFoundMessage = roomCreator.getRoleNotFoundMessage();
-        String rolesMention = "Заданные роли не найдены";
+        String rolesMention = "";
         for (Long roleId : neededRolesIds) {
             rolesMention += "<@&" + roleId + ">\n";
         }
@@ -141,49 +137,74 @@ public class OnJoinInCreator extends ListenerAdapter {
                     + ", у Вас не была найдена ни одна из следующий ролей для этого канала:"
                     + rolesMention;
         }
-        createdRoom.sendMessage(roleNotFoundMessage).queue(_ -> {
-        }, _ -> LOGGER.warn("Не удалось отправить сообщение об отсутствии нужной роли")); // There should be exception
-                                                                                          // by JDA, not API (use
-                                                                                          // try-catch)
+        try {
+            createdRoom.sendMessage(roleNotFoundMessage).queue(_ -> {
+            }, _ -> LOGGER.warn("Не удалось отправить сообщение об отсутствии нужной роли"));
+        } catch (InsufficientPermissionException e) {
+            LOGGER.warn("Недостаточно прав для отправки сообщения в голосовой канал: {}", e.getMessage());
+        }
     }
 
     private void onceMemberMoved(GuildVoiceUpdateEvent event, VoiceChannel createdRoom, TempRoomCreator roomCreator,
             TempRoomSettings settings, List<Long> neededRolesIds) {
-        LOGGER.info("Once member moved");
-        // if
-        // (!createdRoom.getGuild().getVoiceChannels().contains(createdRoom.getIdLong())
-        // || !isMemberInRoom(event, createdRoom)) {
-        // return;
-        // }
-        if (event.getGuild().getChannelById(VoiceChannel.class, createdRoom.getIdLong()) == null) {
-            LOGGER.warn("Канал оказался пустым");
-            return;
-        }
-        if (!isMemberInRoom(event, createdRoom)) {
-            LOGGER.warn("Пользователя нет в канале");
-            // deleteRoomFromDbAndGuild(createdRoom);
-            createdRoom.delete().queue();
-            return;
-        }
-
-        updateRoomOverrides(createdRoom, event.getMember());
-        // LOGGER.info("Overrides updated for new room: {}\n", createdRoom.getName());
+        CompletableFuture.runAsync(() -> {
+            if (!isMemberInRoom(event, createdRoom)) {
+                TempRoom tempRoom = tempRoomService.get(createdRoom.getIdLong());
+                if (tempRoom != null) {
+                    deleteSentInfoMessage(event.getGuild(), tempRoom);
+                }
+                deleteRoomFromDbAndGuild(createdRoom);
+                return;
+            }
+        }, CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS));
 
         if (settings.getStatus() != null) {
             createdRoom.modifyStatus(settings.getStatus()).queue();
         }
 
         Role neededRole = getNeededRole(event, neededRolesIds);
+        TempRoom tempRoom = new TempRoom(
+                createdRoom.getIdLong(), event.getMember().getIdLong(), createdRoom.getParentCategoryIdLong());
         if (roomCreator.getLogChannelId() != null) {
-            sendAndSaveInfoMessageAndRoom(event, createdRoom, roomCreator, neededRole);
+            sendAndSaveInfoMessageAndRoom(event, createdRoom, roomCreator, neededRole, tempRoom);
         } else {
-            saveRoomToDb(createdRoom, event.getMember().getIdLong());
+            tempRoomService.saveOrUpdate(tempRoom);
         }
-        // LOGGER.info("Room saved to DB\n");
 
         if (roomCreator.isRoleNeeded() && !neededRolesIds.isEmpty() && neededRole == null) {
             sendRoleNotFoundMessage(event, createdRoom, roomCreator, neededRolesIds);
         }
+    }
+
+    private ChannelAction<VoiceChannel> createNewRoom(GuildVoiceUpdateEvent event, TempRoomSettings roomSettings,
+            TempRoomCreator roomCreator) {
+        String roomName = roomSettings.getName() != null ? roomSettings.getName()
+                : event.getMember().getUser().getName() + "'s channel";
+
+        int userLimit = roomSettings.getUserLimit();
+
+        if (roomCreator.getChannelMode().equals(ChannelMode.basic)) {
+            userLimit = roomCreator.getUserLimit();
+            if (roomCreator.getDefaultTempChannelName() != null) {
+                roomName = roomCreator.getDefaultTempChannelName();
+            }
+        }
+        Guild guild = event.getGuild();
+        ChannelAction<VoiceChannel> newRoom = guild
+                .createVoiceChannel(roomName, guild.getCategoryById(roomCreator.getTempRoomCategoryId()))
+                .setUserlimit(userLimit)
+                .setNSFW(roomSettings.isNsfw())
+                .setBitrate(roomSettings.getBitrate());
+
+        List<ChannelOverrides> initialOverrides = OverridesUtil.serrializeOverrides(
+                event.getGuild().getCategoryById(roomCreator.getTempRoomCategoryId()).getPermissionOverrides());
+        List<ChannelOverrides> roomOverrides = roomSettings.getOverrides();
+        if (!roomOverrides.isEmpty()) {
+            OverridesUtil.updateChannelOverrides(newRoom, roomOverrides);
+            OverridesUtil.updateChannelOverrides(newRoom, initialOverrides);
+        }
+        return newRoom;
+
     }
 
     @Override
@@ -207,39 +228,28 @@ public class OnJoinInCreator extends ListenerAdapter {
                 event.getMember().getIdLong(), guild.getIdLong());
 
         List<Long> neededRolesIds = creatorService.getNeededRolesIds(joinedChannelId);
-        String roomName = roomSettings.getName() != null ? roomSettings.getName() : membersName + "'s channel";
-        int userLimit = roomSettings.getUserLimit();
-        if (roomCreator.getChannelMode().equals(ChannelMode.basic)) {
-            userLimit = roomCreator.getUserLimit();
-            if (roomCreator.getDefaultTempChannelName() != null) {
-                roomName = roomCreator.getDefaultTempChannelName();
-            }
-        }
         try {
-            guild.createVoiceChannel(roomName, guild.getCategoryById(roomCreator.getTempRoomCategoryId()))
-                    .setUserlimit(userLimit)
-                    .setNSFW(roomSettings.isNsfw())
-                    .setBitrate(roomSettings.getBitrate())
-                    .queue(createdRoom -> {
-                        saveRoomToDb(createdRoom, event.getMember().getIdLong());
-                        try {
-                            event.getGuild().moveVoiceMember(event.getMember(), createdRoom).queue(_ -> {
-                                onceMemberMoved(event, createdRoom, roomCreator, roomSettings, neededRolesIds);
-                            }, _ -> {
-                                LOGGER.warn("Не удалось переместить участника {} в канал {}", membersName,
-                                        createdRoom.getName());
-                                deleteRoomFromDbAndGuild(createdRoom);
-                            });
-                        } catch (InsufficientPermissionException e) {
-                            LOGGER.warn("Нет прав для перемещения учасника {} в канал: {}", membersName,
-                                    createdRoom.getName());
-                            deleteRoomFromDbAndGuild(createdRoom);
-                        } catch (IllegalStateException e) {
-                            deleteRoomFromDbAndGuild(createdRoom);
-                        }
+            ChannelAction<VoiceChannel> newRoom = createNewRoom(event, roomSettings, roomCreator);
+            newRoom.queue(createdRoom -> {
+                try {
+                    event.getGuild().moveVoiceMember(event.getMember(), createdRoom).queue(_ -> {
+                        onceMemberMoved(event, createdRoom, roomCreator, roomSettings, neededRolesIds);
                     }, _ -> {
-                        LOGGER.warn("Не удалось создать голосовой канал для пользователя {}", membersName);
+                        LOGGER.warn("Не удалось переместить участника {} в канал {}", membersName,
+                                createdRoom.getName());
+                        createdRoom.delete().queue();
                     });
+                } catch (InsufficientPermissionException e) {
+                    LOGGER.warn("Нет прав для перемещения учасника {} в канал: {}", membersName,
+                            createdRoom.getName());
+                    createdRoom.delete().queue();
+                } catch (IllegalStateException e) {
+                    LOGGER.warn("Не удалось переместить пользователя: пользователя нет в канале");
+                    createdRoom.delete().queue();
+                }
+            }, error -> {
+                LOGGER.warn("Не удалось создать голосовой канал для пользователя {}: {}", membersName, error.getMessage());
+            });
         } catch (PermissionException e) {
             LOGGER.warn("Не удалось создать комнату по причине: " + e.getMessage());
         }

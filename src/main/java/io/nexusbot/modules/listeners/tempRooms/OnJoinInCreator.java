@@ -1,6 +1,7 @@
 package io.nexusbot.modules.listeners.tempRooms;
 
 import java.awt.Color;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +22,7 @@ import io.nexusbot.utils.EmbedUtil;
 import io.nexusbot.utils.MessageActionUtil;
 import io.nexusbot.utils.OverridesUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -176,6 +178,23 @@ public class OnJoinInCreator extends ListenerAdapter {
         }
     }
 
+    private void addBotOverrides(ChannelAction<VoiceChannel> newRoom, GuildVoiceUpdateEvent event) {
+        EnumSet<Permission> permissions = EnumSet.of(Permission.VIEW_CHANNEL, Permission.VOICE_MOVE_OTHERS);
+        newRoom.addMemberPermissionOverride(event.getJDA().getSelfUser().getIdLong(), permissions, null);
+    }
+
+    private void updateRoomOverrides(GuildVoiceUpdateEvent event, ChannelAction<VoiceChannel> newRoom,
+            TempRoomCreator roomCreator, TempRoomSettings roomSettings) {
+        List<ChannelOverrides> initialOverrides = OverridesUtil.serrializeOverrides(
+                event.getGuild().getCategoryById(roomCreator.getTempRoomCategoryId()).getPermissionOverrides());
+        List<ChannelOverrides> roomOverrides = roomSettings.getOverrides();
+        if (!roomOverrides.isEmpty()) {
+            OverridesUtil.updateChannelOverrides(newRoom, roomOverrides);
+            OverridesUtil.updateChannelOverrides(newRoom, initialOverrides);
+        }
+        addBotOverrides(newRoom, event);
+    }
+
     private ChannelAction<VoiceChannel> createNewRoom(GuildVoiceUpdateEvent event, TempRoomSettings roomSettings,
             TempRoomCreator roomCreator) {
         String roomName = roomSettings.getName() != null ? roomSettings.getName()
@@ -195,14 +214,8 @@ public class OnJoinInCreator extends ListenerAdapter {
                 .setUserlimit(userLimit)
                 .setNSFW(roomSettings.isNsfw())
                 .setBitrate(roomSettings.getBitrate());
+        updateRoomOverrides(event, newRoom, roomCreator, roomSettings);
 
-        List<ChannelOverrides> initialOverrides = OverridesUtil.serrializeOverrides(
-                event.getGuild().getCategoryById(roomCreator.getTempRoomCategoryId()).getPermissionOverrides());
-        List<ChannelOverrides> roomOverrides = roomSettings.getOverrides();
-        if (!roomOverrides.isEmpty()) {
-            OverridesUtil.updateChannelOverrides(newRoom, roomOverrides);
-            OverridesUtil.updateChannelOverrides(newRoom, initialOverrides);
-        }
         return newRoom;
 
     }
@@ -248,7 +261,8 @@ public class OnJoinInCreator extends ListenerAdapter {
                     createdRoom.delete().queue();
                 }
             }, error -> {
-                LOGGER.warn("Не удалось создать голосовой канал для пользователя {}: {}", membersName, error.getMessage());
+                LOGGER.warn("Не удалось создать голосовой канал для пользователя {}: {}", membersName,
+                        error.getMessage());
             });
         } catch (PermissionException e) {
             LOGGER.warn("Не удалось создать комнату по причине: " + e.getMessage());

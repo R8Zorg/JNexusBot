@@ -24,6 +24,7 @@ import io.nexusbot.utils.OverridesUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.IPermissionHolder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
@@ -178,21 +179,23 @@ public class OnJoinInCreator extends ListenerAdapter {
         }
     }
 
-    private void addBotOverrides(ChannelAction<VoiceChannel> newRoom, GuildVoiceUpdateEvent event) {
+    private void addBotOverrides(VoiceChannel createdRoom, GuildVoiceUpdateEvent event) {
         EnumSet<Permission> permissions = EnumSet.of(Permission.VIEW_CHANNEL, Permission.VOICE_MOVE_OTHERS);
-        newRoom.addMemberPermissionOverride(event.getJDA().getSelfUser().getIdLong(), permissions, null);
+        IPermissionHolder bot = event.getGuild().getMember(event.getJDA().getSelfUser());
+        createdRoom.upsertPermissionOverride(bot)
+                .setAllowed(permissions).queue();
     }
 
-    private void updateRoomOverrides(GuildVoiceUpdateEvent event, ChannelAction<VoiceChannel> newRoom,
+    private void updateRoomOverrides(GuildVoiceUpdateEvent event, VoiceChannel createdRoom,
             TempRoomCreator roomCreator, TempRoomSettings roomSettings) {
+        addBotOverrides(createdRoom, event);
         List<ChannelOverrides> initialOverrides = OverridesUtil.serrializeOverrides(
                 event.getGuild().getCategoryById(roomCreator.getTempRoomCategoryId()).getPermissionOverrides());
         List<ChannelOverrides> roomOverrides = roomSettings.getOverrides();
         if (!roomOverrides.isEmpty()) {
-            OverridesUtil.updateChannelOverrides(newRoom, roomOverrides);
-            OverridesUtil.updateChannelOverrides(newRoom, initialOverrides);
+            OverridesUtil.updateChannelOverrides(createdRoom, roomOverrides);
+            OverridesUtil.updateChannelOverrides(createdRoom, initialOverrides);
         }
-        addBotOverrides(newRoom, event);
     }
 
     private ChannelAction<VoiceChannel> createNewRoom(GuildVoiceUpdateEvent event, TempRoomSettings roomSettings,
@@ -214,7 +217,6 @@ public class OnJoinInCreator extends ListenerAdapter {
                 .setUserlimit(userLimit)
                 .setNSFW(roomSettings.isNsfw())
                 .setBitrate(roomSettings.getBitrate());
-        updateRoomOverrides(event, newRoom, roomCreator, roomSettings);
 
         return newRoom;
 
@@ -244,6 +246,13 @@ public class OnJoinInCreator extends ListenerAdapter {
         try {
             ChannelAction<VoiceChannel> newRoom = createNewRoom(event, roomSettings, roomCreator);
             newRoom.queue(createdRoom -> {
+                try {
+                    updateRoomOverrides(event, createdRoom, roomCreator, roomSettings);
+                } catch (InsufficientPermissionException e) {
+                    LOGGER.warn("Не удалось обновить права канала: {}", e.getMessage());
+                    createdRoom.delete().queue();
+                    return;
+                }
                 try {
                     event.getGuild().moveVoiceMember(event.getMember(), createdRoom).queue(_ -> {
                         onceMemberMoved(event, createdRoom, roomCreator, roomSettings, neededRolesIds);

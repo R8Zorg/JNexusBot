@@ -7,7 +7,7 @@ import io.github.r8zorg.jdatools.annotations.EventListeners;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-@EventListeners
+// @EventListeners
 public class MessagesListener extends ListenerAdapter {
     final static Logger LOGGER = LoggerFactory.getLogger(MessagesListener.class);
 

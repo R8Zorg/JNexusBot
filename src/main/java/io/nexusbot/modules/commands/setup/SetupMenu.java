@@ -1,15 +1,15 @@
-package io.nexusbot.modules.commands;
+package io.nexusbot.modules.commands.setup;
 
-import io.github.r8zorg.jdatools.annotations.Command;
 import io.github.r8zorg.jdatools.annotations.SlashCommands;
+import io.github.r8zorg.jdatools.annotations.Subcommand;
 import io.nexusbot.componentsData.GlobalIds;
 import io.nexusbot.componentsData.MainMenu;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 @SlashCommands
-public class SettingsMenu {
-    @Command
+public class SetupMenu {
+    @Subcommand(parentNames = "setup")
     public void menu(SlashCommandInteractionEvent event) {
         event.reply("")
                 .addActionRow(

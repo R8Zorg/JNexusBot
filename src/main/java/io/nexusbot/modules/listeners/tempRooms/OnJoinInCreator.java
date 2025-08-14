@@ -193,8 +193,12 @@ public class OnJoinInCreator extends ListenerAdapter {
                 event.getGuild().getCategoryById(roomCreator.getTempRoomCategoryId()).getPermissionOverrides());
         List<ChannelOverrides> roomOverrides = roomSettings.getOverrides();
         if (!roomOverrides.isEmpty()) {
-            OverridesUtil.updateChannelOverrides(createdRoom, roomOverrides);
-            OverridesUtil.updateChannelOverrides(createdRoom, initialOverrides);
+            if (roomCreator.getChannelMode().equals(ChannelMode.custom)) {
+                OverridesUtil.updateChannelOverrides(createdRoom, roomOverrides, initialOverrides,
+                        event.getGuild().getPublicRole().getId());
+            } else {
+                OverridesUtil.updateChannelOverrides(createdRoom, roomOverrides, initialOverrides);
+            }
         }
     }
 

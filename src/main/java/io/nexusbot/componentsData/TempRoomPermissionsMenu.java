@@ -1,6 +1,6 @@
 package io.nexusbot.componentsData;
 
-public class TempRoomPermissions {
+public class TempRoomPermissionsMenu {
     public static final String id = "room-permissions";
     public static final String lock = "room-lock";
     public static final String unlock = "room-unlock";

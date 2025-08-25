@@ -39,7 +39,7 @@ public class OnMainMenuSelect extends ListenerAdapter {
             return;
         }
         String selectedOptionId = event.getSelectedOptions().get(0).getValue();
-        if (selectedOptionId.equals(GlobalIds.nothing)) {
+        if (selectedOptionId.equals(GlobalIds.NOTHING.getValue())) {
             event.deferEdit().queue();
         } else if (selectedOptionId.equals(MainMenu.tempRooms)) {
             tempRooms(event);

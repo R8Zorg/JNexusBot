@@ -1,15 +1,34 @@
 package io.nexusbot.componentsData;
 
-public class TempRoomPermissionsMenu {
-    public static final String id = "room-permissions";
-    public static final String lock = "room-lock";
-    public static final String unlock = "room-unlock";
-    public static final String permit = "room-permit";
-    public static final String reject = "room-reject";
-    public static final String kick = "room-kick";
+public enum TempRoomPermissionsMenu {
+    LOCK("room-lock"),
+    UNLOCK("room-unlock"),
+    PERMIT("room-permit"),
+    REJECT("room-reject"),
+    KICK("room-kick"),
+    GHOST("room-ghost"),
+    UNGHOST("room-unghost"),
+    ACCEPT("room-whitelist-add"),
+    DENY("room-whitelist-remove");
 
-    public static final String ghost = "room-ghost";
-    public static final String unghost = "room-unghost";
-    public static final String accept = "room-whitelist-add";
-    public static final String deny = "room-whitelist-remove";
+    public static final String ID = "room-permissions";
+
+    private final String value;
+
+    TempRoomPermissionsMenu(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public static TempRoomPermissionsMenu fromValue(String value) {
+        for (TempRoomPermissionsMenu menu : values()) {
+            if (menu.value.equals(value)) {
+                return menu;
+            }
+        }
+        return null;
+    }
 }

@@ -1,13 +1,31 @@
 package io.nexusbot.componentsData;
 
-public class TempRoomSettingsMenu {
-    public static final String id = "room-settings";
-    public static final String limit = "room-limit";
-    public static final String status = "room-status";
-    public static final String bitrate = "room-bitrate";
-    public static final String nsfw = "room-nsfw";
-    public static final String claim = "room-claim";
+public enum TempRoomSettingsMenu {
+    STATUS("room-status"),
+    LIMIT("room-limit"),
+    BITRATE("room-bitrate"),
+    NSFW("room-nsfw"),
+    CLAIM("room-claim"),
+    NAME("room-name");
 
-    public static final String name = "room-name";
+    public static final String ID = "room-settings";
 
+    private final String value;
+
+    TempRoomSettingsMenu(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public static TempRoomSettingsMenu fromValue(String value) {
+        for (TempRoomSettingsMenu menu : values()) {
+            if (menu.value.equals(value)) {
+                return menu;
+            }
+        }
+        return null;
+    }
 }

@@ -174,6 +174,12 @@ public class OnJoinInCreator extends ListenerAdapter {
             tempRoomService.saveOrUpdate(tempRoom);
         }
 
+        boolean isCustom = false;
+        if (roomCreator.getChannelMode().equals(ChannelMode.custom)) {
+            isCustom = true;
+        }
+        MessageActionUtil.sendInitialMessage(event, createdRoom, isCustom);
+
         if (roomCreator.isRoleNeeded() && !neededRolesIds.isEmpty() && neededRole == null) {
             sendRoleNotFoundMessage(event, createdRoom, roomCreator, neededRolesIds);
         }

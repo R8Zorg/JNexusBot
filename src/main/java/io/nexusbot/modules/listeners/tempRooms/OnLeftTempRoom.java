@@ -49,7 +49,12 @@ public class OnLeftTempRoom extends ListenerAdapter {
             tempRoomService.remove(tempRoom);
             return;
         } else {
-            //
+            Long channelId = tempRoom.getChannelLogId();
+            Long messageId = tempRoom.getLogMessageId();
+            if (channelId != null && messageId != null) {
+                MessageActionUtil.updateInfoMessage(event.getGuild(), channelId, messageId,
+                        tempRoom, leftChannel);
+            }
         }
     }
 }

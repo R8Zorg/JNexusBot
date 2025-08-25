@@ -3,8 +3,8 @@ package io.nexusbot.componentsData;
 public enum TempRoomPermissionsMenu {
     LOCK("room-lock"),
     UNLOCK("room-unlock"),
-    PERMIT("room-permit"),
     REJECT("room-reject"),
+    PERMIT("room-permit"),
     KICK("room-kick"),
     GHOST("room-ghost"),
     UNGHOST("room-unghost"),

@@ -31,20 +31,20 @@ public class SetupTempRooms {
     }
 
     private void saveRoomCreator(long roomCreatorId, long categoryId, String roleNotFoundMessage,
-            TextChannel logChannel) {
+            TextChannel infoChannel) {
         TempRoomCreator roomCreator = new TempRoomCreator(roomCreatorId);
         roomCreator.setTempRoomCategoryId(categoryId);
         if (roleNotFoundMessage != null) {
             roomCreator.setRoleNotFoundMessage(roleNotFoundMessage);
         }
-        if (logChannel != null) {
-            roomCreator.setLogChannelId(logChannel.getIdLong());
+        if (infoChannel != null) {
+            roomCreator.setLogChannelId(infoChannel.getIdLong());
         }
         creatorService.saveOrUpdate(roomCreator);
     }
 
     private void createAndSaveRoomCreators(Category creatorsCategory, Category tempRoomsCategory, Integer creatorsCount,
-            String limits, String roleNotFoundMessage, TextChannel logChannel,
+            String limits, String roleNotFoundMessage, TextChannel infoChannel,
             InteractionHook hook) {
         String roomName = "【➕】Создать";
         int[] limitsList = new int[0];
@@ -66,7 +66,7 @@ public class SetupTempRooms {
                         .queue(voiceChannel -> {
                             saveRoomCreator(voiceChannel.getIdLong(), tempRoomsCategory.getIdLong(),
                                     roleNotFoundMessage,
-                                    logChannel);
+                                    infoChannel);
                         });
             } catch (Exception e) {
                 EmbedUtil.replyEmbed(hook, "Не удалось создать голосовой канал" + e.getMessage(), Color.RED);
@@ -81,7 +81,7 @@ public class SetupTempRooms {
             @Option(name = "category-name", description = "Название категории, в которой будут создаваться временные комнаты") String tempRoomsCategoryName,
             @Option(name = "limits", description = "Лимиты через пробел для каждого канала соответственно. 0 по умолчанию", required = false) String limits,
             @Option(name = "empty-role-message", description = "Сообщение, которое отправит бот, если у участника нет нужной роли", required = false) String roleNotFoundMessage,
-            @Option(name = "log-channel", description = "Канал, в который будет отправляться информация о созданных ОБЫЧНЫХ каналах", required = false) TextChannel logChannel) {
+            @Option(name = "info-channel", description = "Канал, в который будет отправляться информация о созданных ОБЫЧНЫХ каналах", required = false) TextChannel infoChannel) {
         if (creatorsCount < 1) {
             EmbedUtil.replyEmbed(event, "Создать отрицательное количество каналов? Серьёзно? Может, удалить "
                     + Math.abs(creatorsCount) + " каналов на сервере?", Color.RED);
@@ -98,7 +98,7 @@ public class SetupTempRooms {
             event.getGuild().createCategory(creatorsCategoryName).queue(creatorsCategory -> {
                 event.getGuild().createCategory(tempRoomsCategoryName).queue(tempRoomsCategory -> {
                     createAndSaveRoomCreators(creatorsCategory, tempRoomsCategory, creatorsCount, limits,
-                            roleNotFoundMessage, logChannel,
+                            roleNotFoundMessage, infoChannel,
                             event.getHook());
                     EmbedUtil.replyEmbed(event.getHook(), "Сохранено.", Color.GREEN);
                 });
@@ -122,7 +122,7 @@ public class SetupTempRooms {
             @Option(name = "role-needed", description = "Нужна ли роль для канала", required = false) Boolean isRoleNeeded,
             @Option(name = "empty-role-message", description = "Сообщение, которое отправит бот, если у участника нет нужной роли", required = false) String roleNotFoundMessage,
             @Option(name = "roles-ids", description = "ID ролей для доступа к каналу. Перечислить сразу все через пробел", required = false) String neededRolesIds,
-            @Option(name = "log-channel", description = "Канал, в который будет отправляться информация о созданных ОБЫЧНЫХ каналах", required = false) TextChannel logChannel) {
+            @Option(name = "info-channel", description = "Канал, в который будет отправляться информация о созданных ОБЫЧНЫХ каналах", required = false) TextChannel infoChannel) {
         event.deferReply(true).queue();
         try {
             TempRoomCreator tempRoomCreator = creatorService.getOrCreate(roomCreator.getIdLong());
@@ -155,8 +155,8 @@ public class SetupTempRooms {
                     return;
                 }
             }
-            if (logChannel != null) {
-                tempRoomCreator.setLogChannelId(logChannel.getIdLong());
+            if (infoChannel != null) {
+                tempRoomCreator.setLogChannelId(infoChannel.getIdLong());
             }
             creatorService.saveOrUpdate(tempRoomCreator);
             EmbedUtil.replyEmbed(event.getHook(), "Сохранено.", Color.GREEN);
@@ -167,7 +167,7 @@ public class SetupTempRooms {
 
     private void resetSettings(TempRoomCreator tempRoomCreator, VoiceChannel roomCreator, String all,
             String userLimit, String defalutChannelName, String channelMode,
-            String isRoleNeeded, String roleNotFoundMessage, String neededRolesIds, String logChannel) {
+            String isRoleNeeded, String roleNotFoundMessage, String neededRolesIds, String infoChannel) {
         if (all != null) {
             tempRoomCreator.setUserLimit(0);
             tempRoomCreator.setDefaultTempChannelName(null);
@@ -197,7 +197,7 @@ public class SetupTempRooms {
         if (neededRolesIds != null) {
             creatorService.setNeededRolesIds(roomCreator.getIdLong(), Collections.emptyList());
         }
-        if (logChannel != null) {
+        if (infoChannel != null) {
             tempRoomCreator.setLogChannelId(null);
         }
         creatorService.saveOrUpdate(tempRoomCreator);
@@ -222,8 +222,8 @@ public class SetupTempRooms {
                     @Choice(name = "Да", value = "yes") }) String roleNotFoundMessage,
             @Option(name = "roles-ids", description = "Сбросить ID ролей для доступа к каналу. Перечислить сразу все через пробел", required = false, choices = {
                     @Choice(name = "Да", value = "yes") }) String neededRolesIds,
-            @Option(name = "log-channel", description = "Сбросить канал, в который будет отправляться информация о созданных ОБЫЧНЫХ каналах", required = false, choices = {
-                    @Choice(name = "Да", value = "yes") }) String logChannel) {
+            @Option(name = "info-channel", description = "Сбросить канал, в который будет отправляться информация о созданных ОБЫЧНЫХ каналах", required = false, choices = {
+                    @Choice(name = "Да", value = "yes") }) String infoChannel) {
         event.deferReply(true).queue();
         TempRoomCreator tempRoomCreator = creatorService.get(roomCreator.getIdLong());
         if (tempRoomCreator == null) {
@@ -231,7 +231,7 @@ public class SetupTempRooms {
             return;
         }
         resetSettings(tempRoomCreator, roomCreator, all, userLimit, defalutChannelName, channelMode, isRoleNeeded,
-                roleNotFoundMessage, neededRolesIds, logChannel);
+                roleNotFoundMessage, neededRolesIds, infoChannel);
         EmbedUtil.replyEmbed(event.getHook(), "Настройки успешно сброшены", Color.GREEN);
     }
 

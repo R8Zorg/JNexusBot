@@ -9,6 +9,6 @@ public class Ping {
 
     @Command(name = "ping", description = "Replys pong!")
     public void pong(SlashCommandInteractionEvent event) {
-        event.reply("Pong!").queue();
+        event.reply("Pong!\nЗадержка: " + event.getJDA().getGatewayPing() + "мс").queue();
     }
 }

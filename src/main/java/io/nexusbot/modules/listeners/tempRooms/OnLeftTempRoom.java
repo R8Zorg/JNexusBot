@@ -24,6 +24,11 @@ public class OnLeftTempRoom extends ListenerAdapter {
         List<ChannelOverrides> overwrites = OverridesUtil.serrializeOverrides(newOverrides);
         TempRoomSettings roomOverrides = roomOverridesService.getOrCreate(ownerId, voiceChannel.getGuild().getIdLong());
         roomOverrides.setOverrides(overwrites);
+        roomOverrides.setName(voiceChannel.getName());
+        roomOverrides.setNsfw(voiceChannel.isNSFW());
+        roomOverrides.setStatus(voiceChannel.getStatus());
+        roomOverrides.setBitrate(voiceChannel.getBitrate());
+        roomOverrides.setUserLimit(voiceChannel.getUserLimit());
         roomOverridesService.saveOrUpdate(roomOverrides);
     }
 

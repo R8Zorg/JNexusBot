@@ -66,7 +66,7 @@ public class OnJoinInCreator extends ListenerAdapter {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle("**Участники:**")
                 .setColor(color)
-                .addField("", "【1】" + member.getEffectiveName() + "\n", false)
+                .addField("", "【1】" + member.getAsMention() + "\n", false)
                 .addField("", "\n**✅ Канал:** " + voiceChannel.getAsMention(), false)
                 .setFooter("Участников: 1/" + userLimit);
         if (iconUrl != null) {

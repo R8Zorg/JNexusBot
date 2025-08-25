@@ -5,8 +5,8 @@ import java.awt.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.nexusbot.componentsData.RoomPermissions;
-import io.nexusbot.componentsData.RoomSettings;
+import io.nexusbot.componentsData.TempRoomPermissions;
+import io.nexusbot.componentsData.TempRoomSettings;
 import io.nexusbot.database.entities.TempRoom;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -87,28 +87,28 @@ public class MessageActionUtil {
                         + "\n\nВоспользуйтесь списками ниже для изменения и сохранения настроек комнаты")
                 .build();
 
-        Builder roomSettingsMenuBuilder = StringSelectMenu.create(RoomSettings.id)
-                .addOption("Статус", RoomSettings.status, "Изменить статус канала")
-                .addOption("Лимит", RoomSettings.limit, "Изменить лимит комнаты")
-                .addOption("Битрейт", RoomSettings.bitrate, "Изменить битрейт канала")
-                .addOption("18+", RoomSettings.nsfw, "Поставить/убрать возрастное ограничение канала")
-                .addOption("Стать владельцем комнаты", RoomSettings.claim,
+        Builder roomSettingsMenuBuilder = StringSelectMenu.create(TempRoomSettings.id)
+                .addOption("Статус", TempRoomSettings.status, "Изменить статус канала")
+                .addOption("Лимит", TempRoomSettings.limit, "Изменить лимит комнаты")
+                .addOption("Битрейт", TempRoomSettings.bitrate, "Изменить битрейт канала")
+                .addOption("18+", TempRoomSettings.nsfw, "Поставить/убрать возрастное ограничение канала")
+                .addOption("Стать владельцем комнаты", TempRoomSettings.claim,
                         "Загрузить настройки комнаты для нового владельца");
 
-        Builder roomPermissionsMenuBuilder = StringSelectMenu.create(RoomPermissions.id)
-                .addOption("Заблокировать доступ", RoomPermissions.reject, "Выгнать участника и запретить вход в канал")
-                .addOption("Разблокировать доступ", RoomPermissions.permit, "Убрать запрет на вход в канал участнику")
-                .addOption("Выгнать", RoomPermissions.kick, "Выгнать участника")
-                .addOption("Закрыть", RoomPermissions.lock, "Закрыть вход в комнату")
-                .addOption("Открыть", RoomPermissions.unlock, "Открыть вход в комнату")
-                .addOption("Разрешить вход", RoomPermissions.accept, "Разрешить вход в закрытый канал")
-                .addOption("Запретить вход", RoomPermissions.deny, "Убрать разрешение на вход в закрытый канал");
+        Builder roomPermissionsMenuBuilder = StringSelectMenu.create(TempRoomPermissions.id)
+                .addOption("Заблокировать доступ", TempRoomPermissions.reject, "Выгнать участника и запретить вход в канал")
+                .addOption("Разблокировать доступ", TempRoomPermissions.permit, "Убрать запрет на вход в канал участнику")
+                .addOption("Выгнать", TempRoomPermissions.kick, "Выгнать участника")
+                .addOption("Закрыть", TempRoomPermissions.lock, "Закрыть вход в комнату")
+                .addOption("Открыть", TempRoomPermissions.unlock, "Открыть вход в комнату")
+                .addOption("Разрешить вход", TempRoomPermissions.accept, "Разрешить вход в закрытый канал")
+                .addOption("Запретить вход", TempRoomPermissions.deny, "Убрать разрешение на вход в закрытый канал");
 
         if (isCustom) {
-            roomSettingsMenuBuilder.addOption("Название", RoomSettings.name, "Изменить название комнаты");
+            roomSettingsMenuBuilder.addOption("Название", TempRoomSettings.name, "Изменить название комнаты");
 
-            roomPermissionsMenuBuilder.addOption("Скрыть", RoomPermissions.ghost, "Скрыть комнату от участников");
-            roomPermissionsMenuBuilder.addOption("Показать", RoomPermissions.unghost, "Показать комнату для участников");
+            roomPermissionsMenuBuilder.addOption("Скрыть", TempRoomPermissions.ghost, "Скрыть комнату от участников");
+            roomPermissionsMenuBuilder.addOption("Показать", TempRoomPermissions.unghost, "Показать комнату для участников");
         }
         createdRoom.sendMessageEmbeds(embed)
                 .addActionRow(roomSettingsMenuBuilder.build())

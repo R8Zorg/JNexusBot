@@ -1,6 +1,6 @@
 package io.nexusbot.componentsData;
 
-public class RoomSettings {
+public class TempRoomSettings {
     public static final String id = "room-settings";
     public static final String limit = "room-limit";
     public static final String status = "room-status";

@@ -16,7 +16,7 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 @EventListeners
-public class OnLeftTempChannel extends ListenerAdapter {
+public class OnLeftTempRoom extends ListenerAdapter {
     private TempRoomService tempRoomService = new TempRoomService();
     private TempRoomSettingsService roomOverridesService = new TempRoomSettingsService();
 
@@ -48,6 +48,8 @@ public class OnLeftTempChannel extends ListenerAdapter {
             }
             tempRoomService.remove(tempRoom);
             return;
+        } else {
+            //
         }
     }
 }

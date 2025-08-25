@@ -49,7 +49,5 @@ public class OnLeftTempChannel extends ListenerAdapter {
             tempRoomService.remove(tempRoom);
             return;
         }
-        // CompletableFuture.runAsync(() -> {
-        // }, CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS));
     }
 }

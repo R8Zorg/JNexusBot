@@ -34,7 +34,7 @@ public class TempRoomSettingsService implements ITempRoomSettings {
     }
 
     @Override
-    public void saveOrUpdate(TempRoomSettings roomOverrides) {
-        roomSettings.saveOrUpdate(roomOverrides);
+    public void saveOrUpdate(TempRoomSettings tempRoomSettings) {
+        roomSettings.saveOrUpdate(tempRoomSettings);
     }
 }

@@ -59,4 +59,11 @@ public class EmbedUtil {
                 .build();
         channel.sendMessageEmbeds(embed).queue();
     }
+
+    public static MessageEmbed generateEmbed(String description, Color color) {
+        return new EmbedBuilder()
+                .setDescription(description)
+                .setColor(color)
+                .build();
+    }
 }

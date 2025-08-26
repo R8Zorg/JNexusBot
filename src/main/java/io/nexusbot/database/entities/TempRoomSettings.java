@@ -47,8 +47,8 @@ public class TempRoomSettings {
         return overrides;
     }
 
-    public void setOverrides(List<ChannelOverrides> overwrites) {
-        this.overrides = overwrites;
+    public void setOverrides(List<ChannelOverrides> overrides) {
+        this.overrides = overrides;
     }
 
     public String getName() {

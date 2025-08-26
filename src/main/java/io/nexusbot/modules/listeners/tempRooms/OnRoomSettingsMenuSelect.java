@@ -6,6 +6,10 @@ import io.github.r8zorg.jdatools.annotations.EventListeners;
 import io.nexusbot.componentsData.GlobalIds;
 import io.nexusbot.componentsData.TempRoomSettingsMenu;
 import io.nexusbot.componentsData.TempRoomSettingsModal;
+import io.nexusbot.database.entities.TempRoom;
+import io.nexusbot.database.entities.TempRoomSettings;
+import io.nexusbot.database.services.TempRoomService;
+import io.nexusbot.database.services.TempRoomSettingsService;
 import io.nexusbot.utils.EmbedUtil;
 import io.nexusbot.utils.ModalUtil;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
@@ -14,6 +18,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 @EventListeners
 public class OnRoomSettingsMenuSelect extends ListenerAdapter {
+    private TempRoomService tempRoomService = new TempRoomService();
+    private TempRoomSettingsService tempRoomSettingsService = new TempRoomSettingsService();
 
     private void setStatus(StringSelectInteractionEvent event) {
         event.replyModal(ModalUtil.generateModal(
@@ -36,15 +42,17 @@ public class OnRoomSettingsMenuSelect extends ListenerAdapter {
                 .queue();
     }
 
-    private void setNsfw(StringSelectInteractionEvent event) {
+    private void setNsfw(StringSelectInteractionEvent event, TempRoomSettings tempRoomSettings) {
         VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
-        boolean isNsfw = !voiceChannel.isNSFW();
-        voiceChannel.getManager().setNSFW(isNsfw).queue();
-        if (isNsfw) {
+        boolean nsfw = !voiceChannel.isNSFW();
+        voiceChannel.getManager().setNSFW(nsfw).queue();
+        if (nsfw) {
             EmbedUtil.replyEmbed(event, "Каналу выставлено ограничение 18+", Color.GREEN);
         } else {
             EmbedUtil.replyEmbed(event, "С канала снято ограничение 18+", Color.GREEN);
         }
+        tempRoomSettings.setNsfw(nsfw);
+        tempRoomSettingsService.saveOrUpdate(tempRoomSettings);
     }
 
     private void setOwnership(StringSelectInteractionEvent event) {
@@ -63,18 +71,28 @@ public class OnRoomSettingsMenuSelect extends ListenerAdapter {
         if (!event.getComponentId().equals(TempRoomSettingsMenu.ID)) {
             return;
         }
+        TempRoom tempRoom = tempRoomService.get(event.getChannel().getIdLong());
+        if (tempRoom == null) {
+            return;
+        }
+        long ownerId = event.getMember().getIdLong();
+        if (ownerId != tempRoom.getOwnerId()) {
+            EmbedUtil.replyEmbed(event, "Взаимодействовать со списками может только владелец комнаты", Color.RED);
+            return;
+        }
 
         String selectedOptionId = event.getSelectedOptions().get(0).getValue();
-        if (selectedOptionId.equals(GlobalIds.NOTHING.getValue())){
+        if (selectedOptionId.equals(GlobalIds.NOTHING.getValue())) {
             event.deferEdit().queue();
             return;
         }
 
+        TempRoomSettings tempRoomSettings = tempRoomSettingsService.get(ownerId, event.getGuild().getIdLong());
         switch (TempRoomSettingsMenu.fromValue(selectedOptionId)) {
             case STATUS -> setStatus(event);
             case LIMIT -> setLimit(event);
             case BITRATE -> setBitrate(event);
-            case NSFW -> setNsfw(event);
+            case NSFW -> setNsfw(event, tempRoomSettings);
             case CLAIM -> setOwnership(event);
             case NAME -> setName(event);
         }

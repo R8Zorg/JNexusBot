@@ -110,9 +110,9 @@ public class MessageActionUtil {
                 .addOption("Закрыть", TempRoomPermissionsMenu.LOCK.getValue(), "Закрыть вход в комнату")
                 .addOption("Открыть", TempRoomPermissionsMenu.UNLOCK.getValue(), "Открыть вход в комнату")
                 .addOption("Разрешить вход", TempRoomPermissionsMenu.ACCEPT.getValue(),
-                        "Разрешить вход в закрытый канал")
+                        "Разрешить участнику видеть скрытый канал")
                 .addOption("Запретить вход", TempRoomPermissionsMenu.DENY.getValue(),
-                        "Убрать разрешение на вход в закрытый канал");
+                        "Сбросить права на просмотр скрытого канала");
 
         if (isCustom) {
             roomSettingsMenuBuilder.addOption("Название", TempRoomSettingsMenu.NAME.getValue(),

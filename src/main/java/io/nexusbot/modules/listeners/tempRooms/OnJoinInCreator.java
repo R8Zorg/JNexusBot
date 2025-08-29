@@ -94,7 +94,8 @@ public class OnJoinInCreator extends ListenerAdapter {
     }
 
     private void sendAndSaveInfoMessageAndRoom(GuildVoiceUpdateEvent event, VoiceChannel createdRoom,
-            TempRoomCreator roomCreator, Role neededRole, TempRoom tempRoom) {
+            TempRoomCreator roomCreator, Role neededRole, TempRoom tempRoom,
+            TextChannel infoChannel) {
         Color color = Color.decode("#2f3136");
         String iconUrl = null;
         if (neededRole != null) {
@@ -104,8 +105,6 @@ public class OnJoinInCreator extends ListenerAdapter {
 
         MessageEmbed embed = generateInitialEmbedMessage(createdRoom, roomCreator, event.getMember(), color,
                 iconUrl);
-
-        TextChannel infoChannel = event.getGuild().getChannelById(TextChannel.class, roomCreator.getLogChannelId());
         try {
             infoChannel.sendMessageEmbeds(embed).queue(sentMessage -> {
                 tempRoom.setChannelLogId(roomCreator.getLogChannelId());
@@ -119,13 +118,7 @@ public class OnJoinInCreator extends ListenerAdapter {
                             + infoChannel.getIdLong() + ")`",
                     Color.RED);
             return;
-        } catch (IllegalStateException e) {
-            tempRoomService.saveOrUpdate(tempRoom);
-            EmbedUtil.sendEmbed(createdRoom, "Не найден канал для отправки сообщения. Возможно, он был удалён",
-                    Color.RED);
-            return;
         }
-
     }
 
     private void sendRoleNotFoundMessage(GuildVoiceUpdateEvent event, VoiceChannel createdRoom,
@@ -168,9 +161,17 @@ public class OnJoinInCreator extends ListenerAdapter {
         Role neededRole = getNeededRole(event, neededRolesIds);
         TempRoom tempRoom = new TempRoom(
                 createdRoom.getIdLong(), event.getMember().getIdLong(), createdRoom.getParentCategoryIdLong());
-        if (roomCreator.getLogChannelId() != null) {
-            sendAndSaveInfoMessageAndRoom(event, createdRoom, roomCreator, neededRole, tempRoom);
+
+        TextChannel infoChannel = roomCreator.getLogChannelId() != null
+                ? event.getGuild().getChannelById(TextChannel.class, roomCreator.getLogChannelId())
+                : null;
+        if (infoChannel != null) {
+            sendAndSaveInfoMessageAndRoom(event, createdRoom, roomCreator,
+                    neededRole, tempRoom, infoChannel);
         } else {
+            EmbedUtil.sendEmbed(createdRoom,
+                    "Не удалось отправить сообщение в инфо-канал: канал удалён или его нет в базе данных.",
+                    Color.RED);
             tempRoomService.saveOrUpdate(tempRoom);
         }
 

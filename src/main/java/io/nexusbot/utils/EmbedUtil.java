@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 
@@ -52,7 +53,16 @@ public class EmbedUtil {
                 .build();
         event.replyEmbeds(embed).setEphemeral(true).queue();
     }
+
     public static void replyEmbed(EntitySelectInteractionEvent event, String description, Color color) {
+        MessageEmbed embed = new EmbedBuilder()
+                .setDescription(description)
+                .setColor(color)
+                .build();
+        event.replyEmbeds(embed).setEphemeral(true).queue();
+    }
+
+    public static void replyEmbed(GenericSelectMenuInteractionEvent<?, ?> event, String description, Color color) {
         MessageEmbed embed = new EmbedBuilder()
                 .setDescription(description)
                 .setColor(color)

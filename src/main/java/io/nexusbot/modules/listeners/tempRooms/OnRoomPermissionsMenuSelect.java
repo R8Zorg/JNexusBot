@@ -9,9 +9,7 @@ import io.nexusbot.componentsData.DiscordConstants;
 import io.nexusbot.componentsData.GlobalIds;
 import io.nexusbot.componentsData.TempRoomPermissionsMenu;
 import io.nexusbot.database.entities.TempRoom;
-import io.nexusbot.database.entities.TempRoomSettings;
 import io.nexusbot.database.services.TempRoomService;
-import io.nexusbot.database.services.TempRoomSettingsService;
 import io.nexusbot.utils.EmbedUtil;
 import io.nexusbot.utils.TempRoomUtil;
 import net.dv8tion.jda.api.Permission;
@@ -28,7 +26,6 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu.B
 @EventListeners
 public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
     private TempRoomService tempRoomService = new TempRoomService();
-    private TempRoomSettingsService tempRoomSettingsService = new TempRoomSettingsService();
 
     private void lockRoom(StringSelectInteractionEvent event) {
         VoiceChannel room = event.getChannel().asVoiceChannel();
@@ -56,7 +53,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
 
         event.replyEmbeds(embed)
                 .addActionRow(EntitySelectMenu.create(
-                        TempRoomPermissionsMenu.REJECT.getValue(), SelectTarget.USER)
+                        TempRoomPermissionsMenu.REJECT_CONNECT.getValue(), SelectTarget.USER)
                         .setPlaceholder("Выберите участника")
                         .setMaxValues(DiscordConstants.MAX_SELECT_MENU_ITEMS.getValue())
                         .build())
@@ -95,7 +92,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         }
 
         event.replyEmbeds(embed)
-                .addActionRow(getMembersMenu(rejectedMembers, TempRoomPermissionsMenu.PERMIT.getValue()))
+                .addActionRow(getMembersMenu(rejectedMembers, TempRoomPermissionsMenu.CLEAR_CONNECT.getValue()))
                 .setEphemeral(true)
                 .queue();
     }
@@ -139,7 +136,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
 
         event.replyEmbeds(embed)
                 .addActionRow(EntitySelectMenu.create(
-                        TempRoomPermissionsMenu.ACCEPT.getValue(), SelectTarget.USER)
+                        TempRoomPermissionsMenu.PERMIT_VIEW_CHANNEL.getValue(), SelectTarget.USER)
                         .setMaxValues(DiscordConstants.MAX_SELECT_MENU_ITEMS.getValue())
                         .setPlaceholder("Выберите участника")
                         .build())
@@ -164,7 +161,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         }
 
         event.replyEmbeds(embed)
-                .addActionRow(getMembersMenu(acceptedMembers, TempRoomPermissionsMenu.DENY.getValue()))
+                .addActionRow(getMembersMenu(acceptedMembers, TempRoomPermissionsMenu.REJECT_VIEW_CHANNEL.getValue()))
                 .setEphemeral(true)
                 .queue();
     }
@@ -190,17 +187,16 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
             return;
         }
 
-        TempRoomSettings tempRoomSettings = tempRoomSettingsService.get(ownerId, event.getGuild().getIdLong());
         switch (TempRoomPermissionsMenu.fromValue(selectedOptionId)) {
             case LOCK -> lockRoom(event);
             case UNLOCK -> unlockRoom(event);
-            case REJECT -> rejectMember(event);
-            case PERMIT -> permitMember(event);
+            case REJECT_CONNECT -> rejectMember(event);
+            case CLEAR_CONNECT -> permitMember(event);
             case KICK -> kickMember(event);
             case GHOST -> ghostRoom(event);
             case UNGHOST -> unghostRoom(event);
-            case ACCEPT -> acceptMember(event);
-            case DENY -> denyMember(event);
+            case PERMIT_VIEW_CHANNEL -> acceptMember(event);
+            case REJECT_VIEW_CHANNEL -> denyMember(event);
         }
     }
 }

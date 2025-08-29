@@ -104,7 +104,7 @@ public class MessageActionUtil {
                 .addOption("Убрать выбор", GlobalIds.NOTHING.getValue(), "Ничего не делать")
                 .addOption("Заблокировать доступ", TempRoomPermissionsMenu.REJECT_CONNECT.getValue(),
                         "Выгнать участника и запретить вход в канал")
-                .addOption("Разблокировать доступ", TempRoomPermissionsMenu.PERMIT_CONNECT.getValue(),
+                .addOption("Разблокировать доступ", TempRoomPermissionsMenu.CLEAR_CONNECT.getValue(),
                         "Убрать запрет на вход в канал участнику")
                 .addOption("Выгнать", TempRoomPermissionsMenu.KICK.getValue(), "Выгнать участника")
                 .addOption("Закрыть", TempRoomPermissionsMenu.LOCK.getValue(), "Закрыть вход в комнату")

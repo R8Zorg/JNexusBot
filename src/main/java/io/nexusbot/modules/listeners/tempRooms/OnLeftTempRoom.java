@@ -10,7 +10,6 @@ import io.nexusbot.database.services.TempRoomService;
 import io.nexusbot.database.services.TempRoomSettingsService;
 import io.nexusbot.utils.MessageActionUtil;
 import io.nexusbot.utils.OverridesUtil;
-import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -18,18 +17,19 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 @EventListeners
 public class OnLeftTempRoom extends ListenerAdapter {
     private TempRoomService tempRoomService = new TempRoomService();
-    private TempRoomSettingsService roomOverridesService = new TempRoomSettingsService();
+    private TempRoomSettingsService settingsService = new TempRoomSettingsService();
 
-    private void saveRoomSettings(VoiceChannel voiceChannel, long ownerId, List<PermissionOverride> newOverrides) {
-        List<ChannelOverrides> overwrites = OverridesUtil.serrializeOverrides(newOverrides);
-        TempRoomSettings roomOverrides = roomOverridesService.getOrCreate(ownerId, voiceChannel.getGuild().getIdLong());
-        roomOverrides.setOverrides(overwrites);
-        roomOverrides.setName(voiceChannel.getName());
-        roomOverrides.setNsfw(voiceChannel.isNSFW());
-        roomOverrides.setStatus(voiceChannel.getStatus());
-        roomOverrides.setBitrate(voiceChannel.getBitrate());
-        roomOverrides.setUserLimit(voiceChannel.getUserLimit());
-        roomOverridesService.saveOrUpdate(roomOverrides);
+    public void saveAllRoomSettings(VoiceChannel voiceChannel, long ownerId) {
+        List<ChannelOverrides> overrides = OverridesUtil.serrializeOverrides(voiceChannel.getPermissionOverrides());
+        TempRoomSettings roomSettings = settingsService.getOrCreate(ownerId, voiceChannel.getGuild().getIdLong());
+
+        roomSettings.setOverrides(overrides);
+        roomSettings.setName(voiceChannel.getName());
+        roomSettings.setNsfw(voiceChannel.isNSFW());
+        roomSettings.setStatus(voiceChannel.getStatus());
+        roomSettings.setBitrate(voiceChannel.getBitrate());
+        roomSettings.setUserLimit(voiceChannel.getUserLimit());
+        settingsService.saveOrUpdate(roomSettings);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class OnLeftTempRoom extends ListenerAdapter {
         }
 
         if (leftChannel.getMembers().isEmpty()) {
-            saveRoomSettings(leftChannel, tempRoom.getOwnerId(), leftChannel.getPermissionOverrides());
+            saveAllRoomSettings(leftChannel, tempRoom.getOwnerId());
             leftChannel.delete().queue();
             if (tempRoom.getLogMessageId() != null) {
                 MessageActionUtil.deleteInfoMessage(event.getGuild(), tempRoom.getChannelLogId(),

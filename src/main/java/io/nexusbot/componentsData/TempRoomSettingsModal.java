@@ -6,8 +6,6 @@ public enum TempRoomSettingsModal {
     BITRATE(TempRoomSettingsMenu.BITRATE.getValue() + GlobalIds.BASE_MODAL_ID.getValue()),
     NAME(TempRoomSettingsMenu.NAME.getValue() + GlobalIds.BASE_MODAL_ID.getValue());
 
-    public static final String ID = "temp-room-settings" + GlobalIds.BASE_MODAL_ID.getValue();
-
     private final String value;
 
     TempRoomSettingsModal(String value) {

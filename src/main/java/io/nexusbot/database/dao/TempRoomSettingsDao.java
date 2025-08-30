@@ -18,10 +18,10 @@ public class TempRoomSettingsDao implements ITempRoomSettings {
     }
 
     @Override
-    public void saveOrUpdate(TempRoomSettings roomOverrides) {
+    public void saveOrUpdate(TempRoomSettings roomSettings) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Transaction ta = session.beginTransaction();
-            session.merge(roomOverrides);
+            session.merge(roomSettings);
             ta.commit();
         }
     }

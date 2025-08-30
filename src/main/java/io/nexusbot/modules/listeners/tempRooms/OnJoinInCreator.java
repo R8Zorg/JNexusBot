@@ -187,7 +187,8 @@ public class OnJoinInCreator extends ListenerAdapter {
     }
 
     private void addBotOverrides(VoiceChannel createdRoom, GuildVoiceUpdateEvent event) {
-        EnumSet<Permission> permissions = EnumSet.of(Permission.VIEW_CHANNEL, Permission.VOICE_MOVE_OTHERS);
+        EnumSet<Permission> permissions = EnumSet.of(Permission.VIEW_CHANNEL, Permission.VOICE_SPEAK,
+                Permission.VOICE_MOVE_OTHERS);
         IPermissionHolder bot = event.getGuild().getMember(event.getJDA().getSelfUser());
         createdRoom.upsertPermissionOverride(bot)
                 .setAllowed(permissions).queue();

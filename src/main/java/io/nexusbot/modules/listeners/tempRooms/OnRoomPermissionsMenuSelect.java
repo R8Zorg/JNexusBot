@@ -1,8 +1,10 @@
 package io.nexusbot.modules.listeners.tempRooms;
 
 import java.awt.Color;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import io.github.r8zorg.jdatools.annotations.EventListeners;
 import io.nexusbot.componentsData.DiscordConstants;
@@ -11,11 +13,14 @@ import io.nexusbot.componentsData.TempRoomPermissionsMenu;
 import io.nexusbot.database.entities.TempRoom;
 import io.nexusbot.database.services.TempRoomService;
 import io.nexusbot.utils.EmbedUtil;
+import io.nexusbot.utils.MembersUtil;
 import io.nexusbot.utils.TempRoomUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
@@ -45,22 +50,6 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
                 });
     }
 
-    private void rejectMember(StringSelectInteractionEvent event) {
-        MessageEmbed embed = EmbedUtil.generateEmbed("""
-                Выберите участников, которому хотите запретить вход в канал.
-                Если участника нет в списке, воспользуйтесь слеш командной `/room reject`
-                """, Color.WHITE);
-
-        event.replyEmbeds(embed)
-                .addActionRow(EntitySelectMenu.create(
-                        TempRoomPermissionsMenu.REJECT_CONNECT.getValue(), SelectTarget.USER)
-                        .setPlaceholder("Выберите участника")
-                        .setMaxValues(DiscordConstants.MAX_SELECT_MENU_ITEMS.getValue())
-                        .build())
-                .setEphemeral(true)
-                .queue();
-    }
-
     private StringSelectMenu getMembersMenu(List<Member> members, String menuId) {
         int membersAmount = DiscordConstants.MAX_SELECT_MENU_ITEMS.getValue() - 1;
         Builder selectMenuBuilder = StringSelectMenu.create(menuId)
@@ -76,25 +65,78 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         return selectMenuBuilder.build();
     }
 
-    private void permitMember(StringSelectInteractionEvent event) {
-        MessageEmbed embed = EmbedUtil.generateEmbed("""
-                Выберите участников, с которого хотите снять запрет на вход в канал.
-                """, Color.WHITE);
-        List<Member> rejectedMembers = event.getChannel().asVoiceChannel().getPermissionOverrides()
+    private void handleMembersWithPermission(GenericSelectMenuInteractionEvent<?, ?> event, Permission permission,
+            Function<PermissionOverride, EnumSet<Permission>> extractor, Consumer<List<Member>> onCompleteAction,
+            String emptyMessage) {
+        VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
+        List<Long> memberIds = voiceChannel.getPermissionOverrides()
                 .stream()
                 .filter(override -> override.isMemberOverride())
-                .filter(override -> override.getDenied().contains(Permission.VOICE_CONNECT))
-                .map(override -> override.getMember())
-                .collect(Collectors.toList());
-        if (rejectedMembers.isEmpty()) {
-            EmbedUtil.replyEmbed(event, "В канале нет заблокированных пользователей", Color.WHITE);
+                .filter(override -> extractor.apply(override).contains(permission))
+                .map(override -> override.getIdLong())
+                .toList();
+
+        if (memberIds.isEmpty()) {
+            EmbedUtil.replyEmbed(event, emptyMessage, Color.WHITE);
             return;
         }
 
+        MembersUtil.loadMembers(event, memberIds)
+                .thenAccept(members -> onCompleteAction.accept(members));
+    }
+
+    private void sendClearConnectMembersMenu(StringSelectInteractionEvent event, List<Member> rejectedMembers) {
+        if (rejectedMembers.isEmpty()) {
+            EmbedUtil.replyEmbed(event, "Не удалось получить заблокированных участников", Color.RED);
+            return;
+        }
+        MessageEmbed embed = EmbedUtil.generateEmbed("""
+                Выберите участников, с которых хотите снять запрет на вход в канал.
+                """, Color.WHITE);
+
         event.replyEmbeds(embed)
-                .addActionRow(getMembersMenu(rejectedMembers, TempRoomPermissionsMenu.CLEAR_CONNECT.getValue()))
+                .addActionRow(getMembersMenu(rejectedMembers,
+                        TempRoomPermissionsMenu.CLEAR_CONNECT.getValue()))
                 .setEphemeral(true)
                 .queue();
+
+    }
+
+    private void sendRejectedViewChannelMembersMenu(StringSelectInteractionEvent event, List<Member> acceptedMembers) {
+        if (acceptedMembers.isEmpty()) {
+            EmbedUtil.replyEmbed(event, "В канале нет пользователей, которые могут просматривать скрытый канал",
+                    Color.WHITE);
+            return;
+        }
+        MessageEmbed embed = EmbedUtil.generateEmbed("""
+                Выберите участников, которому хотите сброить доступ к закрытому каналу.
+                """, Color.WHITE);
+
+        event.replyEmbeds(embed)
+                .addActionRow(getMembersMenu(acceptedMembers, TempRoomPermissionsMenu.REJECT_VIEW_CHANNEL.getValue()))
+                .setEphemeral(true)
+                .queue();
+    }
+
+    private void rejectMemberConnect(StringSelectInteractionEvent event) {
+        MessageEmbed embed = EmbedUtil.generateEmbed("""
+                Выберите участников, которому хотите запретить вход в канал.
+                Если участника нет в списке, воспользуйтесь слеш командной `/room reject`
+                """, Color.WHITE);
+
+        event.replyEmbeds(embed)
+                .addActionRow(EntitySelectMenu.create(
+                        TempRoomPermissionsMenu.REJECT_CONNECT.getValue(), SelectTarget.USER)
+                        .setPlaceholder("Выберите участника")
+                        .setMaxValues(DiscordConstants.MAX_SELECT_MENU_ITEMS.getValue())
+                        .build())
+                .setEphemeral(true)
+                .queue();
+    }
+
+    private void clearMemberConnect(StringSelectInteractionEvent event) {
+        handleMembersWithPermission(event, Permission.VOICE_CONNECT, PermissionOverride::getDenied,
+                members -> sendClearConnectMembersMenu(event, members), "В канале нет заблокированных пользователей");
     }
 
     private void kickMember(StringSelectInteractionEvent event) {
@@ -128,9 +170,9 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
                 });
     }
 
-    private void acceptMember(StringSelectInteractionEvent event) {
+    private void permitViewChannel(StringSelectInteractionEvent event) {
         MessageEmbed embed = EmbedUtil.generateEmbed("""
-                Выберите участников, который будет видеть скрытый канал.
+                Выберите участников, которые будет видеть скрытый канал.
                 Если участника нет в списке, воспользуйтесь слеш командной `/room accept`
                 """, Color.WHITE);
 
@@ -138,32 +180,16 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
                 .addActionRow(EntitySelectMenu.create(
                         TempRoomPermissionsMenu.PERMIT_VIEW_CHANNEL.getValue(), SelectTarget.USER)
                         .setMaxValues(DiscordConstants.MAX_SELECT_MENU_ITEMS.getValue())
-                        .setPlaceholder("Выберите участника")
+                        .setPlaceholder("Выберите участника(ов)")
                         .build())
                 .setEphemeral(true)
                 .queue();
     }
 
-    private void denyMember(StringSelectInteractionEvent event) {
-        MessageEmbed embed = EmbedUtil.generateEmbed("""
-                Выберите участников, которому хотите сброить доступ к закрытому каналу.
-                """, Color.WHITE);
-        List<Member> acceptedMembers = event.getChannel().asVoiceChannel().getPermissionOverrides()
-                .stream()
-                .filter(override -> override.isMemberOverride())
-                .filter(override -> override.getAllowed().contains(Permission.VIEW_CHANNEL))
-                .map(override -> override.getMember())
-                .collect(Collectors.toList());
-        if (acceptedMembers.isEmpty()) {
-            EmbedUtil.replyEmbed(event, "В канале нет пользователей, которые могут просматривать скрытый канал",
-                    Color.WHITE);
-            return;
-        }
-
-        event.replyEmbeds(embed)
-                .addActionRow(getMembersMenu(acceptedMembers, TempRoomPermissionsMenu.REJECT_VIEW_CHANNEL.getValue()))
-                .setEphemeral(true)
-                .queue();
+    private void rejectViewChannel(StringSelectInteractionEvent event) {
+        handleMembersWithPermission(event, Permission.VIEW_CHANNEL, PermissionOverride::getDenied,
+                members -> sendRejectedViewChannelMembersMenu(event, members),
+                "В канале нет заблокированных пользователей");
     }
 
     @Override
@@ -190,13 +216,13 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         switch (TempRoomPermissionsMenu.fromValue(selectedOptionId)) {
             case LOCK -> lockRoom(event);
             case UNLOCK -> unlockRoom(event);
-            case REJECT_CONNECT -> rejectMember(event);
-            case CLEAR_CONNECT -> permitMember(event);
+            case REJECT_CONNECT -> rejectMemberConnect(event);
+            case CLEAR_CONNECT -> clearMemberConnect(event);
             case KICK -> kickMember(event);
             case GHOST -> ghostRoom(event);
             case UNGHOST -> unghostRoom(event);
-            case PERMIT_VIEW_CHANNEL -> acceptMember(event);
-            case REJECT_VIEW_CHANNEL -> denyMember(event);
+            case PERMIT_VIEW_CHANNEL -> permitViewChannel(event);
+            case REJECT_VIEW_CHANNEL -> rejectViewChannel(event);
         }
     }
 }

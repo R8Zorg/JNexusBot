@@ -162,16 +162,19 @@ public class OnJoinInCreator extends ListenerAdapter {
         TempRoom tempRoom = new TempRoom(
                 createdRoom.getIdLong(), event.getMember().getIdLong(), createdRoom.getParentCategoryIdLong());
 
-        TextChannel infoChannel = roomCreator.getLogChannelId() != null
-                ? event.getGuild().getChannelById(TextChannel.class, roomCreator.getLogChannelId())
-                : null;
-        if (infoChannel != null) {
-            sendAndSaveInfoMessageAndRoom(event, createdRoom, roomCreator,
-                    neededRole, tempRoom, infoChannel);
+        Long infoChannelId = roomCreator.getLogChannelId();
+        if (infoChannelId != null) {
+            TextChannel infoChannel = event.getGuild().getChannelById(TextChannel.class, infoChannelId);
+            if (infoChannel == null) {
+                EmbedUtil.sendEmbed(createdRoom,
+                        "Не удалось отправить сообщение в инфо-канал: канал удалён или его нет в базе данных.",
+                        Color.RED);
+                tempRoomService.saveOrUpdate(tempRoom);
+            } else {
+                sendAndSaveInfoMessageAndRoom(event, createdRoom, roomCreator,
+                        neededRole, tempRoom, infoChannel);
+            }
         } else {
-            EmbedUtil.sendEmbed(createdRoom,
-                    "Не удалось отправить сообщение в инфо-канал: канал удалён или его нет в базе данных.",
-                    Color.RED);
             tempRoomService.saveOrUpdate(tempRoom);
         }
 

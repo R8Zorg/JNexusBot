@@ -42,7 +42,8 @@ public class OverridesUtil {
             String type = permissionOverwrite.getType();
             long allow = permissionOverwrite.getAllow();
             long deny = permissionOverwrite.getDeny();
-            if (!id.equals(everyoneRoleId) || initialOverridesIds.contains(id)) {
+
+            if (!id.equals(everyoneRoleId) && initialOverridesIds.contains(id)) {
                 continue;
             }
 

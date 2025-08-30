@@ -1,5 +1,6 @@
 package io.nexusbot.database.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
@@ -26,7 +27,7 @@ public class TempRoomSettings {
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json")
-    private List<ChannelOverrides> overrides;
+    private List<ChannelOverrides> overrides = new ArrayList<>();
 
     public TempRoomSettings() {
     }

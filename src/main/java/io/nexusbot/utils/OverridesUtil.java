@@ -57,15 +57,16 @@ public class OverridesUtil {
                             }, error -> LOGGER.info("Error while upserting role permissions: {}", error.getMessage()));
                 }
             } else if (type.equals("member")) {
-                Member member = voiceChannel.getGuild().getMemberById(id);
-                if (member != null) {
-                    voiceChannel.upsertPermissionOverride(member)
+                voiceChannel.getGuild().retrieveMemberById(id).queue(member -> {
+                    if (member != null) {
+                        voiceChannel.upsertPermissionOverride(member)
                             .setAllowed(allow)
                             .setDenied(deny)
                             .queue(_ -> {
                             }, error -> LOGGER.info("Error while upserting member permissions: {}",
                                     error.getMessage()));
-                }
+                    }
+                });
             }
         }
     }

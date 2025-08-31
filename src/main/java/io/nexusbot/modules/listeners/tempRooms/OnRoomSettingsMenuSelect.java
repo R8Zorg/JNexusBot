@@ -87,7 +87,7 @@ public class OnRoomSettingsMenuSelect extends ListenerAdapter {
             return;
         }
 
-        TempRoomSettings tempRoomSettings = tempRoomSettingsService.get(ownerId, event.getGuild().getIdLong());
+        TempRoomSettings tempRoomSettings = tempRoomSettingsService.getOrCreate(ownerId, event.getGuild().getIdLong());
         switch (TempRoomSettingsMenu.fromValue(selectedOptionId)) {
             case STATUS -> setStatus(event);
             case LIMIT -> setLimit(event);

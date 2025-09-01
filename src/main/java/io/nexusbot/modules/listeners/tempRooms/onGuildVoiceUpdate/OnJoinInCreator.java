@@ -24,7 +24,6 @@ import io.nexusbot.utils.OverridesUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.IPermissionHolder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
@@ -189,26 +188,19 @@ public class OnJoinInCreator extends ListenerAdapter {
         }
     }
 
-    private void addBotOverrides(VoiceChannel createdRoom, GuildVoiceUpdateEvent event) {
-        EnumSet<Permission> permissions = EnumSet.of(Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, // VOICE_SPEAK
-                Permission.VOICE_MOVE_OTHERS, Permission.VOICE_SET_STATUS);
-        IPermissionHolder bot = event.getGuild().getMember(event.getJDA().getSelfUser());
-        createdRoom.upsertPermissionOverride(bot)
-                .setAllowed(permissions).queue();
-    }
-
-    private void addMemberOverrides(VoiceChannel createdRoom, GuildVoiceUpdateEvent event) {
-        EnumSet<Permission> permissions = EnumSet.of(Permission.VIEW_CHANNEL, Permission.VOICE_MOVE_OTHERS,
-                Permission.VOICE_SET_STATUS, Permission.MANAGE_CHANNEL);
-        createdRoom.upsertPermissionOverride(event.getMember())
+    private void addMemberOverrides(VoiceChannel createdRoom, GuildVoiceUpdateEvent event, Member member) {
+        EnumSet<Permission> permissions = EnumSet.of(Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT,
+                Permission.VOICE_MOVE_OTHERS, Permission.VOICE_SET_STATUS,
+                Permission.MANAGE_CHANNEL);
+        createdRoom.upsertPermissionOverride(member)
                 .setAllowed(permissions).queue();
 
     }
 
     private void updateRoomOverrides(GuildVoiceUpdateEvent event, VoiceChannel createdRoom,
             TempRoomCreator roomCreator, TempRoomSettings roomSettings) {
-        addBotOverrides(createdRoom, event);
-        addMemberOverrides(createdRoom, event);
+        addMemberOverrides(createdRoom, event, event.getGuild().getMember(event.getJDA().getSelfUser()));
+        addMemberOverrides(createdRoom, event, event.getMember());
         List<ChannelOverrides> initialOverrides = OverridesUtil.serrializeOverrides(
                 event.getGuild().getCategoryById(roomCreator.getTempRoomCategoryId()).getPermissionOverrides());
         List<ChannelOverrides> roomOverrides = roomSettings.getOverrides();

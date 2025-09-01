@@ -21,7 +21,7 @@ public class OnRoomSettingsMenuSelect extends ListenerAdapter {
     private void setStatus(StringSelectInteractionEvent event) {
         event.replyModal(ModalUtil.generateModal(
                 TempRoomSettingsModal.STATUS.getValue(), "Изменить статус канала",
-                "Введите новый статус", "Статус канала", 0, 128))
+                "Введите новый статус", "Статус канала", 1, 128, false))
                 .queue();
     }
 

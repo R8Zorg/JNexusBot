@@ -17,4 +17,17 @@ public class ModalUtil {
                         .build())
                 .build();
     }
+
+    public static Modal generateModal(String id, String title, String label,
+            String placeholder, int minLength, int maxLength, boolean required) {
+        return Modal.create(id, title)
+                .addActionRow(TextInput.create(GlobalIds.BASE_MODAL_TEXT_INPUT_ID.getValue(),
+                        label, TextInputStyle.SHORT)
+                        .setRequired(required)
+                        .setPlaceholder(placeholder)
+                        .setMinLength(minLength)
+                        .setMaxLength(maxLength)
+                        .build())
+                .build();
+    }
 }

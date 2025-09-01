@@ -7,9 +7,7 @@ import io.nexusbot.componentsData.GlobalIds;
 import io.nexusbot.componentsData.TempRoomSettingsMenu;
 import io.nexusbot.componentsData.TempRoomSettingsModal;
 import io.nexusbot.database.entities.TempRoom;
-import io.nexusbot.database.entities.TempRoomSettings;
 import io.nexusbot.database.services.TempRoomService;
-import io.nexusbot.database.services.TempRoomSettingsService;
 import io.nexusbot.utils.EmbedUtil;
 import io.nexusbot.utils.ModalUtil;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
@@ -19,7 +17,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 @EventListeners
 public class OnRoomSettingsMenuSelect extends ListenerAdapter {
     private TempRoomService tempRoomService = new TempRoomService();
-    private TempRoomSettingsService tempRoomSettingsService = new TempRoomSettingsService();
 
     private void setStatus(StringSelectInteractionEvent event) {
         event.replyModal(ModalUtil.generateModal(
@@ -42,7 +39,7 @@ public class OnRoomSettingsMenuSelect extends ListenerAdapter {
                 .queue();
     }
 
-    private void setNsfw(StringSelectInteractionEvent event, TempRoomSettings tempRoomSettings) {
+    private void setNsfw(StringSelectInteractionEvent event) {
         VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
         boolean nsfw = !voiceChannel.isNSFW();
         voiceChannel.getManager().setNSFW(nsfw).queue();
@@ -51,8 +48,6 @@ public class OnRoomSettingsMenuSelect extends ListenerAdapter {
         } else {
             EmbedUtil.replyEmbed(event, "С канала снято ограничение 18+", Color.GREEN);
         }
-        tempRoomSettings.setNsfw(nsfw);
-        tempRoomSettingsService.saveOrUpdate(tempRoomSettings);
     }
 
     private void setOwnership(StringSelectInteractionEvent event) {
@@ -87,12 +82,11 @@ public class OnRoomSettingsMenuSelect extends ListenerAdapter {
             return;
         }
 
-        TempRoomSettings tempRoomSettings = tempRoomSettingsService.getOrCreate(ownerId, event.getGuild().getIdLong());
         switch (TempRoomSettingsMenu.fromValue(selectedOptionId)) {
             case STATUS -> setStatus(event);
             case LIMIT -> setLimit(event);
             case BITRATE -> setBitrate(event);
-            case NSFW -> setNsfw(event, tempRoomSettings);
+            case NSFW -> setNsfw(event);
             case CLAIM -> setOwnership(event);
             case NAME -> setName(event);
         }

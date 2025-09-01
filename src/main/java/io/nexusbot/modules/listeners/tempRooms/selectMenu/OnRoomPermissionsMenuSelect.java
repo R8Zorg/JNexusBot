@@ -1,6 +1,7 @@
 package io.nexusbot.modules.listeners.tempRooms.selectMenu;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Consumer;
@@ -137,13 +138,20 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
                 members -> sendClearConnectMembersMenu(event, members), "В канале нет заблокированных пользователей");
     }
 
-    private void kickMember(StringSelectInteractionEvent event) {
+    private void kickMember(StringSelectInteractionEvent event, long ownerId) {
+        List<Member> members = new ArrayList<>(event.getChannel().asVoiceChannel().getMembers());
+        Member owner = event.getGuild().getMemberById(ownerId);
+        members.remove(owner);
+
+        if (members.isEmpty()) {
+            EmbedUtil.replyEmbed(event, "В канале никого, кроме Вас", Color.RED);
+            return;
+        }
         MessageEmbed embed = EmbedUtil.generateEmbed("""
                 Выберите участников, которого хотите выгнать из канала.
                 Вы также можете использовать слеш команду `/room disconnect`
                 """, Color.WHITE);
 
-        List<Member> members = event.getChannel().asVoiceChannel().getMembers();
         event.replyEmbeds(embed)
                 .addActionRow(getMembersMenu(members, TempRoomPermissionsMenu.KICK.getValue()))
                 .setEphemeral(true)
@@ -216,7 +224,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
             case UNLOCK -> unlockRoom(event);
             case REJECT_CONNECT -> rejectMemberConnect(event);
             case CLEAR_CONNECT -> clearMemberConnect(event);
-            case KICK -> kickMember(event);
+            case KICK -> kickMember(event, ownerId);
             case GHOST -> ghostRoom(event);
             case UNGHOST -> unghostRoom(event);
             case PERMIT_VIEW_CHANNEL -> permitViewChannel(event);

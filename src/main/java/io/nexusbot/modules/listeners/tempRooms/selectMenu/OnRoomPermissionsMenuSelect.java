@@ -73,6 +73,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
                 .filter(override -> override.isMemberOverride())
                 .filter(override -> extractor.apply(override).contains(permission))
                 .map(override -> override.getIdLong())
+                .filter(id -> id != event.getMember().getIdLong() && id != event.getJDA().getSelfUser().getIdLong())
                 .toList();
 
         if (memberIds.isEmpty()) {
@@ -192,8 +193,8 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
                 .queue();
     }
 
-    private void rejectViewChannel(StringSelectInteractionEvent event) {
-        handleMembersWithPermission(event, Permission.VIEW_CHANNEL, PermissionOverride::getDenied,
+    private void clearViewChannel(StringSelectInteractionEvent event) {
+        handleMembersWithPermission(event, Permission.VIEW_CHANNEL, PermissionOverride::getAllowed,
                 members -> sendRejectedViewChannelMembersMenu(event, members),
                 "В канале нет заблокированных пользователей");
     }
@@ -228,7 +229,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
             case GHOST -> ghostRoom(event);
             case UNGHOST -> unghostRoom(event);
             case PERMIT_VIEW_CHANNEL -> permitViewChannel(event);
-            case REJECT_VIEW_CHANNEL -> rejectViewChannel(event);
+            case REJECT_VIEW_CHANNEL -> clearViewChannel(event);
         }
     }
 }

@@ -14,7 +14,6 @@ import io.nexusbot.utils.EmbedUtil;
 import io.nexusbot.utils.MembersUtil;
 import io.nexusbot.utils.TempRoomUtil;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
@@ -91,12 +90,12 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
         RestAction.allOf(restActions).queue(_ -> {
             TempRoomUtil.saveOverrides(voiceChannel, event.getMember().getIdLong());
             if (extraAction == null) {
-                EmbedUtil.replyEmbed(event, "Права обновлены.", Color.GREEN);
+                EmbedUtil.replyEmbed(event.getHook(), "Права обновлены.", Color.GREEN);
             } else {
                 extraAction.run();
             }
         }, error -> {
-            EmbedUtil.replyEmbed(event, "Не удалось сохранить одно или несколько прав: " + error.getMessage(),
+            EmbedUtil.replyEmbed(event.getHook(), "Не удалось сохранить одно или несколько прав: " + error.getMessage(),
                     Color.RED);
         });
     }
@@ -112,9 +111,11 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
                 overrideAction -> overrideAction.clear(Permission.VOICE_CONNECT), null));
     }
 
-    private List<RestAction<Void>> getKickVoiceMembersAction(Guild guild, List<Member> members) {
+    private List<RestAction<Void>> getKickVoiceMembersAction(GenericSelectMenuInteractionEvent<?, ?> event,
+            List<Member> members) {
         return members.stream()
-                .map(member -> guild.moveVoiceMember(member, null))
+                .filter(member -> event.getChannel().asVoiceChannel().getMembers().contains(member))
+                .map(member -> event.getGuild().moveVoiceMember(member, null))
                 .toList();
     }
 
@@ -122,7 +123,10 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
             String onSuccessMessage,
             String onErrorMessage) {
         event.deferEdit().queue();
-        RestAction.allOf(getKickVoiceMembersAction(event.getGuild(), members)).queue(_ -> {
+        RestAction.allOf(getKickVoiceMembersAction(event, members)).queue(_ -> {
+            EmbedUtil.replyEmbed(event.getHook(),
+                    onSuccessMessage,
+                    Color.GREEN);
         }, error -> {
             EmbedUtil.replyEmbed(event.getHook(),
                     onErrorMessage + error.getMessage(),

@@ -43,6 +43,9 @@ public class OverridesUtil {
             long allow = permissionOverwrite.getAllow();
             long deny = permissionOverwrite.getDeny();
 
+            if (allow == 0 && deny == 0) {
+                continue;
+            }
             if (!id.equals(everyoneRoleId) && initialOverridesIds.contains(id)) {
                 continue;
             }
@@ -60,11 +63,11 @@ public class OverridesUtil {
                 voiceChannel.getGuild().retrieveMemberById(id).queue(member -> {
                     if (member != null) {
                         voiceChannel.upsertPermissionOverride(member)
-                            .setAllowed(allow)
-                            .setDenied(deny)
-                            .queue(_ -> {
-                            }, error -> LOGGER.info("Error while upserting member permissions: {}",
-                                    error.getMessage()));
+                                .setAllowed(allow)
+                                .setDenied(deny)
+                                .queue(_ -> {
+                                }, error -> LOGGER.info("Error while upserting member permissions: {}",
+                                        error.getMessage()));
                     }
                 });
             }
@@ -75,6 +78,7 @@ public class OverridesUtil {
             List<ChannelOverrides> initialOverrides) {
         upsertOverrides(voiceChannel, overwrites, initialOverrides, "");
     }
+
     public static void updateChannelOverrides(VoiceChannel voiceChannel, List<ChannelOverrides> overwrites,
             List<ChannelOverrides> initialOverrides, String everyoneRoleId) {
         upsertOverrides(voiceChannel, overwrites, initialOverrides, everyoneRoleId);

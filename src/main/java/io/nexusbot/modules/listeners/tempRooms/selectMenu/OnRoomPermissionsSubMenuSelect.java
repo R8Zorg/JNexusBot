@@ -143,7 +143,7 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
     private void rejectViewChannel(StringSelectInteractionEvent event) {
         getSelectedMembers(event).thenAccept(members -> {
             changePermissions(event, members,
-                    overrideAction -> overrideAction.setDenied(Permission.VIEW_CHANNEL),
+                    overrideAction -> overrideAction.clear(Permission.VIEW_CHANNEL),
                     () -> {
                         kickVoiceMembers(event, members,
                                 "Выбранные участники выгнаны и больше не смогут зайти в этот канал",

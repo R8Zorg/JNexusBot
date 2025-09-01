@@ -43,7 +43,14 @@ public class EmbedUtil {
                 .setDescription(description)
                 .setColor(color)
                 .build();
-        hook.sendMessageEmbeds(embed).queue();
+        hook.sendMessageEmbeds(embed).setEphemeral(true).queue();
+    }
+    public static void replyEmbed(InteractionHook hook, String description, Color color, boolean ephemeral) {
+        MessageEmbed embed = new EmbedBuilder()
+                .setDescription(description)
+                .setColor(color)
+                .build();
+        hook.sendMessageEmbeds(embed).setEphemeral(ephemeral).queue();
     }
 
     public static void replyEmbed(StringSelectInteractionEvent event, String description, Color color) {

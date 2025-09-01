@@ -118,7 +118,8 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
                 .toList();
     }
 
-    private void kickVoiceMembers(StringSelectInteractionEvent event, List<Member> members, String onSuccessMessage,
+    private void kickVoiceMembers(GenericSelectMenuInteractionEvent<?, ?> event, List<Member> members,
+            String onSuccessMessage,
             String onErrorMessage) {
         event.deferEdit().queue();
         RestAction.allOf(getKickVoiceMembersAction(event.getGuild(), members)).queue(_ -> {
@@ -134,6 +135,11 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
                 "Возникла ошибка при исключении одного или нескольких участников: "));
     }
 
+    private void permitViewChannel(EntitySelectInteractionEvent event) {
+        getSelectedMembers(event).thenAccept(members -> changePermissions(event, members,
+                overrideAction -> overrideAction.setAllowed(Permission.VIEW_CHANNEL), null));
+    }
+
     private void rejectViewChannel(StringSelectInteractionEvent event) {
         getSelectedMembers(event).thenAccept(members -> {
             changePermissions(event, members,
@@ -147,12 +153,15 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
     }
 
     private void rejectConnect(EntitySelectInteractionEvent event) {
-        getSelectedMembers(event).thenAccept(members -> changePermissions(event, members,
-                overrideAction -> overrideAction.setDenied(Permission.VOICE_CONNECT), null));
+        getSelectedMembers(event).thenAccept(members -> {
+            changePermissions(event, members,
+                    overrideAction -> overrideAction.setDenied(Permission.VOICE_CONNECT),
+                    () -> {
+                        kickVoiceMembers(event, members,
+                                "Выбранные участники выгнаны и больше не смогут зайти в этот канал",
+                                "Возникла ошибка при отключении пользователей от канала");
+                    });
+        });
     }
 
-    private void permitViewChannel(EntitySelectInteractionEvent event) {
-        getSelectedMembers(event).thenAccept(members -> changePermissions(event, members,
-                overrideAction -> overrideAction.setAllowed(Permission.VOICE_CONNECT), null));
-    }
 }

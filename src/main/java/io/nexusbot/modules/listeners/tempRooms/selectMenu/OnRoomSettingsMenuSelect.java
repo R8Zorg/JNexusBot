@@ -21,7 +21,7 @@ public class OnRoomSettingsMenuSelect extends ListenerAdapter {
     private void setStatus(StringSelectInteractionEvent event) {
         event.replyModal(ModalUtil.generateModal(
                 TempRoomSettingsModal.STATUS.getValue(), "Изменить статус канала",
-                "Введите новый статус", "Статус канала", 1, 128))
+                "Введите новый статус", "Статус канала", 0, 128))
                 .queue();
     }
 
@@ -42,12 +42,13 @@ public class OnRoomSettingsMenuSelect extends ListenerAdapter {
     private void setNsfw(StringSelectInteractionEvent event) {
         VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
         boolean nsfw = !voiceChannel.isNSFW();
-        voiceChannel.getManager().setNSFW(nsfw).queue();
-        if (nsfw) {
-            EmbedUtil.replyEmbed(event, "Каналу выставлено ограничение 18+", Color.GREEN);
-        } else {
-            EmbedUtil.replyEmbed(event, "С канала снято ограничение 18+", Color.GREEN);
-        }
+        voiceChannel.getManager().setNSFW(nsfw).queue(_ -> {
+            if (nsfw) {
+                EmbedUtil.replyEmbed(event, "Каналу выставлено ограничение 18+", Color.GREEN);
+            } else {
+                EmbedUtil.replyEmbed(event, "С канала снято ограничение 18+", Color.GREEN);
+            }
+        });
     }
 
     private void setOwnership(StringSelectInteractionEvent event) {

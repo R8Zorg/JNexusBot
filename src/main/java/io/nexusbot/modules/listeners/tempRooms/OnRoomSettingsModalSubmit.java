@@ -38,15 +38,21 @@ public class OnRoomSettingsModalSubmit extends ListenerAdapter {
 
     private void setStatus(ModalInteractionEvent event) {
         String status = getModalValue(event);
-        event.getChannel().asVoiceChannel().modifyStatus(status).queue();
-        EmbedUtil.replyEmbed(event, "Статус канала изменён на: `" + status + "`", Color.GREEN);
+        event.getChannel().asVoiceChannel().modifyStatus(status).queue(_ -> {
+            EmbedUtil.replyEmbed(event, "Статус канала изменён на: `" + status + "`", Color.GREEN);
+        }, error -> {
+            EmbedUtil.replyEmbed(event, "Не удалось поменять статус канала: " + error.getMessage(), Color.RED);
+        });
     }
 
     private void setLimit(ModalInteractionEvent event) {
         try {
             int limit = Integer.parseInt(getModalValue(event));
-            event.getChannel().asVoiceChannel().getManager().setUserLimit(limit).queue();
-            EmbedUtil.replyEmbed(event, "Лимит изменён на: `" + limit + "`", Color.GREEN);
+            event.getChannel().asVoiceChannel().getManager().setUserLimit(limit).queue(_ -> {
+                EmbedUtil.replyEmbed(event, "Лимит изменён на: `" + limit + "`", Color.GREEN);
+            }, error -> {
+                EmbedUtil.replyEmbed(event, "Не удалось изменить лимит пользоватей: " + error.getMessage(), Color.RED);
+            });
         } catch (NumberFormatException e) {
             EmbedUtil.replyEmbed(event, "Введите корректное число", Color.RED);
             return;
@@ -61,9 +67,11 @@ public class OnRoomSettingsModalSubmit extends ListenerAdapter {
                 EmbedUtil.replyEmbed(event, "Введено некорректное значение битрейта", Color.RED);
                 return;
             }
-            bitrate = bitrate * 1000;
-            event.getChannel().asVoiceChannel().getManager().setBitrate(bitrate).queue();
-            EmbedUtil.replyEmbed(event, "Битрейт канала изменён на: `" + bitrate + "` кб/с", Color.GREEN);
+            event.getChannel().asVoiceChannel().getManager().setBitrate(bitrate * 1000).queue(_ -> {
+                EmbedUtil.replyEmbed(event, "Битрейт канала изменён на: `" + bitrate * 1000 + "` кб/с", Color.GREEN);
+            }, error -> {
+                EmbedUtil.replyEmbed(event, "Не удалось изменить битрейт канала: " + error.getMessage(), Color.RED);
+            });
         } catch (NumberFormatException e) {
             EmbedUtil.replyEmbed(event, "Введите корректное число", Color.RED);
             return;
@@ -72,7 +80,10 @@ public class OnRoomSettingsModalSubmit extends ListenerAdapter {
 
     private void setName(ModalInteractionEvent event) {
         String name = getModalValue(event);
-        event.getChannel().asVoiceChannel().getManager().setName(name).queue();
-        EmbedUtil.replyEmbed(event, "Название канала изменено на: `" + name + "`", Color.GREEN);
+        event.getChannel().asVoiceChannel().getManager().setName(name).queue(_ -> {
+            EmbedUtil.replyEmbed(event, "Название канала изменено на: `" + name + "`", Color.GREEN);
+        }, error -> {
+            EmbedUtil.replyEmbed(event, "Не удалось изменить название канала: " + error.getMessage(), Color.RED);
+        });
     }
 }

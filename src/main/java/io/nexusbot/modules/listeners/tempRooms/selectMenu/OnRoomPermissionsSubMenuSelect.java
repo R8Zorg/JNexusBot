@@ -120,8 +120,6 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
 
     private void kickVoiceMembers(StringSelectInteractionEvent event, List<Member> members, String onSuccessMessage,
             String onErrorMessage) {
-        event.reply("Выполняю.").setEphemeral(true).queue();
-
         RestAction.allOf(getKickVoiceMembersAction(event.getGuild(), members)).queue(_ -> {
             EmbedUtil.replyEmbed(event.getHook(), onSuccessMessage, Color.GREEN);
         }, error -> {

@@ -108,18 +108,21 @@ public class MessageActionUtil {
                         "Убрать запрет на вход в канал участнику")
                 .addOption("Выгнать", TempRoomPermissionsMenu.KICK.getValue(), "Выгнать участника")
                 .addOption("Закрыть", TempRoomPermissionsMenu.LOCK.getValue(), "Закрыть вход в комнату")
-                .addOption("Открыть", TempRoomPermissionsMenu.UNLOCK.getValue(), "Открыть вход в комнату")
-                .addOption("Запретить видеть скрытый канал", TempRoomPermissionsMenu.REJECT_VIEW_CHANNEL.getValue())
-                .addOption("Разрешить видеть скрытый канал", TempRoomPermissionsMenu.PERMIT_VIEW_CHANNEL.getValue());
+                .addOption("Открыть", TempRoomPermissionsMenu.UNLOCK.getValue(), "Открыть вход в комнату");
 
         if (isCustom) {
             roomSettingsMenuBuilder.addOption("Название", TempRoomSettingsMenu.NAME.getValue(),
                     "Изменить название комнаты");
 
-            roomPermissionsMenuBuilder.addOption("Скрыть", TempRoomPermissionsMenu.GHOST.getValue(),
-                    "Скрыть комнату от участников");
-            roomPermissionsMenuBuilder.addOption("Показать", TempRoomPermissionsMenu.UNGHOST.getValue(),
-                    "Показать комнату для участников");
+            roomPermissionsMenuBuilder
+                    .addOption("Скрыть", TempRoomPermissionsMenu.GHOST.getValue(),
+                            "Скрыть комнату от участников")
+                    .addOption("Показать", TempRoomPermissionsMenu.UNGHOST.getValue(),
+                            "Показать комнату для участников")
+                    .addOption("Разрешить видеть скрытый канал",
+                            TempRoomPermissionsMenu.PERMIT_VIEW_CHANNEL.getValue())
+                    .addOption("Запретить видеть скрытый канал",
+                            TempRoomPermissionsMenu.REJECT_VIEW_CHANNEL.getValue());
         }
         createdRoom.sendMessageEmbeds(embed)
                 .addActionRow(roomSettingsMenuBuilder.build())

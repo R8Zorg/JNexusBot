@@ -51,14 +51,12 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
     }
 
     private StringSelectMenu getMembersMenu(List<Member> members, String menuId) {
-        int membersAmount = DiscordConstants.MAX_SELECT_MENU_ITEMS.getValue() - 1;
         Builder selectMenuBuilder = StringSelectMenu.create(menuId)
                 .setPlaceholder("Выберите участников")
-                .setMaxValues(membersAmount)
-                .addOption("Никого не выбирать", GlobalIds.NOTHING.getValue());
+                .setMaxValues(DiscordConstants.MAX_SELECT_MENU_ITEMS.getValue());
         for (Member member : members) {
             selectMenuBuilder.addOption(member.getEffectiveName(), member.getId());
-            if (selectMenuBuilder.getOptions().size() >= membersAmount) {
+            if (selectMenuBuilder.getOptions().size() >= DiscordConstants.MAX_SELECT_MENU_ITEMS.getValue()) {
                 break;
             }
         }

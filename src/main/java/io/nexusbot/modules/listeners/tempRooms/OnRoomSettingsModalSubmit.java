@@ -39,7 +39,11 @@ public class OnRoomSettingsModalSubmit extends ListenerAdapter {
     private void setStatus(ModalInteractionEvent event) {
         String status = getModalValue(event);
         event.getChannel().asVoiceChannel().modifyStatus(status).queue(_ -> {
-            EmbedUtil.replyEmbed(event, "Статус канала изменён на: `" + status + "`", Color.GREEN);
+            if (status.isEmpty()) {
+                EmbedUtil.replyEmbed(event, "Статус канала удалён", Color.GREEN);
+            } else {
+                EmbedUtil.replyEmbed(event, "Статус канала изменён на: `" + status + "`", Color.GREEN);
+            }
         }, error -> {
             EmbedUtil.replyEmbed(event, "Не удалось поменять статус канала: " + error.getMessage(), Color.RED);
         });

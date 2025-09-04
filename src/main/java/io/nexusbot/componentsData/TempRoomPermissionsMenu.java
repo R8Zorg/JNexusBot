@@ -3,9 +3,11 @@ package io.nexusbot.componentsData;
 public enum TempRoomPermissionsMenu {
     LOCK("room-lock"),
     UNLOCK("room-unlock"),
-    REJECT_CONNECT("room-reject"),
-    CLEAR_CONNECT("room-permit"),
+    REJECT_CONNECT("room-reject-connect"),
+    CLEAR_CONNECT("room-permit-connect"),
     KICK("room-kick"),
+    REJECT_STREAM("room-reject-stream"),
+    PERMIT_STREAM("room-permit-stream"),
     GHOST("room-ghost"),
     UNGHOST("room-unghost"),
     PERMIT_VIEW_CHANNEL("room-whitelist-add"),

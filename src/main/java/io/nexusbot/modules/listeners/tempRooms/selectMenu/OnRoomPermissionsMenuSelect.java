@@ -121,7 +121,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
     private void rejectMemberConnect(StringSelectInteractionEvent event) {
         MessageEmbed embed = EmbedUtil.generateEmbed("""
                 Выберите участников, которому хотите запретить вход в канал.
-                Если участника нет в списке, воспользуйтесь слеш командной `/room reject`
+                Если участника нет в списке, воспользуйтесь слеш командной `/room reject connect`
                 """, Color.WHITE);
 
         event.replyEmbeds(embed)
@@ -180,7 +180,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
     private void permitViewChannel(StringSelectInteractionEvent event) {
         MessageEmbed embed = EmbedUtil.generateEmbed("""
                 Выберите участников, которые будет видеть скрытый канал.
-                Если участника нет в списке, воспользуйтесь слеш командной `/room accept`
+                Если участника нет в списке, воспользуйтесь слеш командной `/room accept view`
                 """, Color.WHITE);
 
         event.replyEmbeds(embed)

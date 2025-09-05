@@ -13,6 +13,9 @@ import net.dv8tion.jda.api.events.channel.update.ChannelUpdateNameEvent;
 import net.dv8tion.jda.api.events.channel.update.ChannelUpdateUserLimitEvent;
 import net.dv8tion.jda.api.events.channel.update.ChannelUpdateVoiceStatusEvent;
 import net.dv8tion.jda.api.events.channel.update.GenericChannelUpdateEvent;
+import net.dv8tion.jda.api.events.guild.override.PermissionOverrideCreateEvent;
+import net.dv8tion.jda.api.events.guild.override.PermissionOverrideDeleteEvent;
+import net.dv8tion.jda.api.events.guild.override.PermissionOverrideUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 @EventListeners
@@ -49,6 +52,24 @@ public class onRoomUpdateSettings extends ListenerAdapter {
     @Override
     public void onChannelUpdateVoiceStatus(ChannelUpdateVoiceStatusEvent event) {
         handleChannelUpdate(event, TempRoomUtil::saveVoiceStatus);
+    }
+
+    @Override
+    public void onPermissionOverrideCreate(PermissionOverrideCreateEvent event) {
+        // TODO Auto-generated method stub
+        super.onPermissionOverrideCreate(event);
+    }
+
+    @Override
+    public void onPermissionOverrideDelete(PermissionOverrideDeleteEvent event) {
+        // TODO Auto-generated method stub
+        super.onPermissionOverrideDelete(event);
+    }
+
+    @Override
+    public void onPermissionOverrideUpdate(PermissionOverrideUpdateEvent event) {
+        // TODO Auto-generated method stub
+        super.onPermissionOverrideUpdate(event);
     }
 
 }

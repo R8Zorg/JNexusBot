@@ -26,8 +26,8 @@ public class TempRoomService implements ITempRoom {
     }
 
     @Override
-    public void saveOrUpdate(TempRoom voiceChannel) {
-        voiceChannelDao.saveOrUpdate(voiceChannel);
+    public void saveOrUpdate(TempRoom tempRoom) {
+        voiceChannelDao.saveOrUpdate(tempRoom);
     }
 
     @Override

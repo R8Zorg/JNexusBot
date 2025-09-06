@@ -123,9 +123,14 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
 
     private void kickVoiceMembers(GenericSelectMenuInteractionEvent<?, ?> event, List<Member> members,
             String onSuccessMessage,
-            String onErrorMessage) {
-        // event.deferEdit().queue();
-        RestAction.allOf(getKickVoiceMembersAction(event, members)).queue(_ -> {
+            String onErrorMessage,
+            String onEmptyListMessage) {
+        List<RestAction<Void>> kickVoiceMembersAction = getKickVoiceMembersAction(event, members);
+        if (kickVoiceMembersAction.isEmpty()) {
+            EmbedUtil.replyEmbed(event.getHook(), onEmptyListMessage, Color.WHITE);
+            return;
+        }
+        RestAction.allOf(kickVoiceMembersAction).queue(_ -> {
             EmbedUtil.replyEmbed(event.getHook(),
                     onSuccessMessage,
                     Color.GREEN);
@@ -138,8 +143,10 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
 
     private void kickMembers(StringSelectInteractionEvent event) {
         event.deferEdit().queue();
-        getSelectedMembers(event).thenAccept(members -> kickVoiceMembers(event, members, "Все участники выгнаны.",
-                "Возникла ошибка при исключении одного или нескольких участников: "));
+        getSelectedMembers(event).thenAccept(members -> kickVoiceMembers(event, members,
+                "Все участники выгнаны.",
+                "Возникла ошибка при исключении одного или нескольких участников: ",
+                ""));
     }
 
     private void permitViewChannel(EntitySelectInteractionEvent event) {
@@ -159,7 +166,10 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
         getSelectedMembers(event).thenAccept(members -> {
             changePermissions(event, members,
                     overrideAction -> overrideAction.deny(Permission.VOICE_CONNECT),
-                    null);
+                    () -> kickVoiceMembers(event, members,
+                            "Выбранные участники исключены и больше не смогут присоединиться к каналу.",
+                            "Произошла ошибка при попытке исключить одного или нескольких участников из канала: ",
+                            "Выбранные участники больше не смогут присоединиться к каналу."));
         });
     }
 

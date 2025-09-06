@@ -199,6 +199,24 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
                 "В канале нет заблокированных пользователей");
     }
 
+    private void rejectStream(StringSelectInteractionEvent event) {
+        VoiceChannel room = event.getChannel().asVoiceChannel();
+        room.upsertPermissionOverride(event.getGuild().getPublicRole())
+                .setDenied(Permission.VOICE_STREAM).queue(_ -> {
+                    TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
+                    EmbedUtil.replyEmbed(event, "Право на включение стрима и вебкамеры отключено", Color.WHITE);
+                });
+    }
+
+    private void clearStream(StringSelectInteractionEvent event) {
+        VoiceChannel room = event.getChannel().asVoiceChannel();
+        room.upsertPermissionOverride(event.getGuild().getPublicRole())
+                .clear(Permission.VOICE_STREAM).queue(_ -> {
+                    TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
+                    EmbedUtil.replyEmbed(event, "Право на включение стрима и вебкамеры сброшено", Color.WHITE);
+                });
+    }
+
     @Override
     public void onStringSelectInteraction(StringSelectInteractionEvent event) {
         if (!event.getComponentId().equals(TempRoomPermissionsMenu.ID)) {
@@ -226,6 +244,8 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
             case REJECT_CONNECT -> rejectMemberConnect(event);
             case CLEAR_CONNECT -> clearMemberConnect(event);
             case KICK -> kickMember(event, ownerId);
+            case REJECT_STREAM -> rejectStream(event);
+            case CLEAR_STREAM -> clearStream(event);
             case GHOST -> ghostRoom(event);
             case UNGHOST -> unghostRoom(event);
             case PERMIT_VIEW_CHANNEL -> permitViewChannel(event);

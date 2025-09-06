@@ -32,7 +32,7 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
     public OnRoomPermissionsSubMenuSelect() {
         stringMenuHandler.put(TempRoomPermissionsMenu.CLEAR_CONNECT.getValue(), this::clearConnect);
         stringMenuHandler.put(TempRoomPermissionsMenu.KICK.getValue(), this::kickMembers);
-        stringMenuHandler.put(TempRoomPermissionsMenu.REJECT_VIEW_CHANNEL.getValue(), this::rejectViewChannel);
+        stringMenuHandler.put(TempRoomPermissionsMenu.REJECT_VIEW_CHANNEL.getValue(), this::clearViewChannel);
 
         entityMenuHandler.put(TempRoomPermissionsMenu.REJECT_CONNECT.getValue(), this::rejectConnect);
         entityMenuHandler.put(TempRoomPermissionsMenu.PERMIT_VIEW_CHANNEL.getValue(), this::permitViewChannel);
@@ -72,8 +72,8 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
     private void changePermissions(GenericSelectMenuInteractionEvent<?, ?> event, List<Member> members,
             Consumer<PermissionOverrideAction> permissionOverride,
             Runnable extraAction) {
+        event.deferEdit().queue();
         if (event.getValues().get(0).equals(GlobalIds.NOTHING.getValue())) {
-            event.deferEdit().queue();
             return;
         }
 
@@ -87,17 +87,19 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
                 })
                 .toList();
 
-        RestAction.allOf(restActions).queue(_ -> {
-            TempRoomUtil.saveOverrides(voiceChannel, event.getMember().getIdLong());
-            if (extraAction == null) {
-                EmbedUtil.replyEmbed(event.getHook(), "Права обновлены.", Color.GREEN);
-            } else {
-                extraAction.run();
-            }
-        }, error -> {
-            EmbedUtil.replyEmbed(event.getHook(), "Не удалось сохранить одно или несколько прав: " + error.getMessage(),
-                    Color.RED);
-        });
+        RestAction.allOf(restActions).queue(
+                _ -> {
+                    TempRoomUtil.saveOverrides(voiceChannel, event.getMember().getIdLong());
+                    if (extraAction == null) {
+                        EmbedUtil.replyEmbed(event.getHook(), "Права обновлены.", Color.GREEN);
+                    } else {
+                        extraAction.run();
+                    }
+                }, error -> {
+                    EmbedUtil.replyEmbed(event.getHook(),
+                            "Не удалось сохранить одно или несколько прав: " + error.getMessage(),
+                            Color.RED);
+                });
     }
 
     private void clearConnect(StringSelectInteractionEvent event) {
@@ -122,7 +124,7 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
     private void kickVoiceMembers(GenericSelectMenuInteractionEvent<?, ?> event, List<Member> members,
             String onSuccessMessage,
             String onErrorMessage) {
-        event.deferEdit().queue();
+        // event.deferEdit().queue();
         RestAction.allOf(getKickVoiceMembersAction(event, members)).queue(_ -> {
             EmbedUtil.replyEmbed(event.getHook(),
                     onSuccessMessage,
@@ -135,36 +137,29 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
     }
 
     private void kickMembers(StringSelectInteractionEvent event) {
+        event.deferEdit().queue();
         getSelectedMembers(event).thenAccept(members -> kickVoiceMembers(event, members, "Все участники выгнаны.",
                 "Возникла ошибка при исключении одного или нескольких участников: "));
     }
 
     private void permitViewChannel(EntitySelectInteractionEvent event) {
         getSelectedMembers(event).thenAccept(members -> changePermissions(event, members,
-                overrideAction -> overrideAction.setAllowed(Permission.VIEW_CHANNEL), null));
+                overrideAction -> overrideAction.grant(Permission.VIEW_CHANNEL), null));
     }
 
-    private void rejectViewChannel(StringSelectInteractionEvent event) {
+    private void clearViewChannel(StringSelectInteractionEvent event) {
         getSelectedMembers(event).thenAccept(members -> {
             changePermissions(event, members,
                     overrideAction -> overrideAction.clear(Permission.VIEW_CHANNEL),
-                    () -> {
-                        kickVoiceMembers(event, members,
-                                "Выбранные участники выгнаны и больше не смогут зайти в этот канал",
-                                "Возникла ошибка при отключении пользователей от канала");
-                    });
+                    null);
         });
     }
 
     private void rejectConnect(EntitySelectInteractionEvent event) {
         getSelectedMembers(event).thenAccept(members -> {
             changePermissions(event, members,
-                    overrideAction -> overrideAction.setDenied(Permission.VOICE_CONNECT),
-                    () -> {
-                        kickVoiceMembers(event, members,
-                                "Выбранные участники выгнаны и больше не смогут зайти в этот канал",
-                                "Возникла ошибка при отключении пользователей от канала");
-                    });
+                    overrideAction -> overrideAction.deny(Permission.VOICE_CONNECT),
+                    null);
         });
     }
 

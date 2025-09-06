@@ -36,7 +36,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
     private void lockRoom(StringSelectInteractionEvent event) {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
-                .setDenied(Permission.VOICE_CONNECT).queue(_ -> {
+                .deny(Permission.VOICE_CONNECT).queue(_ -> {
                     TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
                     EmbedUtil.replyEmbed(event, "Канал закрыт", Color.WHITE);
                 });
@@ -162,7 +162,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
     private void ghostRoom(StringSelectInteractionEvent event) {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
-                .setDenied(Permission.VIEW_CHANNEL).queue(_ -> {
+                .deny(Permission.VIEW_CHANNEL).queue(_ -> {
                     TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
                     EmbedUtil.replyEmbed(event, "Канал скрыт", Color.WHITE);
                 });
@@ -202,7 +202,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
     private void rejectStream(StringSelectInteractionEvent event) {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
-                .setDenied(Permission.VOICE_STREAM).queue(_ -> {
+                .deny(Permission.VOICE_STREAM).queue(_ -> {
                     TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
                     EmbedUtil.replyEmbed(event, "Право на включение стрима и вебкамеры отключено", Color.WHITE);
                 });

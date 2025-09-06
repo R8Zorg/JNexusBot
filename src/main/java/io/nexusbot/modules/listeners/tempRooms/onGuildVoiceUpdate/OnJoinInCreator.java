@@ -193,14 +193,13 @@ public class OnJoinInCreator extends ListenerAdapter {
                 Permission.VOICE_MOVE_OTHERS, Permission.VOICE_SET_STATUS,
                 Permission.MANAGE_CHANNEL, Permission.VOICE_STREAM);
         createdRoom.upsertPermissionOverride(member)
-                .setAllowed(permissions).queue();
+                .grant(permissions).queue();
 
     }
 
     private void updateRoomOverrides(GuildVoiceUpdateEvent event, VoiceChannel createdRoom,
             TempRoomCreator roomCreator, TempRoomSettings roomSettings) {
         addMemberOverrides(createdRoom, event, event.getGuild().getMember(event.getJDA().getSelfUser()));
-        addMemberOverrides(createdRoom, event, event.getMember());
         List<ChannelOverrides> initialOverrides = OverridesUtil.serrializeOverrides(
                 event.getGuild().getCategoryById(roomCreator.getTempRoomCategoryId()).getPermissionOverrides());
         List<ChannelOverrides> roomOverrides = roomSettings.getOverrides();
@@ -212,6 +211,7 @@ public class OnJoinInCreator extends ListenerAdapter {
                 OverridesUtil.updateChannelOverrides(createdRoom, roomOverrides, initialOverrides);
             }
         }
+        addMemberOverrides(createdRoom, event, event.getMember());
     }
 
     private ChannelAction<VoiceChannel> createNewRoom(GuildVoiceUpdateEvent event, TempRoomSettings roomSettings,

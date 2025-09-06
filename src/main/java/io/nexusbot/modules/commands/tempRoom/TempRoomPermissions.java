@@ -110,7 +110,7 @@ public class TempRoomPermissions {
         if (denyNotOwner(event)) {
             return;
         }
-        getUpdateChannelPermissionAction(event, member, override -> override.setAllowed(Permission.VIEW_CHANNEL)).queue(
+        getUpdateChannelPermissionAction(event, member, override -> override.grant(Permission.VIEW_CHANNEL)).queue(
                 _ -> EmbedUtil.replyEmbed(event,
                         member.getAsMention() + " теперь может видеть скрытый канал", Color.GREEN),
                 error -> EmbedUtil.replyEmbed(event, "Не удалось разрешить видеть скрытый канал участнику "

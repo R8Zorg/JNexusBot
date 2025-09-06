@@ -127,7 +127,7 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
             String onEmptyListMessage) {
         List<RestAction<Void>> kickVoiceMembersAction = getKickVoiceMembersAction(event, members);
         if (kickVoiceMembersAction.isEmpty()) {
-            EmbedUtil.replyEmbed(event.getHook(), onEmptyListMessage, Color.WHITE);
+            EmbedUtil.replyEmbed(event.getHook(), onEmptyListMessage, Color.GREEN);
             return;
         }
         RestAction.allOf(kickVoiceMembersAction).queue(_ -> {

@@ -38,7 +38,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
                 .deny(Permission.VOICE_CONNECT).queue(_ -> {
                     TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
-                    EmbedUtil.replyEmbed(event, "Канал закрыт", Color.WHITE);
+                    EmbedUtil.replyEmbed(event, "Канал закрыт", Color.GREEN);
                 });
     }
 
@@ -47,7 +47,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
                 .clear(Permission.VOICE_CONNECT).queue(_ -> {
                     TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
-                    EmbedUtil.replyEmbed(event, "Канал открыт", Color.WHITE);
+                    EmbedUtil.replyEmbed(event, "Канал открыт", Color.GREEN);
                 });
     }
 
@@ -77,7 +77,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
                 .toList();
 
         if (memberIds.isEmpty()) {
-            EmbedUtil.replyEmbed(event, emptyMessage, Color.WHITE);
+            EmbedUtil.replyEmbed(event, emptyMessage, Color.GREEN);
             return;
         }
 
@@ -92,7 +92,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         }
         MessageEmbed embed = EmbedUtil.generateEmbed("""
                 Выберите участников, с которых хотите снять запрет на вход в канал.
-                """, Color.WHITE);
+                """, Color.GREEN);
 
         event.replyEmbeds(embed)
                 .addActionRow(getMembersMenu(rejectedMembers,
@@ -105,12 +105,12 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
     private void sendRejectedViewChannelMembersMenu(StringSelectInteractionEvent event, List<Member> acceptedMembers) {
         if (acceptedMembers.isEmpty()) {
             EmbedUtil.replyEmbed(event, "В канале нет пользователей, которые могут просматривать скрытый канал",
-                    Color.WHITE);
+                    Color.GREEN);
             return;
         }
         MessageEmbed embed = EmbedUtil.generateEmbed("""
                 Выберите участников, которому хотите сброить доступ к закрытому каналу.
-                """, Color.WHITE);
+                """, Color.GREEN);
 
         event.replyEmbeds(embed)
                 .addActionRow(getMembersMenu(acceptedMembers, TempRoomPermissionsMenu.REJECT_VIEW_CHANNEL.getValue()))
@@ -122,7 +122,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         MessageEmbed embed = EmbedUtil.generateEmbed("""
                 Выберите участников, которому хотите запретить вход в канал.
                 Если участника нет в списке, воспользуйтесь слеш командной `/room reject connect`
-                """, Color.WHITE);
+                """, Color.GREEN);
 
         event.replyEmbeds(embed)
                 .addActionRow(EntitySelectMenu.create(
@@ -151,7 +151,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         MessageEmbed embed = EmbedUtil.generateEmbed("""
                 Выберите участников, которого хотите выгнать из канала.
                 Вы также можете использовать слеш команду `/room disconnect`
-                """, Color.WHITE);
+                """, Color.GREEN);
 
         event.replyEmbeds(embed)
                 .addActionRow(getMembersMenu(members, TempRoomPermissionsMenu.KICK.getValue()))
@@ -164,7 +164,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
                 .deny(Permission.VIEW_CHANNEL).queue(_ -> {
                     TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
-                    EmbedUtil.replyEmbed(event, "Канал скрыт", Color.WHITE);
+                    EmbedUtil.replyEmbed(event, "Канал скрыт", Color.GREEN);
                 });
     }
 
@@ -173,7 +173,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
                 .clear(Permission.VIEW_CHANNEL).queue(_ -> {
                     TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
-                    EmbedUtil.replyEmbed(event, "Канал явлен", Color.WHITE);
+                    EmbedUtil.replyEmbed(event, "Канал явлен", Color.GREEN);
                 });
     }
 
@@ -181,7 +181,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         MessageEmbed embed = EmbedUtil.generateEmbed("""
                 Выберите участников, которые будет видеть скрытый канал.
                 Если участника нет в списке, воспользуйтесь слеш командной `/room accept view`
-                """, Color.WHITE);
+                """, Color.GREEN);
 
         event.replyEmbeds(embed)
                 .addActionRow(EntitySelectMenu.create(
@@ -204,7 +204,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
                 .deny(Permission.VOICE_STREAM).queue(_ -> {
                     TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
-                    EmbedUtil.replyEmbed(event, "Право на включение стрима и вебкамеры отключено", Color.WHITE);
+                    EmbedUtil.replyEmbed(event, "Право на включение стрима и вебкамеры отключено", Color.GREEN);
                 });
     }
 
@@ -213,7 +213,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
                 .clear(Permission.VOICE_STREAM).queue(_ -> {
                     TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
-                    EmbedUtil.replyEmbed(event, "Право на включение стрима и вебкамеры сброшено", Color.WHITE);
+                    EmbedUtil.replyEmbed(event, "Право на включение стрима и вебкамеры сброшено", Color.GREEN);
                 });
     }
 

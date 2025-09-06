@@ -7,7 +7,7 @@ public enum TempRoomPermissionsMenu {
     CLEAR_CONNECT("room-permit-connect"),
     KICK("room-kick"),
     REJECT_STREAM("room-reject-stream"),
-    PERMIT_STREAM("room-permit-stream"),
+    CLEAR_STREAM("room-permit-stream"),
     GHOST("room-ghost"),
     UNGHOST("room-unghost"),
     PERMIT_VIEW_CHANNEL("room-whitelist-add"),

@@ -191,7 +191,7 @@ public class OnJoinInCreator extends ListenerAdapter {
     private void addMemberOverrides(VoiceChannel createdRoom, GuildVoiceUpdateEvent event, Member member) {
         EnumSet<Permission> permissions = EnumSet.of(Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT,
                 Permission.VOICE_MOVE_OTHERS, Permission.VOICE_SET_STATUS,
-                Permission.MANAGE_CHANNEL);
+                Permission.MANAGE_CHANNEL, Permission.VOICE_STREAM);
         createdRoom.upsertPermissionOverride(member)
                 .setAllowed(permissions).queue();
 

@@ -54,8 +54,8 @@ public class OverridesUtil {
                 Role role = voiceChannel.getGuild().getRoleById(id);
                 if (role != null) {
                     voiceChannel.upsertPermissionOverride(role)
-                            .setAllowed(allow)
-                            .setDenied(deny)
+                            .grant(allow)
+                            .deny(deny)
                             .queue(_ -> {
                             }, error -> LOGGER.info("Error while upserting role permissions: {}", error.getMessage()));
                 }
@@ -63,8 +63,8 @@ public class OverridesUtil {
                 voiceChannel.getGuild().retrieveMemberById(id).queue(member -> {
                     if (member != null) {
                         voiceChannel.upsertPermissionOverride(member)
-                                .setAllowed(allow)
-                                .setDenied(deny)
+                                .grant(allow)
+                                .deny(deny)
                                 .queue(_ -> {
                                 }, error -> LOGGER.info("Error while upserting member permissions: {}",
                                         error.getMessage()));
@@ -98,16 +98,16 @@ public class OverridesUtil {
                 Role role = textChannel.getGuild().getRoleById(id);
                 if (role != null) {
                     textChannel.upsertPermissionOverride(role)
-                            .setAllowed(allow)
-                            .setDenied(deny)
+                            .grant(allow)
+                            .deny(deny)
                             .queue();
                 }
             } else if (type.equals("member")) {
                 Member member = textChannel.getGuild().getMemberById(id);
                 if (member != null) {
                     textChannel.upsertPermissionOverride(member)
-                            .setAllowed(allow)
-                            .setDenied(deny)
+                            .grant(allow)
+                            .deny(deny)
                             .queue();
                 }
             }

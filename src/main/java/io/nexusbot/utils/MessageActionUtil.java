@@ -102,6 +102,8 @@ public class MessageActionUtil {
         Builder roomPermissionsMenuBuilder = StringSelectMenu.create(TempRoomPermissionsMenu.ID)
                 .setPlaceholder("Поменять права канала")
                 .addOption("Убрать выбор", GlobalIds.NOTHING.getValue(), "Ничего не делать")
+                .addOption("Запретить включать видео", TempRoomPermissionsMenu.REJECT_STREAM.getValue())
+                .addOption("Разрешить включать видео", TempRoomPermissionsMenu.CLEAR_STREAM.getValue())
                 .addOption("Заблокировать доступ", TempRoomPermissionsMenu.REJECT_CONNECT.getValue(),
                         "Выгнать участника и запретить вход в канал")
                 .addOption("Разблокировать доступ", TempRoomPermissionsMenu.CLEAR_CONNECT.getValue(),

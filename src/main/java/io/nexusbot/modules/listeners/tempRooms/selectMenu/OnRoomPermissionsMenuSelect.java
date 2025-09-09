@@ -51,7 +51,12 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
                 });
     }
 
-    private StringSelectMenu getMembersMenu(List<Member> members, String menuId) {
+    private StringSelectMenu getMembersMenu(GenericSelectMenuInteractionEvent<?, ?> event,
+            List<Member> members, String menuId) {
+        Member owner = event.getGuild().getMember(event.getMember());
+        Member bot = event.getGuild().getMember(event.getJDA().getSelfUser());
+        members.remove(owner);
+        members.remove(bot);
         Builder selectMenuBuilder = StringSelectMenu.create(menuId)
                 .setPlaceholder("Выберите участников")
                 .setMaxValues(DiscordConstants.MAX_SELECT_MENU_ITEMS.getValue());
@@ -95,7 +100,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
                 """, Color.GREEN);
 
         event.replyEmbeds(embed)
-                .addActionRow(getMembersMenu(rejectedMembers,
+                .addActionRow(getMembersMenu(event, rejectedMembers,
                         TempRoomPermissionsMenu.CLEAR_CONNECT.getValue()))
                 .setEphemeral(true)
                 .queue();
@@ -113,7 +118,8 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
                 """, Color.GREEN);
 
         event.replyEmbeds(embed)
-                .addActionRow(getMembersMenu(acceptedMembers, TempRoomPermissionsMenu.REJECT_VIEW_CHANNEL.getValue()))
+                .addActionRow(
+                        getMembersMenu(event, acceptedMembers, TempRoomPermissionsMenu.REJECT_VIEW_CHANNEL.getValue()))
                 .setEphemeral(true)
                 .queue();
     }
@@ -141,9 +147,6 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
 
     private void kickMember(StringSelectInteractionEvent event, long ownerId) {
         List<Member> members = new ArrayList<>(event.getChannel().asVoiceChannel().getMembers());
-        Member owner = event.getGuild().getMemberById(ownerId);
-        members.remove(owner);
-
         if (members.isEmpty()) {
             EmbedUtil.replyEmbed(event, "В канале никого, кроме Вас", Color.RED);
             return;
@@ -154,7 +157,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
                 """, Color.GREEN);
 
         event.replyEmbeds(embed)
-                .addActionRow(getMembersMenu(members, TempRoomPermissionsMenu.KICK.getValue()))
+                .addActionRow(getMembersMenu(event, members, TempRoomPermissionsMenu.KICK.getValue()))
                 .setEphemeral(true)
                 .queue();
     }

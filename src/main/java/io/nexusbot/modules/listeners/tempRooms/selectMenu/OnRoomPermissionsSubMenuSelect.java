@@ -88,6 +88,10 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
                     return permissionOverrideAction;
                 })
                 .toList();
+        if (restActions.isEmpty()) {
+            EmbedUtil.replyEmbed(event.getHook(), "Вы не можете выбрать себя или бота", Color.RED);
+            return;
+        }
 
         RestAction.allOf(restActions).queue(
                 permissionOverrides -> {

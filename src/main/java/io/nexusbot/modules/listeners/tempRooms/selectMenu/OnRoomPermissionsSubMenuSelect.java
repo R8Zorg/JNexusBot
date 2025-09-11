@@ -80,6 +80,8 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
         VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
 
         List<PermissionOverrideAction> restActions = members.stream()
+                .filter(member -> member.getIdLong() != event.getJDA().getSelfUser().getIdLong())
+                .filter(member -> member.getIdLong() != event.getMember().getIdLong())
                 .map(member -> {
                     PermissionOverrideAction permissionOverrideAction = voiceChannel.upsertPermissionOverride(member);
                     permissionOverride.accept(permissionOverrideAction);

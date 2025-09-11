@@ -2,6 +2,7 @@ package io.nexusbot.modules.listeners.tempRooms.onGuildVoiceUpdate;
 
 import java.awt.Color;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -200,13 +201,13 @@ public class OnJoinInCreator extends ListenerAdapter {
     private void updateRoomOverrides(GuildVoiceUpdateEvent event, VoiceChannel createdRoom,
             TempRoomCreator roomCreator, TempRoomSettings roomSettings) {
         addMemberOverrides(createdRoom, event, event.getGuild().getMember(event.getJDA().getSelfUser()));
-        List<ChannelOverrides> initialOverrides = OverridesUtil.serrializeOverrides(
+        HashMap<Long, ChannelOverrides> initialOverrides = OverridesUtil.serrializeOverrides(
                 event.getGuild().getCategoryById(roomCreator.getTempRoomCategoryId()).getPermissionOverrides());
-        List<ChannelOverrides> roomOverrides = roomSettings.getOverrides();
+        HashMap<Long, ChannelOverrides> roomOverrides = roomSettings.getOverrides();
         if (!roomOverrides.isEmpty()) {
             if (roomCreator.getChannelMode().equals(ChannelMode.custom)) {
                 OverridesUtil.updateChannelOverrides(createdRoom, roomOverrides, initialOverrides,
-                        event.getGuild().getPublicRole().getId());
+                        event.getGuild().getPublicRole().getIdLong());
             } else {
                 OverridesUtil.updateChannelOverrides(createdRoom, roomOverrides, initialOverrides);
             }

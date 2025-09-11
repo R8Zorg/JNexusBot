@@ -20,7 +20,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.PermissionOverride;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -29,7 +28,6 @@ import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu.SelectTarget;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu.Builder;
-import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 
 @EventListeners
 public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
@@ -38,9 +36,8 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
     private void lockRoom(StringSelectInteractionEvent event) {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
-                .deny(Permission.VOICE_CONNECT).queue(_ -> {
-                    // TempRoomUtil.saveOverrides(event.getMember().getIdLong(), action);
-                    TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
+                .deny(Permission.VOICE_CONNECT).queue(override -> {
+                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event, "Канал закрыт", Color.GREEN);
                 });
     }
@@ -48,8 +45,8 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
     private void unlockRoom(StringSelectInteractionEvent event) {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
-                .clear(Permission.VOICE_CONNECT).queue(_ -> {
-                    TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
+                .clear(Permission.VOICE_CONNECT).queue(override -> {
+                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event, "Канал открыт", Color.GREEN);
                 });
     }
@@ -60,12 +57,15 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         Member bot = event.getGuild().getMember(event.getJDA().getSelfUser());
         members.remove(owner);
         members.remove(bot);
+        if (members.isEmpty()) {
+            return null;
+        }
         Builder selectMenuBuilder = StringSelectMenu.create(menuId)
                 .setPlaceholder("Выберите участников")
-                .setMaxValues(DiscordConstants.MAX_SELECT_MENU_ITEMS.getValue());
+                .setMaxValues(DiscordConstants.MAX_SELECT_MENU_ITEMS);
         for (Member member : members) {
             selectMenuBuilder.addOption(member.getEffectiveName(), member.getId());
-            if (selectMenuBuilder.getOptions().size() >= DiscordConstants.MAX_SELECT_MENU_ITEMS.getValue()) {
+            if (selectMenuBuilder.getOptions().size() >= DiscordConstants.MAX_SELECT_MENU_ITEMS) {
                 break;
             }
         }
@@ -137,7 +137,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
                 .addActionRow(EntitySelectMenu.create(
                         TempRoomPermissionsMenu.REJECT_CONNECT.getValue(), SelectTarget.USER)
                         .setPlaceholder("Выберите участника")
-                        .setMaxValues(DiscordConstants.MAX_SELECT_MENU_ITEMS.getValue())
+                        .setMaxValues(DiscordConstants.MAX_SELECT_MENU_ITEMS)
                         .build())
                 .setEphemeral(true)
                 .queue();
@@ -150,17 +150,18 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
 
     private void kickMember(StringSelectInteractionEvent event, long ownerId) {
         List<Member> members = new ArrayList<>(event.getChannel().asVoiceChannel().getMembers());
-        if (members.isEmpty()) {
-            EmbedUtil.replyEmbed(event, "В канале никого, кроме Вас", Color.RED);
-            return;
-        }
         MessageEmbed embed = EmbedUtil.generateEmbed("""
                 Выберите участников, которого хотите выгнать из канала.
                 Вы также можете использовать слеш команду `/room disconnect`
                 """, Color.GREEN);
 
+        StringSelectMenu stringMenu = getMembersMenu(event, members, TempRoomPermissionsMenu.KICK.getValue());
+        if (stringMenu == null) {
+            EmbedUtil.replyEmbed(event, "В канале никого, кроме Вас", Color.RED);
+            return;
+        }
         event.replyEmbeds(embed)
-                .addActionRow(getMembersMenu(event, members, TempRoomPermissionsMenu.KICK.getValue()))
+                .addActionRow(stringMenu)
                 .setEphemeral(true)
                 .queue();
     }
@@ -168,8 +169,8 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
     private void ghostRoom(StringSelectInteractionEvent event) {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
-                .deny(Permission.VIEW_CHANNEL).queue(_ -> {
-                    TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
+                .deny(Permission.VIEW_CHANNEL).queue(override -> {
+                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event, "Канал скрыт", Color.GREEN);
                 });
     }
@@ -177,8 +178,8 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
     private void unghostRoom(StringSelectInteractionEvent event) {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
-                .clear(Permission.VIEW_CHANNEL).queue(_ -> {
-                    TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
+                .clear(Permission.VIEW_CHANNEL).queue(override -> {
+                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event, "Канал явлен", Color.GREEN);
                 });
     }
@@ -192,7 +193,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         event.replyEmbeds(embed)
                 .addActionRow(EntitySelectMenu.create(
                         TempRoomPermissionsMenu.PERMIT_VIEW_CHANNEL.getValue(), SelectTarget.USER)
-                        .setMaxValues(DiscordConstants.MAX_SELECT_MENU_ITEMS.getValue())
+                        .setMaxValues(DiscordConstants.MAX_SELECT_MENU_ITEMS)
                         .setPlaceholder("Выберите участника(ов)")
                         .build())
                 .setEphemeral(true)
@@ -208,8 +209,8 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
     private void rejectStream(StringSelectInteractionEvent event) {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
-                .deny(Permission.VOICE_STREAM).queue(_ -> {
-                    TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
+                .deny(Permission.VOICE_STREAM).queue(override -> {
+                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event, "Право на включение стрима и вебкамеры отключено", Color.GREEN);
                 });
     }
@@ -217,8 +218,8 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
     private void clearStream(StringSelectInteractionEvent event) {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
-                .clear(Permission.VOICE_STREAM).queue(_ -> {
-                    TempRoomUtil.saveOverrides(room, event.getMember().getIdLong());
+                .clear(Permission.VOICE_STREAM).queue(override -> {
+                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event, "Право на включение стрима и вебкамеры сброшено", Color.GREEN);
                 });
     }

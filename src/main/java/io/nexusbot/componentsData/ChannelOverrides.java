@@ -5,27 +5,17 @@ import java.util.EnumSet;
 import net.dv8tion.jda.api.Permission;
 
 public class ChannelOverrides {
-    private String id;
     private String type;
     private EnumSet<Permission> allow;
     private EnumSet<Permission> deny;
 
-    public ChannelOverrides(String id, String type, EnumSet<Permission> allow, EnumSet<Permission> deny) {
-        this.id = id;
+    public ChannelOverrides(String type, EnumSet<Permission> allow, EnumSet<Permission> deny) {
         this.type = type;
         this.allow = allow;
         this.deny = deny;
     }
 
     public ChannelOverrides() {
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getType() {
@@ -56,7 +46,6 @@ public class ChannelOverrides {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());
         result = prime * result + ((allow == null) ? 0 : allow.hashCode());
         result = prime * result + ((deny == null) ? 0 : deny.hashCode());
@@ -75,13 +64,6 @@ public class ChannelOverrides {
             return false;
         }
         ChannelOverrides other = (ChannelOverrides) obj;
-        if (id == null) {
-            if (other.id != null) {
-                return false;
-            }
-        } else if (!id.equals(other.id)) {
-            return false;
-        }
         if (type == null) {
             if (other.type != null) {
                 return false;

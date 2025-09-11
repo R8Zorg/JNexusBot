@@ -1,12 +1,16 @@
 package io.nexusbot.componentsData;
 
+import java.util.EnumSet;
+
+import net.dv8tion.jda.api.Permission;
+
 public class ChannelOverrides {
     private String id;
     private String type;
-    private long allow;
-    private long deny;
+    private EnumSet<Permission> allow;
+    private EnumSet<Permission> deny;
 
-    public ChannelOverrides(String id, String type, long allow, long deny) {
+    public ChannelOverrides(String id, String type, EnumSet<Permission> allow, EnumSet<Permission> deny) {
         this.id = id;
         this.type = type;
         this.allow = allow;
@@ -32,19 +36,19 @@ public class ChannelOverrides {
         this.type = type;
     }
 
-    public long getAllow() {
+    public EnumSet<Permission> getAllow() {
         return allow;
     }
 
-    public void setAllow(long allow) {
+    public void setAllow(EnumSet<Permission> allow) {
         this.allow = allow;
     }
 
-    public long getDeny() {
+    public EnumSet<Permission> getDeny() {
         return deny;
     }
 
-    public void setDeny(long deny) {
+    public void setDeny(EnumSet<Permission> deny) {
         this.deny = deny;
     }
 
@@ -54,8 +58,8 @@ public class ChannelOverrides {
         int result = 1;
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());
-        result = prime * result + (int) (allow ^ (allow >>> 32));
-        result = prime * result + (int) (deny ^ (deny >>> 32));
+        result = prime * result + ((allow == null) ? 0 : allow.hashCode());
+        result = prime * result + ((deny == null) ? 0 : deny.hashCode());
         return result;
     }
 
@@ -85,10 +89,18 @@ public class ChannelOverrides {
         } else if (!type.equals(other.type)) {
             return false;
         }
-        if (allow != other.allow) {
+        if (allow == null) {
+            if (other.allow != null) {
+                return false;
+            }
+        } else if (!allow.equals(other.allow)) {
             return false;
         }
-        if (deny != other.deny) {
+        if (deny == null) {
+            if (other.deny != null) {
+                return false;
+            }
+        } else if (!deny.equals(other.deny)) {
             return false;
         }
         return true;

@@ -36,12 +36,6 @@ public class onRoomUpdateSettings extends ListenerAdapter {
             Permission.VOICE_DEAF_OTHERS, Permission.MESSAGE_MENTION_EVERYONE,
             Permission.MESSAGE_TTS, Permission.CREATE_SCHEDULED_EVENTS,
             Permission.MANAGE_EVENTS);
-    // private final List<Permission> deniedPermissions = List.of(
-    // Permission.MANAGE_CHANNEL, Permission.MANAGE_WEBHOOKS,
-    // Permission.PRIORITY_SPEAKER, Permission.VOICE_MUTE_OTHERS,
-    // Permission.VOICE_DEAF_OTHERS, Permission.MESSAGE_MENTION_EVERYONE,
-    // Permission.MESSAGE_TTS, Permission.CREATE_SCHEDULED_EVENTS,
-    // Permission.MANAGE_EVENTS);
 
     private void handleChannelUpdate(GenericChannelUpdateEvent<?> event, BiConsumer<VoiceChannel, Long> action) {
         TempRoom room = roomService.get(event.getChannel().getIdLong());
@@ -86,9 +80,8 @@ public class onRoomUpdateSettings extends ListenerAdapter {
     // event if channel's category doesn't have this overrides
     @Override
     public void onPermissionOverrideUpdate(PermissionOverrideUpdateEvent event) {
-        // LOGGER.info("Override update");
-        // TODO: убрать из списка права, которые есть в deniedPermissions
-        // TODO: create new PermissionOverride, with safe overrides
+        LOGGER.info("");
+        LOGGER.info("Override update");
 
         VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
 
@@ -110,13 +103,13 @@ public class onRoomUpdateSettings extends ListenerAdapter {
         }
         LOGGER.info("Initial overrides:");
         for (PermissionOverride permissionOverride : initialPermissionOverrides) {
-            LOGGER.info(permissionOverride.getAllowed().toString());
-            LOGGER.info(permissionOverride.getDenied().toString());
+            LOGGER.info("Allowed: {}", permissionOverride.getAllowed());
+            LOGGER.info("Denied: {}", permissionOverride.getDenied());
         }
         LOGGER.info("Initial overrides:");
         for (PermissionOverride permissionOverride : initialPermissionOverrides) {
-            LOGGER.info(permissionOverride.getAllowed().toString());
-            LOGGER.info(permissionOverride.getDenied().toString());
+            LOGGER.info("Allowed: {}", permissionOverride.getAllowed());
+            LOGGER.info("Denied: {}", permissionOverride.getDenied());
         }
 
         // handleChannelUpdate(event, TempRoomUtil::saveOverrides);

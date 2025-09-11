@@ -1,6 +1,7 @@
 package io.nexusbot.utils;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -9,22 +10,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.nexusbot.componentsData.ChannelOverrides;
-import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 
 public class OverridesUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(OverridesUtil.class);
+    private static final EnumSet<Permission> deniedPermissions = EnumSet.of(
+            Permission.MANAGE_CHANNEL, Permission.MANAGE_WEBHOOKS,
+            Permission.PRIORITY_SPEAKER, Permission.VOICE_MUTE_OTHERS,
+            Permission.VOICE_DEAF_OTHERS, Permission.MESSAGE_MENTION_EVERYONE,
+            Permission.MESSAGE_TTS, Permission.CREATE_SCHEDULED_EVENTS,
+            Permission.MANAGE_EVENTS);
 
     public static List<ChannelOverrides> serrializeOverrides(List<PermissionOverride> overrides) {
         List<ChannelOverrides> overwrites = new ArrayList<>();
         overrides.forEach(po -> {
             String id = po.getId();
             String type = po.isMemberOverride() ? "member" : "role";
-            long allow = po.getAllowedRaw();
-            long deny = po.getDeniedRaw();
+            EnumSet<Permission> allow = po.getAllowed();
+            EnumSet<Permission> deny = po.getDenied();
 
             overwrites.add(new ChannelOverrides(id, type, allow, deny));
         });
@@ -40,15 +46,17 @@ public class OverridesUtil {
         for (ChannelOverrides permissionOverwrite : overwrites) {
             String id = permissionOverwrite.getId();
             String type = permissionOverwrite.getType();
-            long allow = permissionOverwrite.getAllow();
-            long deny = permissionOverwrite.getDeny();
+            EnumSet<Permission> allow = permissionOverwrite.getAllow();
+            EnumSet<Permission> deny = permissionOverwrite.getDeny();
 
-            if (allow == 0 && deny == 0) {
+            if (allow.isEmpty() && deny.isEmpty()) {
                 continue;
             }
             if (!id.equals(everyoneRoleId) && initialOverridesIds.contains(id)) {
                 continue;
             }
+            allow.removeAll(deniedPermissions);
+            deny.removeAll(deniedPermissions);
 
             if (type.equals("role")) {
                 Role role = voiceChannel.getGuild().getRoleById(id);
@@ -82,35 +90,5 @@ public class OverridesUtil {
     public static void updateChannelOverrides(VoiceChannel voiceChannel, List<ChannelOverrides> overwrites,
             List<ChannelOverrides> initialOverrides, String everyoneRoleId) {
         upsertOverrides(voiceChannel, overwrites, initialOverrides, everyoneRoleId);
-    }
-
-    public static void updateChannelOverrides(TextChannel textChannel, List<ChannelOverrides> overwrites) {
-        if (overwrites == null || overwrites.isEmpty()) {
-            return;
-        }
-        for (ChannelOverrides permissionOverwrite : overwrites) {
-            String id = permissionOverwrite.getId();
-            String type = permissionOverwrite.getType();
-            long allow = permissionOverwrite.getAllow();
-            long deny = permissionOverwrite.getDeny();
-
-            if (type.equals("role")) {
-                Role role = textChannel.getGuild().getRoleById(id);
-                if (role != null) {
-                    textChannel.upsertPermissionOverride(role)
-                            .grant(allow)
-                            .deny(deny)
-                            .queue();
-                }
-            } else if (type.equals("member")) {
-                Member member = textChannel.getGuild().getMemberById(id);
-                if (member != null) {
-                    textChannel.upsertPermissionOverride(member)
-                            .grant(allow)
-                            .deny(deny)
-                            .queue();
-                }
-            }
-        }
     }
 }

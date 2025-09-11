@@ -1,11 +1,14 @@
 package io.nexusbot.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 import io.nexusbot.componentsData.ChannelOverrides;
 import io.nexusbot.database.entities.TempRoomSettings;
 import io.nexusbot.database.services.TempRoomSettingsService;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 
 public class TempRoomUtil {
@@ -21,6 +24,10 @@ public class TempRoomUtil {
         List<ChannelOverrides> overrides = OverridesUtil.serrializeOverrides(voiceChannel.getPermissionOverrides());
         saveRoomSettings(voiceChannel, ownerId,
                 settings -> settings.setOverrides(overrides));
+    }
+
+    public static void saveOverrides(long ownerId, Role role, Permission[] permissions) {
+        List<ChannelOverrides> overrides = new ArrayList<>();
     }
 
     public static void saveBitrate(VoiceChannel voiceChannel, long ownerId) {

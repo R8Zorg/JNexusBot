@@ -88,8 +88,8 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
                 .toList();
 
         RestAction.allOf(restActions).queue(
-                _ -> {
-                    TempRoomUtil.saveOverrides(voiceChannel, event.getMember().getIdLong());
+                permissionOverrides -> {
+                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), permissionOverrides);
                     if (extraAction == null) {
                         EmbedUtil.replyEmbed(event.getHook(), "Права обновлены.", Color.GREEN);
                     } else {

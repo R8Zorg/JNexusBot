@@ -35,7 +35,7 @@ public class OnRoomSettingsMenuSelect extends ListenerAdapter {
     private void setBitrate(StringSelectInteractionEvent event) {
         event.replyModal(ModalUtil.generateModal(
                 TempRoomSettingsModal.BITRATE.getValue(), "Изменить битрейт канала",
-                "Введите новый битрейт", "8 - 96", 1, 3))
+                "Введите новый битрейт", "8 - 96", 1, 2))
                 .queue();
     }
 

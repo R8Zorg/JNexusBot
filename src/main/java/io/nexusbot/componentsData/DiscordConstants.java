@@ -1,16 +1,16 @@
 package io.nexusbot.componentsData;
 
-public enum DiscordConstants {
-    MAX_COMPONENTS(5),
-    MAX_SELECT_MENU_ITEMS(25);
+import java.util.EnumSet;
 
-    private final int value;
+import net.dv8tion.jda.api.Permission;
 
-    DiscordConstants(int value) {
-        this.value = value;
-    }
-
-    public int getValue() {
-        return value;
-    }
+public class DiscordConstants {
+    public static final int MAX_COMPONENTS = 5;
+    public static final int MAX_SELECT_MENU_ITEMS = 25;
+    public static final EnumSet<Permission> deniedPermissions = EnumSet.of(
+            Permission.MANAGE_CHANNEL, Permission.MANAGE_WEBHOOKS,
+            Permission.PRIORITY_SPEAKER, Permission.VOICE_MUTE_OTHERS,
+            Permission.VOICE_DEAF_OTHERS, Permission.MESSAGE_MENTION_EVERYONE,
+            Permission.MESSAGE_TTS, Permission.CREATE_SCHEDULED_EVENTS,
+            Permission.MANAGE_EVENTS);
 }

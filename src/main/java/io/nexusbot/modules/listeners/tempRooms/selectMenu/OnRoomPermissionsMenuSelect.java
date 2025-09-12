@@ -100,6 +100,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
         }
         MessageEmbed embed = EmbedUtil.generateEmbed("""
                 Выберите участников, с которых хотите снять запрет на вход в канал.
+                Если Вы не нашли нужных участников, воспользуйтесь командой `/room get blocked`
                 """, Color.GREEN);
 
         event.replyEmbeds(embed)

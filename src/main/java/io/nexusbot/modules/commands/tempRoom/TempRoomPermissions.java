@@ -1,6 +1,7 @@
 package io.nexusbot.modules.commands.tempRoom;
-
+ 
 import java.awt.Color;
+import java.util.List;
 import java.util.function.Consumer;
 
 import io.github.r8zorg.jdatools.annotations.AdditionalSettings;
@@ -15,6 +16,7 @@ import io.nexusbot.utils.EmbedUtil;
 import io.nexusbot.utils.TempRoomUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
@@ -141,6 +143,29 @@ public class TempRoomPermissions {
         event.getGuild().moveVoiceMember(member, null).queue(
                 _ -> EmbedUtil.replyEmbed(event, "Участник" + member.getAsMention() + " выгнан", Color.GREEN),
                 error -> EmbedUtil.replyEmbed(event, "Не удалось выгнать участника: " + error.getMessage(), Color.RED));
+    }
+
+    @SubcommandGroup(parentName = "room", description = "Получить список участников")
+    public void get(SlashCommandInteractionEvent event) {
+    }
+
+    @Subcommand(parentNames = "room get", description = "Получить участников, заблокированных в канале")
+    public void blocked(SlashCommandInteractionEvent event) {
+        VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
+        List<Member> blockedMembers = voiceChannel.getPermissionOverrides().stream()
+        .filter(override -> override.getDenied().contains(Permission.VOICE_CONNECT))
+        .map(PermissionOverride::getMember)
+        .toList();
+        if (blockedMembers.isEmpty()) {
+            EmbedUtil.replyEmbed(event, "В канале нет заблокированных участников", Color.RED);
+            return;
+        }
+
+        String message = "Список заблокированных участников:\n";
+        for (Member member : blockedMembers) {
+            message += member.getAsMention() + "\n";
+        }
+        EmbedUtil.replyEmbed(event, message, Color.GREEN);
     }
 
 }

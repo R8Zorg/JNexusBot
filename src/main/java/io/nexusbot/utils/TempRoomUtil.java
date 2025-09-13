@@ -1,11 +1,13 @@
 package io.nexusbot.utils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
 import io.nexusbot.componentsData.ChannelOverrides;
 import io.nexusbot.database.entities.TempRoomSettings;
 import io.nexusbot.database.services.TempRoomSettingsService;
+import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 
 public class TempRoomUtil {
@@ -17,10 +19,32 @@ public class TempRoomUtil {
         settingsService.saveOrUpdate(settings);
     }
 
-    public static void saveOverrides(VoiceChannel voiceChannel, long ownerId) {
-        List<ChannelOverrides> overrides = OverridesUtil.serrializeOverrides(voiceChannel.getPermissionOverrides());
-        saveRoomSettings(voiceChannel, ownerId,
-                settings -> settings.setOverrides(overrides));
+    private static void setOverrides(TempRoomSettings settings, PermissionOverride override) {
+        ChannelOverrides newOverrides = new ChannelOverrides(override.isRoleOverride() ? "role" : "member",
+                override.getAllowed(), override.getDenied());
+        HashMap<Long, ChannelOverrides> existingOverrides = settings.getOverrides();
+        if (override.getAllowed().isEmpty() && override.getDenied().isEmpty()) {
+            existingOverrides.remove(override.getIdLong());
+        } else {
+            existingOverrides.put(override.getIdLong(), newOverrides);
+        }
+
+        settings.setOverrides(existingOverrides);
+    }
+
+    public static void saveOverrides(long ownerId, PermissionOverride override) {
+        TempRoomSettings settings = settingsService.getOrCreate(ownerId, override.getGuild().getIdLong());
+        setOverrides(settings, override);
+        settingsService.saveOrUpdate(settings);
+    }
+
+    public static void saveOverrides(long ownerId, List<PermissionOverride> overrides) {
+        TempRoomSettings settings = settingsService.getOrCreate(ownerId, overrides.get(0).getGuild().getIdLong());
+
+        for (PermissionOverride permissionOverride : overrides) {
+            setOverrides(settings, permissionOverride);
+        }
+        settingsService.saveOrUpdate(settings);
     }
 
     public static void saveBitrate(VoiceChannel voiceChannel, long ownerId) {

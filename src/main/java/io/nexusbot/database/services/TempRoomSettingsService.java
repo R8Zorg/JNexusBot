@@ -1,6 +1,6 @@
 package io.nexusbot.database.services;
 
-import java.util.List;
+import java.util.HashMap;
 
 import io.nexusbot.componentsData.ChannelOverrides;
 import io.nexusbot.database.dao.TempRoomSettingsDao;
@@ -23,12 +23,12 @@ public class TempRoomSettingsService implements ITempRoomSettings {
         return roomOverrides;
     }
 
-    public List<ChannelOverrides> getOverrides(long ownerId, long guildId) {
+    public HashMap<Long, ChannelOverrides> getOverrides(long ownerId, long guildId) {
         TempRoomSettings overwrites = get(ownerId, guildId);
         return overwrites != null ? overwrites.getOverrides() : null;
     }
 
-    public void setOverrides(long ownerId, long guildId, List<ChannelOverrides> newOverrides) {
+    public void setOverrides(long ownerId, long guildId, HashMap<Long, ChannelOverrides> newOverrides) {
         TempRoomSettings overwrites = get(ownerId, guildId);
         overwrites.setOverrides(newOverrides);
     }

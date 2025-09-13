@@ -1,7 +1,6 @@
 package io.nexusbot.database.entities;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
 
@@ -27,7 +26,7 @@ public class TempRoomSettings {
 
     @Type(JsonType.class)
     @Column(columnDefinition = "json")
-    private List<ChannelOverrides> overrides = new ArrayList<>();
+    private HashMap<Long, ChannelOverrides> overrides = new HashMap<>();
 
     public TempRoomSettings() {
     }
@@ -42,14 +41,6 @@ public class TempRoomSettings {
 
     public void setTempRoomSettingsPK(TempRoomSettingsPK tempRoomSettingsPK) {
         this.tempRoomSettingsPK = tempRoomSettingsPK;
-    }
-
-    public List<ChannelOverrides> getOverrides() {
-        return overrides;
-    }
-
-    public void setOverrides(List<ChannelOverrides> overrides) {
-        this.overrides = overrides;
     }
 
     public String getName() {
@@ -90,5 +81,13 @@ public class TempRoomSettings {
 
     public void setUserLimit(int userLimit) {
         this.userLimit = userLimit;
+    }
+
+    public HashMap<Long, ChannelOverrides> getOverrides() {
+        return overrides;
+    }
+
+    public void setOverrides(HashMap<Long, ChannelOverrides> overrides) {
+        this.overrides = overrides;
     }
 }

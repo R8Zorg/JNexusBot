@@ -1,7 +1,9 @@
 package io.nexusbot.utils;
 
-import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -9,44 +11,43 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.nexusbot.componentsData.ChannelOverrides;
-import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 
 public class OverridesUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(OverridesUtil.class);
 
-    public static List<ChannelOverrides> serrializeOverrides(List<PermissionOverride> overrides) {
-        List<ChannelOverrides> overwrites = new ArrayList<>();
+    public static HashMap<Long, ChannelOverrides> serrializeOverrides(List<PermissionOverride> overrides) {
+        HashMap<Long, ChannelOverrides> serrializedOverrides = new HashMap<>();
         overrides.forEach(po -> {
-            String id = po.getId();
+            long id = po.getIdLong();
             String type = po.isMemberOverride() ? "member" : "role";
-            long allow = po.getAllowedRaw();
-            long deny = po.getDeniedRaw();
+            EnumSet<Permission> allow = po.getAllowed();
+            EnumSet<Permission> deny = po.getDenied();
 
-            overwrites.add(new ChannelOverrides(id, type, allow, deny));
+            serrializedOverrides.put(id, new ChannelOverrides(type, allow, deny));
         });
-        return overwrites;
+        return serrializedOverrides;
     }
 
-    private static void upsertOverrides(VoiceChannel voiceChannel, List<ChannelOverrides> overwrites,
-            List<ChannelOverrides> initialOverrides, String everyoneRoleId) {
-        Set<String> initialOverridesIds = initialOverrides.stream()
-                .map(ChannelOverrides::getId)
-                .collect(Collectors.toSet());
+    private static void upsertOverrides(VoiceChannel voiceChannel, HashMap<Long, ChannelOverrides> overwrites,
+            HashMap<Long, ChannelOverrides> initialOverrides, Long everyoneRoleId) {
+        Set<Long> initialOverrideIds = initialOverrides.keySet().stream().collect(Collectors.toSet());
 
-        for (ChannelOverrides permissionOverwrite : overwrites) {
-            String id = permissionOverwrite.getId();
-            String type = permissionOverwrite.getType();
-            long allow = permissionOverwrite.getAllow();
-            long deny = permissionOverwrite.getDeny();
+        for (Map.Entry<Long, ChannelOverrides> entry : overwrites.entrySet()) {
+            ChannelOverrides channelOverrides = entry.getValue();
 
-            if (allow == 0 && deny == 0) {
+            long id = entry.getKey();
+            String type = channelOverrides.getType();
+            EnumSet<Permission> allow = channelOverrides.getAllow();
+            EnumSet<Permission> deny = channelOverrides.getDeny();
+
+            if (allow.isEmpty() && deny.isEmpty()) {
                 continue;
             }
-            if (!id.equals(everyoneRoleId) && initialOverridesIds.contains(id)) {
+            if (id != everyoneRoleId && initialOverrideIds.contains(id)) {
                 continue;
             }
 
@@ -74,43 +75,13 @@ public class OverridesUtil {
         }
     }
 
-    public static void updateChannelOverrides(VoiceChannel voiceChannel, List<ChannelOverrides> overwrites,
-            List<ChannelOverrides> initialOverrides) {
-        upsertOverrides(voiceChannel, overwrites, initialOverrides, "");
+    public static void updateChannelOverrides(VoiceChannel voiceChannel, HashMap<Long, ChannelOverrides> overwrites,
+            HashMap<Long, ChannelOverrides> initialOverrides) {
+        upsertOverrides(voiceChannel, overwrites, initialOverrides, null);
     }
 
-    public static void updateChannelOverrides(VoiceChannel voiceChannel, List<ChannelOverrides> overwrites,
-            List<ChannelOverrides> initialOverrides, String everyoneRoleId) {
+    public static void updateChannelOverrides(VoiceChannel voiceChannel, HashMap<Long, ChannelOverrides> overwrites,
+            HashMap<Long, ChannelOverrides> initialOverrides, long everyoneRoleId) {
         upsertOverrides(voiceChannel, overwrites, initialOverrides, everyoneRoleId);
-    }
-
-    public static void updateChannelOverrides(TextChannel textChannel, List<ChannelOverrides> overwrites) {
-        if (overwrites == null || overwrites.isEmpty()) {
-            return;
-        }
-        for (ChannelOverrides permissionOverwrite : overwrites) {
-            String id = permissionOverwrite.getId();
-            String type = permissionOverwrite.getType();
-            long allow = permissionOverwrite.getAllow();
-            long deny = permissionOverwrite.getDeny();
-
-            if (type.equals("role")) {
-                Role role = textChannel.getGuild().getRoleById(id);
-                if (role != null) {
-                    textChannel.upsertPermissionOverride(role)
-                            .grant(allow)
-                            .deny(deny)
-                            .queue();
-                }
-            } else if (type.equals("member")) {
-                Member member = textChannel.getGuild().getMemberById(id);
-                if (member != null) {
-                    textChannel.upsertPermissionOverride(member)
-                            .grant(allow)
-                            .deny(deny)
-                            .queue();
-                }
-            }
-        }
     }
 }

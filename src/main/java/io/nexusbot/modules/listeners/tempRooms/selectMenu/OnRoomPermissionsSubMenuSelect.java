@@ -80,16 +80,22 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
         VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
 
         List<PermissionOverrideAction> restActions = members.stream()
+                .filter(member -> member.getIdLong() != event.getJDA().getSelfUser().getIdLong())
+                .filter(member -> member.getIdLong() != event.getMember().getIdLong())
                 .map(member -> {
                     PermissionOverrideAction permissionOverrideAction = voiceChannel.upsertPermissionOverride(member);
                     permissionOverride.accept(permissionOverrideAction);
                     return permissionOverrideAction;
                 })
                 .toList();
+        if (restActions.isEmpty()) {
+            EmbedUtil.replyEmbed(event.getHook(), "Вы не можете выбрать себя или бота", Color.RED);
+            return;
+        }
 
         RestAction.allOf(restActions).queue(
-                _ -> {
-                    TempRoomUtil.saveOverrides(voiceChannel, event.getMember().getIdLong());
+                permissionOverrides -> {
+                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), permissionOverrides);
                     if (extraAction == null) {
                         EmbedUtil.replyEmbed(event.getHook(), "Права обновлены.", Color.GREEN);
                     } else {

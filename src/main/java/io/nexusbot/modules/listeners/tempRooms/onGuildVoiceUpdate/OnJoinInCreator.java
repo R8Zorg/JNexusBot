@@ -54,8 +54,8 @@ public class OnJoinInCreator extends ListenerAdapter {
         if (tempRoom != null) {
             tempRoomService.remove(tempRoom);
         }
-        createdRoom.delete().queue(_ -> {
-        }, _ -> {
+        createdRoom.delete().queue(success -> {
+        }, error -> {
         });
     }
 
@@ -134,8 +134,8 @@ public class OnJoinInCreator extends ListenerAdapter {
                     + rolesMention;
         }
         try {
-            createdRoom.sendMessage(roleNotFoundMessage).queue(_ -> {
-            }, _ -> LOGGER.warn("Не удалось отправить сообщение об отсутствии нужной роли"));
+            createdRoom.sendMessage(roleNotFoundMessage).queue(success -> {
+            }, error -> LOGGER.warn("Не удалось отправить сообщение об отсутствии нужной роли"));
         } catch (InsufficientPermissionException e) {
             LOGGER.warn("Недостаточно прав для отправки сообщения в голосовой канал: {}", e.getMessage());
         }
@@ -271,9 +271,9 @@ public class OnJoinInCreator extends ListenerAdapter {
                     return;
                 }
                 try {
-                    event.getGuild().moveVoiceMember(event.getMember(), createdRoom).queue(_ -> {
+                    event.getGuild().moveVoiceMember(event.getMember(), createdRoom).queue(success -> {
                         onceMemberMoved(event, createdRoom, roomCreator, roomSettings, neededRolesIds);
-                    }, _ -> {
+                    }, error -> {
                         LOGGER.warn("Не удалось переместить участника {} в канал {}", membersName,
                                 createdRoom.getName());
                         createdRoom.delete().queue();

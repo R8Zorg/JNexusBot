@@ -24,7 +24,7 @@ public class MembersUtil {
                         if (counter.decrementAndGet() == 0) {
                             future.complete(members);
                         }
-                    }, _ -> {
+                    }, error -> {
                         if (counter.decrementAndGet() == 0) {
                             future.complete(members);
                         }

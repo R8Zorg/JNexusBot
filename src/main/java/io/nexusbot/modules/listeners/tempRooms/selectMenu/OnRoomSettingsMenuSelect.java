@@ -42,7 +42,7 @@ public class OnRoomSettingsMenuSelect extends ListenerAdapter {
     private void setNsfw(StringSelectInteractionEvent event) {
         VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
         boolean nsfw = !voiceChannel.isNSFW();
-        voiceChannel.getManager().setNSFW(nsfw).queue(_ -> {
+        voiceChannel.getManager().setNSFW(nsfw).queue(success -> {
             if (nsfw) {
                 EmbedUtil.replyEmbed(event, "Каналу выставлено ограничение 18+", Color.GREEN);
             } else {

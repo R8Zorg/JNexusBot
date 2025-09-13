@@ -30,14 +30,9 @@ public class Main {
         JDA jda = JDABuilder.createDefault(dotenv.get("TOKEN"), gatewayIntents)
                 .addEventListeners(listenersManager.getAllListeners())
                 .build();
+        jda.updateCommands().addCommands(commandsManager.getSlashCommandData()).queue();
         jda.awaitReady();
-        jda.getGuildById("1129063388018921532").updateCommands().addCommands(commandsManager.getSlashCommandData())
-                .queue();
 
         logger.info("Bot {} started", jda.getSelfUser().getName());
-        // jda.updateCommands().queue();
-        // jda.updateCommands().addCommands(commandsManager.getSlashCommandData()).queue();
-        // jda.getGuildById("1129063388018921532").updateCommands().queue();
-        // listenersManager.registerListeners(jda);
     }
 }

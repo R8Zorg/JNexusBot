@@ -1,25 +1,30 @@
 package io.nexusbot.modules.commands;
 
+import java.awt.Color;
 import java.util.List;
 
-import io.nexusbot.database.entities.GuildInfo;
-import io.nexusbot.database.services.GuildInfoService;
-
+import io.github.r8zorg.jdatools.annotations.AdditionalSettings;
 import io.github.r8zorg.jdatools.annotations.Command;
 import io.github.r8zorg.jdatools.annotations.Option;
+import io.github.r8zorg.jdatools.annotations.OwnerOnly;
 import io.github.r8zorg.jdatools.annotations.SlashCommands;
 import io.github.r8zorg.jdatools.annotations.Subcommand;
 import io.github.r8zorg.jdatools.annotations.SubcommandGroup;
+import io.nexusbot.database.entities.GuildInfo;
+import io.nexusbot.database.services.GuildInfoService;
+import io.nexusbot.utils.EmbedUtil;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 @SlashCommands
 public class GuildManagement {
-
-    GuildInfoService guildService = new GuildInfoService();
+    private GuildInfoService guildService = new GuildInfoService();
 
     @Command
+    @OwnerOnly(title = "Ошибка доступа", description = "Вы не можете использовать эту команду.", footer = "Эта группа команд доступна только владельцу бота.")
+    @AdditionalSettings(defaultPermissions = Permission.ADMINISTRATOR)
     public void guilds(SlashCommandInteractionEvent event) {
     }
 
@@ -31,7 +36,7 @@ public class GuildManagement {
     public void all(SlashCommandInteractionEvent event) {
         List<GuildInfo> guildEntities = guildService.getAll();
         if (guildEntities.isEmpty()) {
-            event.reply("Gulds not found").setEphemeral(true).queue();
+            EmbedUtil.replyEmbed(event, "Серверы не найдены.", Color.RED);
             return;
         }
         String replyMessage = "";
@@ -40,46 +45,47 @@ public class GuildManagement {
             Guild guild = jda.getGuildById(guildEntity.getId());
             replyMessage += "- " + guild.getName() + " [`" + guildEntity.getId() + "`]";
         }
-        event.reply(replyMessage).queue();
+        EmbedUtil.replyEmbed(event, replyMessage, Color.GREEN);
     }
 
     private Guild getGuildOrRepyError(SlashCommandInteractionEvent event, String guildId) {
         try {
             Guild guild = event.getJDA().getGuildById(guildId);
             if (guild == null) {
-            event.reply("Guild with given id not found").setEphemeral(true).queue();
-            return null;
+                EmbedUtil.replyEmbed(event, "Сервер с таким ID не найден", Color.RED);
+                return null;
             }
             return guild;
         } catch (NumberFormatException e) {
-            event.reply("Introduced invalid guild id").setEphemeral(true).queue();
+            EmbedUtil.replyEmbed(event, "Введён неверный ID сервера", Color.RED);
             return null;
         }
     }
+
     @Subcommand(parentNames = "guilds")
     public void add(SlashCommandInteractionEvent event,
-            @Option(name = "guild_id", description = "Specific guild") String guildId) {
+            @Option(name = "guild_id", description = "ID сервера") String guildId) {
         Guild providedGuild = getGuildOrRepyError(event, guildId);
         GuildInfo guild = new GuildInfo(providedGuild.getIdLong(), providedGuild.getOwnerIdLong());
         try {
-        guildService.saveOrUpdate(guild);
-        event.reply("Added").setEphemeral(true).queue();
+            guildService.saveOrUpdate(guild);
+            EmbedUtil.replyEmbed(event, "Сервер добавлен", Color.GREEN);
         } catch (Exception e) {
-            event.reply("An error occured: " + e.getMessage()).setEphemeral(true).queue();
+            EmbedUtil.replyEmbed(event, "Произошла ошибка: " + e.getMessage(), Color.RED);
         }
     }
 
     @Subcommand(parentNames = "guilds")
     public void remove(SlashCommandInteractionEvent event,
-            @Option(name = "guild_id", description = "Specific guild") String guildId) {
+            @Option(name = "guild_id", description = "ID сервера") String guildId) {
         Guild providedGuild = getGuildOrRepyError(event, guildId);
         try {
             GuildInfo guild = guildService.get(Long.parseLong(guildId));
             guildService.remove(guild);
-            event.reply("Guild (" + providedGuild.getName() + ") [" + providedGuild.getId() + "] removed")
-                    .setEphemeral(true).queue();
+            EmbedUtil.replyEmbed(event,
+                    "Сервер (" + providedGuild.getName() + ") [" + providedGuild.getId() + "] убран", Color.GREEN);
         } catch (IllegalArgumentException e) {
-            event.reply("No such guild in database").setEphemeral(true).queue();
+            EmbedUtil.replyEmbed(event, "Сервер не найден в базе данных", Color.RED);
         }
     }
 }

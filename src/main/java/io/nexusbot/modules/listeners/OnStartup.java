@@ -11,11 +11,11 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 @EventListeners
 public class OnStartup extends ListenerAdapter {
-    final static Logger LOGGER = LoggerFactory.getLogger(OnStartup.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(OnStartup.class);
+    private BotOwnerService botOwnerService = new BotOwnerService();
 
     @Override
     public void onReady(ReadyEvent event) {
-        BotOwnerService botOwnerService = new BotOwnerService();       
         OwnersRegistry.setOwners(botOwnerService.getAllIds());
         LOGGER.info("Owners loaded successfully");
     }

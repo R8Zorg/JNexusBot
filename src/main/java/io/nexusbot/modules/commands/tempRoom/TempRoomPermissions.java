@@ -141,7 +141,7 @@ public class TempRoomPermissions {
             return;
         }
         event.getGuild().moveVoiceMember(member, null).queue(
-                _ -> EmbedUtil.replyEmbed(event, "Участник" + member.getAsMention() + " выгнан", Color.GREEN),
+                success -> EmbedUtil.replyEmbed(event, "Участник" + member.getAsMention() + " выгнан", Color.GREEN),
                 error -> EmbedUtil.replyEmbed(event, "Не удалось выгнать участника: " + error.getMessage(), Color.RED));
     }
 

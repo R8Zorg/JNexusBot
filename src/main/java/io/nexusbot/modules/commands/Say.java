@@ -20,9 +20,9 @@ public class Say {
             @Option(name = "channel", description = "Text channel", required = false, channelType = ChannelType.TEXT) TextChannel channel) {
         try {
             if (channel != null) {
-                channel.sendMessage(message).queue(_ -> replyOnSuccess(event));
+                channel.sendMessage(message).queue(success -> replyOnSuccess(event));
             } else {
-                event.getChannel().sendMessage(message).queue(_ -> replyOnSuccess(event));
+                event.getChannel().sendMessage(message).queue(success -> replyOnSuccess(event));
             }
         } catch (MissingAccessException e) {
             event.reply(e.getMessage()).setEphemeral(true).queue();

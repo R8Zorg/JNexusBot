@@ -136,7 +136,7 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
             EmbedUtil.replyEmbed(event.getHook(), onEmptyListMessage, Color.GREEN);
             return;
         }
-        RestAction.allOf(kickVoiceMembersAction).queue(_ -> {
+        RestAction.allOf(kickVoiceMembersAction).queue(success -> {
             EmbedUtil.replyEmbed(event.getHook(),
                     onSuccessMessage,
                     Color.GREEN);

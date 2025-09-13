@@ -57,7 +57,7 @@ public class OverridesUtil {
                     voiceChannel.upsertPermissionOverride(role)
                             .grant(allow)
                             .deny(deny)
-                            .queue(_ -> {
+                            .queue(success -> {
                             }, error -> LOGGER.info("Error while upserting role permissions: {}", error.getMessage()));
                 }
             } else if (type.equals("member")) {
@@ -66,7 +66,7 @@ public class OverridesUtil {
                         voiceChannel.upsertPermissionOverride(member)
                                 .grant(allow)
                                 .deny(deny)
-                                .queue(_ -> {
+                                .queue(success -> {
                                 }, error -> LOGGER.info("Error while upserting member permissions: {}",
                                         error.getMessage()));
                     }

@@ -38,7 +38,7 @@ public class GuildInfo {
     @Subcommand(parentNames = "guild get")
     public void owner(SlashCommandInteractionEvent event) {
         event.getGuild().retrieveOwner().queue(owner -> sendGuildOwner(event, owner),
-                _ -> sendErrorOnRetrievingOwner(event));
+                error -> sendErrorOnRetrievingOwner(event));
     }
 
     @SubcommandGroup(parentName = "guild")

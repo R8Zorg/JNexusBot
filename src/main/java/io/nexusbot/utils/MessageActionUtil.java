@@ -72,7 +72,7 @@ public class MessageActionUtil {
         }
         channel.retrieveMessageById(messageId).queue(infoMessage -> {
             MessageEmbed updatedEmbed = getUpdatedEmbed(infoMessage.getEmbeds().get(0), voiceChannel);
-            infoMessage.editMessageEmbeds(updatedEmbed).queue(_ -> {
+            infoMessage.editMessageEmbeds(updatedEmbed).queue(success -> {
             }, errorResponse -> {
                 LOGGER.warn("Не удалось обновить сообщение - нет доступа. Ошибка: {}",
                         errorResponse.getMessage());

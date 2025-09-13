@@ -1,10 +1,12 @@
 package io.nexusbot.modules.commands.tickets;
 
+import io.github.r8zorg.jdatools.annotations.AdditionalSettings;
 import io.github.r8zorg.jdatools.annotations.Command;
 import io.github.r8zorg.jdatools.annotations.Option;
 import io.github.r8zorg.jdatools.annotations.SlashCommands;
 import io.github.r8zorg.jdatools.annotations.Subcommand;
 import io.github.r8zorg.jdatools.annotations.SubcommandGroup;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
@@ -12,6 +14,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 public class TicketCommands {
 
     @Command(description = "Команды для билетов")
+    @AdditionalSettings(defaultPermissions = Permission.ADMINISTRATOR)
     public void ticket(SlashCommandInteractionEvent event) {
     }
 

@@ -1,7 +1,10 @@
 package io.nexusbot.modules.commands;
 
+import java.awt.Color;
+
 import io.github.r8zorg.jdatools.annotations.Command;
 import io.github.r8zorg.jdatools.annotations.SlashCommands;
+import io.nexusbot.utils.EmbedUtil;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 @SlashCommands
@@ -9,6 +12,6 @@ public class Ping {
 
     @Command(name = "ping", description = "Replys pong!")
     public void pong(SlashCommandInteractionEvent event) {
-        event.reply("Pong!\nЗадержка: " + event.getJDA().getGatewayPing() + "мс").queue();
+        EmbedUtil.replyEmbed(event, "Pong!\nЗадержка: " + event.getJDA().getGatewayPing() + "мс", Color.GREEN);
     }
 }

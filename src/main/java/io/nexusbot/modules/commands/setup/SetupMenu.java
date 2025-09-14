@@ -9,14 +9,14 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 @SlashCommands
 public class SetupMenu {
-    @Subcommand(parentNames = "setup")
+    @Subcommand(parentNames = "setup", description = "Меню с информацией о настройке бота")
     public void menu(SlashCommandInteractionEvent event) {
         event.reply("")
                 .addActionRow(
                         StringSelectMenu.create(MainMenu.id)
                                 .addOption("Ничего", GlobalIds.NOTHING.getValue(), "Ничего не выбирать")
                                 .addOption("Временные комнаты", MainMenu.tempRooms, "Информация о временных комнатах")
-                                .addOption("Билеты", MainMenu.tickets, "Информация о билетах")
+                                // .addOption("Билеты", MainMenu.tickets, "Информация о билетах")
                                 .build())
                 .queue();
     }

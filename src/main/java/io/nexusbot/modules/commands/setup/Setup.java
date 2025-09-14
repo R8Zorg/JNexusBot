@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 @SlashCommands
 public class Setup {
-    @Command
+    @Command(description = "Команды для настройки бота")
     @AdditionalSettings(defaultPermissions = Permission.ADMINISTRATOR)
     public void setup(SlashCommandInteractionEvent event) {
     }

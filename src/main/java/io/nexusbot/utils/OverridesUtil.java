@@ -1,6 +1,5 @@
 package io.nexusbot.utils;
 
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.nexusbot.componentsData.ChannelOverrides;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
@@ -24,8 +22,8 @@ public class OverridesUtil {
         overrides.forEach(po -> {
             long id = po.getIdLong();
             String type = po.isMemberOverride() ? "member" : "role";
-            EnumSet<Permission> allow = po.getAllowed();
-            EnumSet<Permission> deny = po.getDenied();
+            long allow = po.getAllowedRaw();
+            long deny = po.getDeniedRaw();
 
             serrializedOverrides.put(id, new ChannelOverrides(type, allow, deny));
         });
@@ -41,10 +39,10 @@ public class OverridesUtil {
 
             long id = entry.getKey();
             String type = channelOverrides.getType();
-            EnumSet<Permission> allow = channelOverrides.getAllow();
-            EnumSet<Permission> deny = channelOverrides.getDeny();
+            long allow = channelOverrides.getAllow();
+            long deny = channelOverrides.getDeny();
 
-            if (allow.isEmpty() && deny.isEmpty()) {
+            if (allow == 0 && deny == 0) {
                 continue;
             }
             if (id != everyoneRoleId && initialOverrideIds.contains(id)) {

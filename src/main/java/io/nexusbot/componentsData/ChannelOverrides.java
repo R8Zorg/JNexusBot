@@ -1,15 +1,11 @@
 package io.nexusbot.componentsData;
 
-import java.util.EnumSet;
-
-import net.dv8tion.jda.api.Permission;
-
 public class ChannelOverrides {
     private String type;
-    private EnumSet<Permission> allow;
-    private EnumSet<Permission> deny;
+    private long allow;
+    private long deny;
 
-    public ChannelOverrides(String type, EnumSet<Permission> allow, EnumSet<Permission> deny) {
+    public ChannelOverrides(String type, long allow, long deny) {
         this.type = type;
         this.allow = allow;
         this.deny = deny;
@@ -26,19 +22,19 @@ public class ChannelOverrides {
         this.type = type;
     }
 
-    public EnumSet<Permission> getAllow() {
+    public long getAllow() {
         return allow;
     }
 
-    public void setAllow(EnumSet<Permission> allow) {
+    public void setAllow(long allow) {
         this.allow = allow;
     }
 
-    public EnumSet<Permission> getDeny() {
+    public long getDeny() {
         return deny;
     }
 
-    public void setDeny(EnumSet<Permission> deny) {
+    public void setDeny(long deny) {
         this.deny = deny;
     }
 
@@ -47,8 +43,8 @@ public class ChannelOverrides {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((type == null) ? 0 : type.hashCode());
-        result = prime * result + ((allow == null) ? 0 : allow.hashCode());
-        result = prime * result + ((deny == null) ? 0 : deny.hashCode());
+        result = prime * result + (int) (allow ^ (allow >>> 32));
+        result = prime * result + (int) (deny ^ (deny >>> 32));
         return result;
     }
 
@@ -71,18 +67,10 @@ public class ChannelOverrides {
         } else if (!type.equals(other.type)) {
             return false;
         }
-        if (allow == null) {
-            if (other.allow != null) {
-                return false;
-            }
-        } else if (!allow.equals(other.allow)) {
+        if (allow != other.allow) {
             return false;
         }
-        if (deny == null) {
-            if (other.deny != null) {
-                return false;
-            }
-        } else if (!deny.equals(other.deny)) {
+        if (deny != other.deny) {
             return false;
         }
         return true;

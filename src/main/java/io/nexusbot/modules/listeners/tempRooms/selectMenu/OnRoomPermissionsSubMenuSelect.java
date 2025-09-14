@@ -32,7 +32,7 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
     public OnRoomPermissionsSubMenuSelect() {
         stringMenuHandler.put(TempRoomPermissionsMenu.CLEAR_CONNECT.getValue(), this::clearConnect);
         stringMenuHandler.put(TempRoomPermissionsMenu.KICK.getValue(), this::kickMembers);
-        stringMenuHandler.put(TempRoomPermissionsMenu.REJECT_VIEW_CHANNEL.getValue(), this::clearViewChannel);
+        stringMenuHandler.put(TempRoomPermissionsMenu.CLEAR_VIEW_CHANNEL.getValue(), this::clearViewChannel);
 
         entityMenuHandler.put(TempRoomPermissionsMenu.REJECT_CONNECT.getValue(), this::rejectConnect);
         entityMenuHandler.put(TempRoomPermissionsMenu.PERMIT_VIEW_CHANNEL.getValue(), this::permitViewChannel);

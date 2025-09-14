@@ -123,7 +123,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
 
         event.replyEmbeds(embed)
                 .addActionRow(
-                        getMembersMenu(event, acceptedMembers, TempRoomPermissionsMenu.REJECT_VIEW_CHANNEL.getValue()))
+                        getMembersMenu(event, acceptedMembers, TempRoomPermissionsMenu.CLEAR_VIEW_CHANNEL.getValue()))
                 .setEphemeral(true)
                 .queue();
     }
@@ -257,7 +257,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
             case GHOST -> ghostRoom(event);
             case UNGHOST -> unghostRoom(event);
             case PERMIT_VIEW_CHANNEL -> permitViewChannel(event);
-            case REJECT_VIEW_CHANNEL -> clearViewChannel(event);
+            case CLEAR_VIEW_CHANNEL -> clearViewChannel(event);
         }
     }
 }

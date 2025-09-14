@@ -164,6 +164,10 @@ public class TempRoomCommands {
         if (denyNotVoiceChannel(event) || denyNotOwner(event)) {
             return;
         }
+        if (event.getMember().getIdLong() == member.getIdLong()) {
+            EmbedUtil.replyEmbed(event, "Вы не можете выгнать себя.", Color.RED);
+            return;
+        }
 
         if (!event.getChannel().asVoiceChannel().getMembers().contains(member)) {
             EmbedUtil.replyEmbed(event, "Участник не в Вашем канале.", Color.RED);

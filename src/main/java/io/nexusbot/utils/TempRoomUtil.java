@@ -21,7 +21,7 @@ public class TempRoomUtil {
 
     private static void setOverrides(TempRoomSettings settings, PermissionOverride override) {
         ChannelOverrides newOverrides = new ChannelOverrides(override.isRoleOverride() ? "role" : "member",
-                override.getAllowed(), override.getDenied());
+                override.getAllowedRaw(), override.getDeniedRaw());
         HashMap<Long, ChannelOverrides> existingOverrides = settings.getOverrides();
         if (override.getAllowed().isEmpty() && override.getDenied().isEmpty()) {
             existingOverrides.remove(override.getIdLong());

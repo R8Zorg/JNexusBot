@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 public class GuildManagement {
     private GuildInfoService guildService = new GuildInfoService();
 
-    @Command
+    @Command(description = "Команды для обновления серверов в БД. Доступны только создателю бота")
     @OwnerOnly(title = "Ошибка доступа", description = "Вы не можете использовать эту команду.", footer = "Эта группа команд доступна только владельцу бота.")
     @AdditionalSettings(defaultPermissions = Permission.ADMINISTRATOR)
     public void guilds(SlashCommandInteractionEvent event) {

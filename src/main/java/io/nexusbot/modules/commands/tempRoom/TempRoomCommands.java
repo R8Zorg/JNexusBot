@@ -16,6 +16,7 @@ import io.nexusbot.utils.TempRoomUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.PermissionOverride;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
@@ -24,20 +25,22 @@ import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 public class TempRoomCommands {
     private TempRoomService roomService = new TempRoomService();
 
-    private boolean denyNotOwner(SlashCommandInteractionEvent event) {
-        VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
-        String denyMessage = "Используйте команду, находясь в своём голосовом канале.";
-        if (voiceChannel == null) {
-            EmbedUtil.replyEmbed(event, denyMessage, Color.RED);
-            return true;
-        }
-        TempRoom room = roomService.get(voiceChannel.getIdLong());
-        if (room == null || room.getOwnerId() != event.getMember().getIdLong()) {
-            EmbedUtil.replyEmbed(event, denyMessage, Color.RED);
+    private boolean denyNotVoiceChannel(SlashCommandInteractionEvent event) {
+        if (event.getChannel().getType() != ChannelType.VOICE) {
+            EmbedUtil.replyEmbed(event, "Вы можете использовать команду только в своём канале.", Color.RED);
             return true;
         }
         return false;
+    }
 
+    private boolean denyNotOwner(SlashCommandInteractionEvent event) {
+        VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
+        TempRoom room = roomService.get(voiceChannel.getIdLong());
+        if (room == null || room.getOwnerId() != event.getMember().getIdLong()) {
+            EmbedUtil.replyEmbed(event, "Используйте команду, находясь в своём голосовом канале.", Color.RED);
+            return true;
+        }
+        return false;
     }
 
     private PermissionOverrideAction getUpdateChannelPermissionAction(SlashCommandInteractionEvent event, Member member,
@@ -82,9 +85,10 @@ public class TempRoomCommands {
     @Subcommand(parentNames = "room reject", description = "Запретить участнику подключение к голосовому каналу")
     public void connect(SlashCommandInteractionEvent event,
             @Option(name = "member", description = "Участник") Member member) {
-        if (denyNotOwner(event)) {
+        if (denyNotVoiceChannel(event) || denyNotOwner(event)) {
             return;
         }
+
         getUpdateChannelPermissionAction(event, member, override -> override.setDenied(Permission.VOICE_CONNECT)).queue(
                 override -> {
                     TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
@@ -102,9 +106,10 @@ public class TempRoomCommands {
     @Subcommand(parentNames = "room clear", name = "view", description = "Сбросить право на просмотр скрытого канала")
     public void clearView(SlashCommandInteractionEvent event,
             @Option(name = "member", description = "Участник") Member member) {
-        if (denyNotOwner(event)) {
+        if (denyNotVoiceChannel(event) || denyNotOwner(event)) {
             return;
         }
+
         getUpdateChannelPermissionAction(event, member, override -> override.clear(Permission.VIEW_CHANNEL)).queue(
                 override -> {
                     TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
@@ -118,9 +123,10 @@ public class TempRoomCommands {
     @Subcommand(parentNames = "room clear", name = "connect", description = "Сбросить запрет на подключение к каналу")
     public void clearConnect(SlashCommandInteractionEvent event,
             @Option(name = "member", description = "Участник") Member member) {
-        if (denyNotOwner(event)) {
+        if (denyNotVoiceChannel(event) || denyNotOwner(event)) {
             return;
         }
+
         getUpdateChannelPermissionAction(event, member, override -> override.clear(Permission.VIEW_CHANNEL)).queue(
                 override -> {
                     TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
@@ -138,9 +144,10 @@ public class TempRoomCommands {
     @Subcommand(parentNames = "room accept", name = "view", description = "Разрешить участнику видеть скрытый канал")
     public void acceptView(SlashCommandInteractionEvent event,
             @Option(name = "member", description = "Участник, которому нужно разрешить видеть скрытый канал") Member member) {
-        if (denyNotOwner(event)) {
+        if (denyNotVoiceChannel(event) || denyNotOwner(event)) {
             return;
         }
+
         getUpdateChannelPermissionAction(event, member, override -> override.grant(Permission.VIEW_CHANNEL)).queue(
                 override -> {
                     TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
@@ -154,9 +161,10 @@ public class TempRoomCommands {
     @Subcommand(parentNames = "room", description = "Выгнать участника из своей комнаты")
     public void disconnect(SlashCommandInteractionEvent event,
             @Option(name = "member", description = "Участник") Member member) {
-        if (denyNotOwner(event)) {
+        if (denyNotVoiceChannel(event) || denyNotOwner(event)) {
             return;
         }
+
         if (!event.getChannel().asVoiceChannel().getMembers().contains(member)) {
             EmbedUtil.replyEmbed(event, "Участник не в Вашем канале.", Color.RED);
             return;
@@ -172,13 +180,17 @@ public class TempRoomCommands {
 
     @Subcommand(parentNames = "room get", description = "Получить участников, заблокированных в канале")
     public void blocked(SlashCommandInteractionEvent event) {
+        if (denyNotVoiceChannel(event) || denyNotOwner(event)) {
+            return;
+        }
+
         VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
         List<Member> blockedMembers = voiceChannel.getPermissionOverrides().stream()
                 .filter(override -> override.getDenied().contains(Permission.VOICE_CONNECT))
                 .map(PermissionOverride::getMember)
                 .toList();
         if (blockedMembers.isEmpty()) {
-            EmbedUtil.replyEmbed(event, "В канале нет заблокированных участников", Color.RED);
+            EmbedUtil.replyEmbed(event, "В канале нет заблокированных участников", Color.WHITE);
             return;
         }
 
@@ -186,7 +198,7 @@ public class TempRoomCommands {
         for (Member member : blockedMembers) {
             message += member.getAsMention() + "\n";
         }
-        EmbedUtil.replyEmbed(event, message, Color.GREEN);
+        EmbedUtil.replyEmbed(event, message, Color.WHITE);
     }
 
 }

@@ -1,5 +1,5 @@
 package io.nexusbot.modules.commands.tempRoom;
- 
+
 import java.awt.Color;
 import java.util.List;
 import java.util.function.Consumer;
@@ -50,8 +50,30 @@ public class TempRoomCommands {
     }
 
     @Command(description = "Команды для временных комнат")
-    @AdditionalSettings(defaultPermissions = Permission.ADMINISTRATOR)
     public void room(SlashCommandInteractionEvent event) {
+    }
+
+    @Subcommand(parentNames = "room", description = "Просмотреть список возможностей временной комнаты")
+    public void help(SlashCommandInteractionEvent event) {
+        String message = """
+                - 1. В своей комнате Вы можете поменять:
+                    - Статус
+                    - Лимит
+                    - Битрейт
+                    - Вкл/выкл возрастное ограничение
+                    - - В кастомном моде канала (настраивается администратором) Вы можете поменять ещё:
+                        - Название канала
+                - 2. Управление правами:
+                    - Запретить/разрешить включать видео — запретить/отозвать право на включение видео и стрима всем, кроме Вас;
+                    - Заблокировать/разблокировать доступ — запретить/отозвать право на подключение к каналу участнику (но не себе и не боту);
+                    - Выгнать участника (через бота или интерфейс клиента)
+                    - Закрыть/открыть комнату  — запретить/отозвать право на подключение к каналу всем, кроме Вас;
+                    - - В кастомном моде канала (настраивается администратором) Вы можете ещё:
+                        - Скрыть/показать комнату — запретить/отозвать право на просмотр комнаты всем, кроме Вас;
+                        - Разрешить видеть скрытый канал — белый список участников, которые смогут видеть и подключаться (если они не заблокированы) к скрытому каналу;
+                        - Запретить видеть скрытый канал — отозвать право на просмотр скрытого канала участнику;
+                """;
+        EmbedUtil.replyEmbed(event, message, Color.WHITE);
     }
 
     @SubcommandGroup(parentName = "room", description = "Раздел с запретами")
@@ -153,9 +175,9 @@ public class TempRoomCommands {
     public void blocked(SlashCommandInteractionEvent event) {
         VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
         List<Member> blockedMembers = voiceChannel.getPermissionOverrides().stream()
-        .filter(override -> override.getDenied().contains(Permission.VOICE_CONNECT))
-        .map(PermissionOverride::getMember)
-        .toList();
+                .filter(override -> override.getDenied().contains(Permission.VOICE_CONNECT))
+                .map(PermissionOverride::getMember)
+                .toList();
         if (blockedMembers.isEmpty()) {
             EmbedUtil.replyEmbed(event, "В канале нет заблокированных участников", Color.RED);
             return;

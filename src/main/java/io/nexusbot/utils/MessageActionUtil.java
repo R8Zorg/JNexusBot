@@ -124,7 +124,7 @@ public class MessageActionUtil {
                     .addOption("Разрешить видеть скрытый канал",
                             TempRoomPermissionsMenu.PERMIT_VIEW_CHANNEL.getValue())
                     .addOption("Запретить видеть скрытый канал",
-                            TempRoomPermissionsMenu.REJECT_VIEW_CHANNEL.getValue());
+                            TempRoomPermissionsMenu.CLEAR_VIEW_CHANNEL.getValue());
         }
         createdRoom.sendMessageEmbeds(embed)
                 .addActionRow(roomSettingsMenuBuilder.build())

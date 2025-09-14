@@ -11,7 +11,7 @@ public enum TempRoomPermissionsMenu {
     GHOST("room-ghost"),
     UNGHOST("room-unghost"),
     PERMIT_VIEW_CHANNEL("room-whitelist-add"),
-    REJECT_VIEW_CHANNEL("room-whitelist-remove");
+    CLEAR_VIEW_CHANNEL("room-whitelist-remove");
 
     public static final String ID = "room-permissions";
 

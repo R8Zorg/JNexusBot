@@ -1,5 +1,7 @@
 package io.nexusbot.modules.listeners;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +18,13 @@ public class OnStartup extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        OwnersRegistry.setOwners(botOwnerService.getAllIds());
+        List<Long> botOwnerIds = botOwnerService.getAllIds();
+        if (botOwnerIds.isEmpty()) {
+            long botOwnerId = 389787190986670082L;
+            botOwnerService.add(botOwnerId);
+            botOwnerIds.add(botOwnerId);
+        }
+        OwnersRegistry.setOwners(botOwnerIds);
         LOGGER.info("Owners loaded successfully");
     }
 }

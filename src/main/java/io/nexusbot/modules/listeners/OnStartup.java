@@ -20,11 +20,13 @@ public class OnStartup extends ListenerAdapter {
     public void onReady(ReadyEvent event) {
         List<Long> botOwnerIds = botOwnerService.getAllIds();
         if (botOwnerIds.isEmpty()) {
+            LOGGER.info("Owners list is empty. Adding default value");
             long botOwnerId = 389787190986670082L;
             botOwnerService.add(botOwnerId);
-            botOwnerIds.add(botOwnerId);
+            OwnersRegistry.addOwner(botOwnerId);
+        } else {
+            OwnersRegistry.setOwners(botOwnerIds);
         }
-        OwnersRegistry.setOwners(botOwnerIds);
         LOGGER.info("Owners loaded successfully");
     }
 }

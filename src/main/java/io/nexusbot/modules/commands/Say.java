@@ -4,6 +4,7 @@ import io.github.r8zorg.jdatools.annotations.AdditionalSettings;
 import io.github.r8zorg.jdatools.annotations.Command;
 import io.github.r8zorg.jdatools.annotations.Option;
 import io.github.r8zorg.jdatools.annotations.SlashCommands;
+import io.nexusbot.utils.MembersUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -21,6 +22,9 @@ public class Say {
     public void say(SlashCommandInteractionEvent event,
             @Option(name = "message", description = "Message to send") String message,
             @Option(name = "channel", description = "Text channel", required = false, channelType = ChannelType.TEXT) TextChannel channel) {
+        if (MembersUtil.inBlacklist(event.getMember().getIdLong())) {
+            return;
+        }
         try {
             if (channel != null) {
                 channel.sendMessage(message).queue(success -> replyOnSuccess(event));

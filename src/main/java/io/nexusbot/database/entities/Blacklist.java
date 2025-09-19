@@ -9,12 +9,16 @@ import jakarta.persistence.Table;
 public class Blacklist {
     @Id
     private long userId;
-    
+
     private String reason;
 
     public Blacklist(long id, String reason) {
         this.userId = id;
         this.reason = reason;
+    }
+
+    public Blacklist(long id) {
+        this.userId = id;
     }
 
     public Blacklist() {

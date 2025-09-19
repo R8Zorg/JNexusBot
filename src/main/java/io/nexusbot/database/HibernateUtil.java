@@ -8,6 +8,7 @@ import org.hibernate.cfg.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;
@@ -23,7 +24,14 @@ public class HibernateUtil {
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             try {
-                Configuration configuration = new Configuration().configure();
+                Dotenv dotenv = Dotenv.load();
+
+                Configuration configuration = new Configuration();
+                configuration.setProperty("hibernate.connection.url", dotenv.get("DB_URL"));
+                configuration.setProperty("hibernate.connection.username", dotenv.get("USER"));
+                configuration.setProperty("hibernate.connection.password", dotenv.get("PASSWORD"));
+                configuration.configure();
+
                 try (ScanResult scanResult = new ClassGraph()
                         .acceptPackages("io.nexusbot.database")
                         .enableAnnotationInfo()

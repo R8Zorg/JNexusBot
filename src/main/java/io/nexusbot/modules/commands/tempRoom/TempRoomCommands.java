@@ -2,7 +2,6 @@ package io.nexusbot.modules.commands.tempRoom;
 
 import java.awt.Color;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 import io.github.r8zorg.jdatools.annotations.Command;
@@ -180,36 +179,30 @@ public class TempRoomCommands {
                 error -> EmbedUtil.replyEmbed(event, "Не удалось выгнать участника: " + error.getMessage(), Color.RED));
     }
 
-    @SubcommandGroup(parentName = "room", description = "Получить список участников")
+    // @SubcommandGroup(parentName = "room", description = "Получить список участников")
     public void get(SlashCommandInteractionEvent event) {
     }
 
-    @Subcommand(parentNames = "room get", description = "Получить участников, заблокированных в канале")
+    // @Subcommand(parentNames = "room get", description = "Получить участников, заблокированных в канале")
     public void blocked(SlashCommandInteractionEvent event) {
         if (denyNotVoiceChannel(event) || denyNotOwner(event)) {
             return;
         }
 
         VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
-        // List<Member> blockedMembers = voiceChannel.getPermissionOverrides().stream()
-        // .filter(override -> override.getDenied().contains(Permission.VOICE_CONNECT))
-        // .map(PermissionOverride::getMember)
-        // .toList();
-        List<Long> blockedMemberIds = voiceChannel.getPermissionOverrides().stream()
+        List<Member> blockedMembers = voiceChannel.getPermissionOverrides().stream()
                 .filter(override -> override.getDenied().contains(Permission.VOICE_CONNECT))
-                .filter(Objects::nonNull)
-                .map(override -> override.getMember().getIdLong())
+                .map(PermissionOverride::getMember)
                 .toList();
-        if (blockedMemberIds.isEmpty()) {
+        if (blockedMembers.isEmpty()) {
             EmbedUtil.replyEmbed(event, "В канале нет заблокированных участников", Color.WHITE);
             return;
         }
 
-        String message = "Список заблокированных участников (временно без никнеймов):\n";
-        // TODO: fetch members via MembersUtil.loadMembers
-        for (Long memberId : blockedMemberIds) {
-            // message += member.getAsMention() + "\n";
-            message += memberId + "\n";
+        String message = "Список заблокированных участников:\n";
+        // TODO: MembersUtil.loadMembers()
+        for (Member member : blockedMembers) {
+            message += member.getAsMention() + "\n";
         }
         EmbedUtil.replyEmbed(event, message, Color.WHITE);
     }

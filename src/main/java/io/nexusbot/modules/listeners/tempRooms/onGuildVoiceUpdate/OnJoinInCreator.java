@@ -222,7 +222,8 @@ public class OnJoinInCreator extends ListenerAdapter {
         String roomName = roomSettings.getName() != null ? roomSettings.getName()
                 : event.getMember().getUser().getName() + "'s channel";
 
-        if (!neededRolesIds.isEmpty()) {
+        boolean isRoleNeeded = creatorService.isRoleNeeded(event.getChannelJoined().getIdLong());
+        if (isRoleNeeded && !neededRolesIds.isEmpty()) {
             Member member = event.getMember();
             for (Role role : member.getRoles()) {
                 if (neededRolesIds.contains(role.getIdLong())) {

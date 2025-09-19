@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInterac
 
 public class MembersUtil {
     private static BlacklistService blacklistService = new BlacklistService();
+
     public static CompletableFuture<List<Member>> loadMembers(GenericSelectMenuInteractionEvent<?, ?> event,
             List<Long> memberIds) {
         CompletableFuture<List<Member>> future = new CompletableFuture<>();

@@ -234,7 +234,6 @@ public class OnJoinInCreator extends ListenerAdapter {
                         break;
                     }
                 }
-            } else {
                 if (roomCreator.getDefaultTempChannelName() != null) {
                     roomName = roomCreator.getDefaultTempChannelName();
                 }

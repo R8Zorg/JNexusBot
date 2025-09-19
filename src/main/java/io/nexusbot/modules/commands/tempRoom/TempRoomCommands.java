@@ -190,19 +190,23 @@ public class TempRoomCommands {
         }
 
         VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
-        List<Member> blockedMembers = voiceChannel.getPermissionOverrides().stream()
+        // List<Member> blockedMembers = voiceChannel.getPermissionOverrides().stream()
+        //         .filter(override -> override.getDenied().contains(Permission.VOICE_CONNECT))
+        //         .map(PermissionOverride::getMember)
+        //         .toList();
+        List<Long> blockedMemberIds = voiceChannel.getPermissionOverrides().stream()
                 .filter(override -> override.getDenied().contains(Permission.VOICE_CONNECT))
-                .map(PermissionOverride::getMember)
+                .map(override -> override.getMember().getIdLong())
                 .toList();
-        if (blockedMembers.isEmpty()) {
+        if (blockedMemberIds.isEmpty()) {
             EmbedUtil.replyEmbed(event, "В канале нет заблокированных участников", Color.WHITE);
             return;
         }
 
         String message = "Список заблокированных участников (временно без никнеймов):\n";
-        for (Member member : blockedMembers) {
+        for (Long memberId : blockedMemberIds) {
             // message += member.getAsMention() + "\n";
-            message += member.getIdLong() + "\n";
+            message += memberId + "\n";
         }
         EmbedUtil.replyEmbed(event, message, Color.WHITE);
     }

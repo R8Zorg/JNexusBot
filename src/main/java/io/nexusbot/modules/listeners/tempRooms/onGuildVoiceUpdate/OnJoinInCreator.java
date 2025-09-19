@@ -222,14 +222,21 @@ public class OnJoinInCreator extends ListenerAdapter {
         String roomName = roomSettings.getName() != null ? roomSettings.getName()
                 : event.getMember().getUser().getName() + "'s channel";
 
+        // TODO: rewrite this?
         int userLimit = roomSettings.getUserLimit();
         boolean isRoleNeeded = creatorService.isRoleNeeded(event.getChannelJoined().getIdLong());
-        if (isRoleNeeded && !neededRolesIds.isEmpty()) {
-            Member member = event.getMember();
-            for (Role role : member.getRoles()) {
-                if (neededRolesIds.contains(role.getIdLong())) {
-                    roomName = "【🏆】" + role.getName();
-                    break;
+        if (isRoleNeeded) {
+            if (!neededRolesIds.isEmpty()) {
+                Member member = event.getMember();
+                for (Role role : member.getRoles()) {
+                    if (neededRolesIds.contains(role.getIdLong())) {
+                        roomName = "【🏆】" + role.getName();
+                        break;
+                    }
+                }
+            } else {
+                if (roomCreator.getDefaultTempChannelName() != null) {
+                    roomName = roomCreator.getDefaultTempChannelName();
                 }
             }
         } else if (roomCreator.getChannelMode().equals(ChannelMode.basic)) {
@@ -239,8 +246,6 @@ public class OnJoinInCreator extends ListenerAdapter {
             }
         }
 
-
-        
         Guild guild = event.getGuild();
         ChannelAction<VoiceChannel> newRoom = guild
                 .createVoiceChannel(roomName, guild.getCategoryById(roomCreator.getTempRoomCategoryId()))

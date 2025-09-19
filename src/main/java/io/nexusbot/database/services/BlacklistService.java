@@ -14,6 +14,14 @@ public class BlacklistService implements IBlacklist {
         return blacklistDao.get(userId);
     }
 
+    public Blacklist getOrCreate(long userId, String reason) {
+        Blacklist blacklist = get(userId);
+        if (blacklist == null) {
+            blacklist = new Blacklist(userId, reason);
+        }
+        return blacklist;
+    }
+
     @Override
     public List<Blacklist> getAll() {
         return blacklistDao.getAll();

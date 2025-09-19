@@ -8,6 +8,8 @@ public enum TempRoomPermissionsMenu {
     KICK("room-kick"),
     REJECT_STREAM("room-reject-stream"),
     CLEAR_STREAM("room-permit-stream"),
+    PERMIT_SET_STATUS("room-permit-set-status"),
+    REJECT_SET_STATUS("room-reject-set-status"),
     GHOST("room-ghost"),
     UNGHOST("room-unghost"),
     PERMIT_VIEW_CHANNEL("room-whitelist-add"),

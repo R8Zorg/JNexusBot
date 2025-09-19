@@ -225,6 +225,24 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
                 });
     }
 
+    private void permitSetStatus(StringSelectInteractionEvent event) {
+        VoiceChannel room = event.getChannel().asVoiceChannel();
+        room.upsertPermissionOverride(event.getGuild().getPublicRole())
+                .grant(Permission.VOICE_SET_STATUS).queue(override -> {
+                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
+                    EmbedUtil.replyEmbed(event, "Право на изменение статуса всем участникам сервера включено", Color.GREEN);
+                });
+    }
+
+    private void rejectSetStatus(StringSelectInteractionEvent event) {
+        VoiceChannel room = event.getChannel().asVoiceChannel();
+        room.upsertPermissionOverride(event.getGuild().getPublicRole())
+                .deny(Permission.VOICE_SET_STATUS).queue(override -> {
+                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
+                    EmbedUtil.replyEmbed(event, "Право на изменение статуса всем участникам сервера отключено", Color.GREEN);
+                });
+    }
+
     @Override
     public void onStringSelectInteraction(StringSelectInteractionEvent event) {
         if (!event.getComponentId().equals(TempRoomPermissionsMenu.ID)) {
@@ -258,6 +276,9 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
             case UNGHOST -> unghostRoom(event);
             case PERMIT_VIEW_CHANNEL -> permitViewChannel(event);
             case CLEAR_VIEW_CHANNEL -> clearViewChannel(event);
+            case REJECT_SET_STATUS -> rejectSetStatus(event);
+            case PERMIT_SET_STATUS -> permitSetStatus(event);
+            default -> throw new IllegalArgumentException("Unexpected value: " + TempRoomPermissionsMenu.fromValue(selectedOptionId));
         }
     }
 }

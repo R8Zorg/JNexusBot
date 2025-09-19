@@ -110,7 +110,11 @@ public class MessageActionUtil {
                         "Убрать запрет на вход в канал участнику")
                 .addOption("Выгнать", TempRoomPermissionsMenu.KICK.getValue(), "Выгнать участника")
                 .addOption("Закрыть", TempRoomPermissionsMenu.LOCK.getValue(), "Закрыть вход в комнату")
-                .addOption("Открыть", TempRoomPermissionsMenu.UNLOCK.getValue(), "Открыть вход в комнату");
+                .addOption("Открыть", TempRoomPermissionsMenu.UNLOCK.getValue(), "Открыть вход в комнату")
+                .addOption("Разрешить изменение статуса",
+                        TempRoomPermissionsMenu.PERMIT_SET_STATUS.getValue(), "Разрешить другим менять статус канала")
+                .addOption("Запретить изменение статуса",
+                        TempRoomPermissionsMenu.REJECT_SET_STATUS.getValue(), "Запретить другим менять статус канала");
 
         if (isCustom) {
             roomSettingsMenuBuilder.addOption("Название", TempRoomSettingsMenu.NAME.getValue(),

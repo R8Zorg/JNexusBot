@@ -136,7 +136,11 @@ public class OnJoinInCreator extends ListenerAdapter {
                     + rolesMention;
         }
         try {
-            createdRoom.sendMessage(roleNotFoundMessage).queue(success -> {
+            MessageEmbed embed = new EmbedBuilder()
+                    .setDescription(roleNotFoundMessage)
+                    .setColor(Color.GREEN)
+                    .build();
+            createdRoom.sendMessageEmbeds(embed).queue(success -> {
             }, error -> LOGGER.warn("Не удалось отправить сообщение об отсутствии нужной роли"));
         } catch (InsufficientPermissionException e) {
             LOGGER.warn("Недостаточно прав для отправки сообщения в голосовой канал: {}", e.getMessage());

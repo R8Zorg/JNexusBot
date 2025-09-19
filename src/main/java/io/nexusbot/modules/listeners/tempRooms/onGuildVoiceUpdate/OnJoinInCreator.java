@@ -228,13 +228,15 @@ public class OnJoinInCreator extends ListenerAdapter {
         if (isRoleNeeded) {
             if (!neededRolesIds.isEmpty()) {
                 Member member = event.getMember();
+                boolean haveRole = false;
                 for (Role role : member.getRoles()) {
                     if (neededRolesIds.contains(role.getIdLong())) {
                         roomName = "【🏆】" + role.getName();
+                        haveRole = true;
                         break;
                     }
                 }
-                if (roomCreator.getDefaultTempChannelName() != null) {
+                if (!haveRole && roomCreator.getDefaultTempChannelName() != null) {
                     roomName = roomCreator.getDefaultTempChannelName();
                 }
             }

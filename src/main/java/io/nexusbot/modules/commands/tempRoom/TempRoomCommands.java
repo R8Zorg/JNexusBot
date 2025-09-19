@@ -2,6 +2,7 @@ package io.nexusbot.modules.commands.tempRoom;
 
 import java.awt.Color;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import io.github.r8zorg.jdatools.annotations.Command;
@@ -191,11 +192,12 @@ public class TempRoomCommands {
 
         VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
         // List<Member> blockedMembers = voiceChannel.getPermissionOverrides().stream()
-        //         .filter(override -> override.getDenied().contains(Permission.VOICE_CONNECT))
-        //         .map(PermissionOverride::getMember)
-        //         .toList();
+        // .filter(override -> override.getDenied().contains(Permission.VOICE_CONNECT))
+        // .map(PermissionOverride::getMember)
+        // .toList();
         List<Long> blockedMemberIds = voiceChannel.getPermissionOverrides().stream()
                 .filter(override -> override.getDenied().contains(Permission.VOICE_CONNECT))
+                .filter(Objects::nonNull)
                 .map(override -> override.getMember().getIdLong())
                 .toList();
         if (blockedMemberIds.isEmpty()) {
@@ -204,6 +206,7 @@ public class TempRoomCommands {
         }
 
         String message = "Список заблокированных участников (временно без никнеймов):\n";
+        // TODO: fetch members via MembersUtil.loadMembers
         for (Long memberId : blockedMemberIds) {
             // message += member.getAsMention() + "\n";
             message += memberId + "\n";

@@ -20,6 +20,7 @@ import io.nexusbot.database.services.TempRoomCreatorService;
 import io.nexusbot.database.services.TempRoomService;
 import io.nexusbot.database.services.TempRoomSettingsService;
 import io.nexusbot.utils.EmbedUtil;
+import io.nexusbot.utils.MembersUtil;
 import io.nexusbot.utils.MessageActionUtil;
 import io.nexusbot.utils.OverridesUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -242,6 +243,10 @@ public class OnJoinInCreator extends ListenerAdapter {
     @Override
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
         if (event.getChannelJoined() == null) {
+            return;
+        }
+        if (MembersUtil.inBlacklist(event.getMember().getIdLong())) {
+            event.getGuild().moveVoiceMember(event.getMember(), null).queue();
             return;
         }
         long joinedChannelId = event.getChannelJoined().getIdLong();

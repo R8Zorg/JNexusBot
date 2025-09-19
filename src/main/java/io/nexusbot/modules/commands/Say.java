@@ -1,9 +1,12 @@
 package io.nexusbot.modules.commands;
 
+import java.awt.Color;
+
 import io.github.r8zorg.jdatools.annotations.AdditionalSettings;
 import io.github.r8zorg.jdatools.annotations.Command;
 import io.github.r8zorg.jdatools.annotations.Option;
 import io.github.r8zorg.jdatools.annotations.SlashCommands;
+import io.nexusbot.utils.EmbedUtil;
 import io.nexusbot.utils.MembersUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -23,6 +26,7 @@ public class Say {
             @Option(name = "message", description = "Message to send") String message,
             @Option(name = "channel", description = "Text channel", required = false, channelType = ChannelType.TEXT) TextChannel channel) {
         if (MembersUtil.inBlacklist(event.getMember().getIdLong())) {
+            EmbedUtil.replyEmbed(event, "Вам заблокирован доступ к этой команде", Color.RED);
             return;
         }
         try {

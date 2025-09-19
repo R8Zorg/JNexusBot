@@ -31,9 +31,9 @@ public class Main {
         JDA jda = JDABuilder.createDefault(dotenv.get("TOKEN"), gatewayIntents)
                 .addEventListeners(listenersManager.getAllListeners())
                 .setActivity(Activity.watching("битвы игроков"))
-                .build();
+                .build()
+                .awaitReady();
         jda.updateCommands().addCommands(commandsManager.getSlashCommandData()).queue();
-        jda.awaitReady();
 
         logger.info("Bot {} started", jda.getSelfUser().getName());
     }

@@ -102,6 +102,7 @@ public class OnJoinInCreator extends ListenerAdapter {
         if (neededRole != null) {
             color = neededRole.getColor();
             iconUrl = neededRole.getIcon() != null ? neededRole.getIcon().getIconUrl() : null;
+
         }
 
         MessageEmbed embed = generateInitialEmbedMessage(createdRoom, roomCreator, event.getMember(), color,
@@ -217,9 +218,19 @@ public class OnJoinInCreator extends ListenerAdapter {
     }
 
     private ChannelAction<VoiceChannel> createNewRoom(GuildVoiceUpdateEvent event, TempRoomSettings roomSettings,
-            TempRoomCreator roomCreator) {
+            TempRoomCreator roomCreator, List<Long> neededRolesIds) {
         String roomName = roomSettings.getName() != null ? roomSettings.getName()
                 : event.getMember().getUser().getName() + "'s channel";
+
+        if (!neededRolesIds.isEmpty()) {
+            Member member = event.getMember();
+            for (Role role : member.getRoles()) {
+                if (neededRolesIds.contains(role.getIdLong())) {
+                    roomName = "【🏆】" + role.getName();
+                    break;
+                }
+            }
+        }
 
         int userLimit = roomSettings.getUserLimit();
 
@@ -266,7 +277,7 @@ public class OnJoinInCreator extends ListenerAdapter {
 
         List<Long> neededRolesIds = creatorService.getNeededRolesIds(joinedChannelId);
         try {
-            ChannelAction<VoiceChannel> newRoom = createNewRoom(event, roomSettings, roomCreator);
+            ChannelAction<VoiceChannel> newRoom = createNewRoom(event, roomSettings, roomCreator, neededRolesIds);
             newRoom.queue(createdRoom -> {
                 try {
                     updateRoomOverrides(event, createdRoom, roomCreator, roomSettings);

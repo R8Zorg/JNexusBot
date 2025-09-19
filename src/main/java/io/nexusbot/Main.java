@@ -10,6 +10,7 @@ import io.github.r8zorg.jdatools.CommandsManager;
 import io.github.r8zorg.jdatools.ListenersManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class Main {
@@ -29,6 +30,7 @@ public class Main {
 
         JDA jda = JDABuilder.createDefault(dotenv.get("TOKEN"), gatewayIntents)
                 .addEventListeners(listenersManager.getAllListeners())
+                .setActivity(Activity.watching("битвы игроков"))
                 .build();
         jda.updateCommands().addCommands(commandsManager.getSlashCommandData()).queue();
         jda.awaitReady();

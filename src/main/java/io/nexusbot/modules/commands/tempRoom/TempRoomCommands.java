@@ -199,9 +199,10 @@ public class TempRoomCommands {
             return;
         }
 
-        String message = "Список заблокированных участников:\n";
+        String message = "Список заблокированных участников (временно без никнеймов):\n";
         for (Member member : blockedMembers) {
-            message += member.getAsMention() + "\n";
+            // message += member.getAsMention() + "\n";
+            message += member.getIdLong() + "\n";
         }
         EmbedUtil.replyEmbed(event, message, Color.WHITE);
     }

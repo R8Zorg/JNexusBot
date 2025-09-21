@@ -35,6 +35,7 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
         stringMenuHandler.put(TempRoomPermissionsMenu.CLEAR_VIEW_CHANNEL.getValue(), this::clearViewChannel);
 
         entityMenuHandler.put(TempRoomPermissionsMenu.REJECT_CONNECT.getValue(), this::rejectConnect);
+        entityMenuHandler.put(TempRoomPermissionsMenu.PERMIT_CONNECT.getValue(), this::permitConnect);
         entityMenuHandler.put(TempRoomPermissionsMenu.PERMIT_VIEW_CHANNEL.getValue(), this::permitViewChannel);
     }
 
@@ -117,6 +118,14 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
                 .toList();
         MembersUtil.loadMembers(event, memberIds).thenAccept(members -> changePermissions(event, members,
                 overrideAction -> overrideAction.clear(Permission.VOICE_CONNECT), null));
+    }
+
+    private void permitConnect(EntitySelectInteractionEvent event) {
+        List<Long> memberIds = event.getValues()
+                .stream()
+                .map(user -> user.getIdLong()).toList();
+        MembersUtil.loadMembers(event, memberIds).thenAccept(members -> changePermissions(event, members,
+                overrideAction -> overrideAction.grant(Permission.VOICE_CONNECT), null));
     }
 
     private List<RestAction<Void>> getKickVoiceMembersAction(GenericSelectMenuInteractionEvent<?, ?> event,

@@ -130,7 +130,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
 
     private void rejectMemberConnect(StringSelectInteractionEvent event) {
         MessageEmbed embed = EmbedUtil.generateEmbed("""
-                Выберите участников, которому хотите запретить вход в канал.
+                Выберите участников, которомым хотите запретить вход в канал.
                 Если участника нет в списке, воспользуйтесь слеш командной `/room reject connect`
                 """, Color.GREEN);
 
@@ -147,6 +147,22 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
     private void clearMemberConnect(StringSelectInteractionEvent event) {
         handleMembersWithPermission(event, Permission.VOICE_CONNECT, PermissionOverride::getDenied,
                 members -> sendClearConnectMembersMenu(event, members), "В канале нет заблокированных пользователей");
+    }
+
+    private void permitMemberConnect(StringSelectInteractionEvent event) {
+        MessageEmbed embed = EmbedUtil.generateEmbed("""
+                Выберите участников, которым хотите разрешить вход в закрытый канал.
+                Если участника нет в списке, воспользуйтесь слеш командной `/room accept connect`
+                """, Color.GREEN);
+
+        event.replyEmbeds(embed)
+                .addActionRow(EntitySelectMenu.create(
+                        TempRoomPermissionsMenu.PERMIT_CONNECT.getValue(), SelectTarget.USER)
+                        .setPlaceholder("Выберите участника")
+                        .setMaxValues(DiscordConstants.MAX_SELECT_MENU_ITEMS)
+                        .build())
+                .setEphemeral(true)
+                .queue();
     }
 
     private void kickMember(StringSelectInteractionEvent event, long ownerId) {
@@ -269,6 +285,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
             case UNLOCK -> unlockRoom(event);
             case REJECT_CONNECT -> rejectMemberConnect(event);
             case CLEAR_CONNECT -> clearMemberConnect(event);
+            case PERMIT_CONNECT -> permitMemberConnect(event);
             case KICK -> kickMember(event, ownerId);
             case REJECT_STREAM -> rejectStream(event);
             case CLEAR_STREAM -> clearStream(event);

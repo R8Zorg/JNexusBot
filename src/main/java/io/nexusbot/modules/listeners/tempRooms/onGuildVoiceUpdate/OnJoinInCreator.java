@@ -160,6 +160,7 @@ public class OnJoinInCreator extends ListenerAdapter {
             }
         }, CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS));
 
+        createdRoom.getManager().setNSFW(settings.isNsfw()).queue();
         if (settings.getStatus() != null) {
             createdRoom.modifyStatus(settings.getStatus()).queue();
         }
@@ -256,7 +257,6 @@ public class OnJoinInCreator extends ListenerAdapter {
         ChannelAction<VoiceChannel> newRoom = guild
                 .createVoiceChannel(roomName, guild.getCategoryById(roomCreator.getTempRoomCategoryId()))
                 .setUserlimit(userLimit)
-                .setNSFW(roomSettings.isNsfw())
                 .setBitrate(roomSettings.getBitrate());
 
         return newRoom;

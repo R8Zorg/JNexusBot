@@ -6,6 +6,7 @@ public enum TempRoomPermissionsMenu {
     REJECT_CONNECT("room-reject-connect"),
     CLEAR_CONNECT("room-clear-connect"),
     PERMIT_CONNECT("room-permit-connect"),
+    CLEAR_PERMITTED_CONNECT("room-clear-permitted-connect"),
     KICK("room-kick"),
     REJECT_STREAM("room-reject-stream"),
     CLEAR_STREAM("room-permit-stream"),

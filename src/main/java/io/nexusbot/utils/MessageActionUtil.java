@@ -106,7 +106,7 @@ public class MessageActionUtil {
                 .addOption("Разрешить включать видео", TempRoomPermissionsMenu.CLEAR_STREAM.getValue())
                 .addOption("Заблокировать доступ", TempRoomPermissionsMenu.REJECT_CONNECT.getValue(),
                         "Выгнать участника и запретить вход в канал")
-                .addOption("Разблокировать доступ", TempRoomPermissionsMenu.CLEAR_CONNECT.getValue(),
+                .addOption("Сбросить доступ", TempRoomPermissionsMenu.CLEAR_CONNECT.getValue(),
                         "Убрать запрет/разрешение на вход в канал участнику")
                 .addOption("Разрешить доступ", TempRoomPermissionsMenu.PERMIT_CONNECT.getValue(),
                         "Разрешить участнику входить в закрытый канал")

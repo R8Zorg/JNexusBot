@@ -31,10 +31,12 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
 
     public OnRoomPermissionsSubMenuSelect() {
         stringMenuHandler.put(TempRoomPermissionsMenu.CLEAR_CONNECT.getValue(), this::clearConnect);
+        stringMenuHandler.put(TempRoomPermissionsMenu.CLEAR_PERMITTED_CONNECT.getValue(), this::clearPermittedConnect);
         stringMenuHandler.put(TempRoomPermissionsMenu.KICK.getValue(), this::kickMembers);
-        stringMenuHandler.put(TempRoomPermissionsMenu.REJECT_VIEW_CHANNEL.getValue(), this::clearViewChannel);
+        stringMenuHandler.put(TempRoomPermissionsMenu.CLEAR_VIEW_CHANNEL.getValue(), this::clearViewChannel);
 
         entityMenuHandler.put(TempRoomPermissionsMenu.REJECT_CONNECT.getValue(), this::rejectConnect);
+        entityMenuHandler.put(TempRoomPermissionsMenu.PERMIT_CONNECT.getValue(), this::permitConnect);
         entityMenuHandler.put(TempRoomPermissionsMenu.PERMIT_VIEW_CHANNEL.getValue(), this::permitViewChannel);
     }
 
@@ -117,6 +119,24 @@ public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
                 .toList();
         MembersUtil.loadMembers(event, memberIds).thenAccept(members -> changePermissions(event, members,
                 overrideAction -> overrideAction.clear(Permission.VOICE_CONNECT), null));
+    }
+    private void clearPermittedConnect(StringSelectInteractionEvent event) {
+        List<Long> memberIds = event.getChannel().asVoiceChannel().getPermissionOverrides() // TODO: event.getValues() instead?
+                .stream()
+                .filter(po -> po.getAllowed().contains(Permission.VOICE_CONNECT))
+                .filter(PermissionOverride::isMemberOverride)
+                .map(po -> po.getIdLong())
+                .toList();
+        MembersUtil.loadMembers(event, memberIds).thenAccept(members -> changePermissions(event, members,
+                overrideAction -> overrideAction.clear(Permission.VOICE_CONNECT), null));
+    }
+
+    private void permitConnect(EntitySelectInteractionEvent event) {
+        List<Long> memberIds = event.getValues()
+                .stream()
+                .map(user -> user.getIdLong()).toList();
+        MembersUtil.loadMembers(event, memberIds).thenAccept(members -> changePermissions(event, members,
+                overrideAction -> overrideAction.grant(Permission.VOICE_CONNECT), null));
     }
 
     private List<RestAction<Void>> getKickVoiceMembersAction(GenericSelectMenuInteractionEvent<?, ?> event,

@@ -20,6 +20,7 @@ import io.nexusbot.database.services.TempRoomCreatorService;
 import io.nexusbot.database.services.TempRoomService;
 import io.nexusbot.database.services.TempRoomSettingsService;
 import io.nexusbot.utils.EmbedUtil;
+import io.nexusbot.utils.MembersUtil;
 import io.nexusbot.utils.MessageActionUtil;
 import io.nexusbot.utils.OverridesUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -101,6 +102,7 @@ public class OnJoinInCreator extends ListenerAdapter {
         if (neededRole != null) {
             color = neededRole.getColor();
             iconUrl = neededRole.getIcon() != null ? neededRole.getIcon().getIconUrl() : null;
+
         }
 
         MessageEmbed embed = generateInitialEmbedMessage(createdRoom, roomCreator, event.getMember(), color,
@@ -134,7 +136,11 @@ public class OnJoinInCreator extends ListenerAdapter {
                     + rolesMention;
         }
         try {
-            createdRoom.sendMessage(roleNotFoundMessage).queue(success -> {
+            MessageEmbed embed = new EmbedBuilder()
+                    .setDescription(roleNotFoundMessage)
+                    .setColor(Color.GREEN)
+                    .build();
+            createdRoom.sendMessageEmbeds(embed).queue(success -> {
             }, error -> LOGGER.warn("Не удалось отправить сообщение об отсутствии нужной роли"));
         } catch (InsufficientPermissionException e) {
             LOGGER.warn("Недостаточно прав для отправки сообщения в голосовой канал: {}", e.getMessage());
@@ -154,6 +160,7 @@ public class OnJoinInCreator extends ListenerAdapter {
             }
         }, CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS));
 
+        createdRoom.getManager().setNSFW(settings.isNsfw()).queue();
         if (settings.getStatus() != null) {
             createdRoom.modifyStatus(settings.getStatus()).queue();
         }
@@ -216,23 +223,40 @@ public class OnJoinInCreator extends ListenerAdapter {
     }
 
     private ChannelAction<VoiceChannel> createNewRoom(GuildVoiceUpdateEvent event, TempRoomSettings roomSettings,
-            TempRoomCreator roomCreator) {
+            TempRoomCreator roomCreator, List<Long> neededRolesIds) {
         String roomName = roomSettings.getName() != null ? roomSettings.getName()
                 : event.getMember().getUser().getName() + "'s channel";
 
+        // TODO: rewrite this?
         int userLimit = roomSettings.getUserLimit();
-
-        if (roomCreator.getChannelMode().equals(ChannelMode.basic)) {
+        boolean isRoleNeeded = creatorService.isRoleNeeded(event.getChannelJoined().getIdLong());
+        if (isRoleNeeded) {
+            if (!neededRolesIds.isEmpty()) {
+                userLimit = roomCreator.getUserLimit();
+                Member member = event.getMember();
+                boolean haveRole = false;
+                for (Role role : member.getRoles()) {
+                    if (neededRolesIds.contains(role.getIdLong())) {
+                        roomName = "【🏆】" + role.getName();
+                        haveRole = true;
+                        break;
+                    }
+                }
+                if (!haveRole && roomCreator.getDefaultTempChannelName() != null) {
+                    roomName = roomCreator.getDefaultTempChannelName();
+                }
+            }
+        } else if (roomCreator.getChannelMode().equals(ChannelMode.basic)) {
             userLimit = roomCreator.getUserLimit();
             if (roomCreator.getDefaultTempChannelName() != null) {
                 roomName = roomCreator.getDefaultTempChannelName();
             }
         }
+
         Guild guild = event.getGuild();
         ChannelAction<VoiceChannel> newRoom = guild
                 .createVoiceChannel(roomName, guild.getCategoryById(roomCreator.getTempRoomCategoryId()))
                 .setUserlimit(userLimit)
-                .setNSFW(roomSettings.isNsfw())
                 .setBitrate(roomSettings.getBitrate());
 
         return newRoom;
@@ -242,6 +266,10 @@ public class OnJoinInCreator extends ListenerAdapter {
     @Override
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
         if (event.getChannelJoined() == null) {
+            return;
+        }
+        if (MembersUtil.inBlacklist(event.getMember().getIdLong())) {
+            event.getGuild().moveVoiceMember(event.getMember(), null).queue();
             return;
         }
         long joinedChannelId = event.getChannelJoined().getIdLong();
@@ -261,7 +289,7 @@ public class OnJoinInCreator extends ListenerAdapter {
 
         List<Long> neededRolesIds = creatorService.getNeededRolesIds(joinedChannelId);
         try {
-            ChannelAction<VoiceChannel> newRoom = createNewRoom(event, roomSettings, roomCreator);
+            ChannelAction<VoiceChannel> newRoom = createNewRoom(event, roomSettings, roomCreator, neededRolesIds);
             newRoom.queue(createdRoom -> {
                 try {
                     updateRoomOverrides(event, createdRoom, roomCreator, roomSettings);

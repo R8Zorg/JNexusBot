@@ -4,14 +4,18 @@ public enum TempRoomPermissionsMenu {
     LOCK("room-lock"),
     UNLOCK("room-unlock"),
     REJECT_CONNECT("room-reject-connect"),
-    CLEAR_CONNECT("room-permit-connect"),
+    CLEAR_CONNECT("room-clear-connect"),
+    PERMIT_CONNECT("room-permit-connect"),
+    CLEAR_PERMITTED_CONNECT("room-clear-permitted-connect"),
     KICK("room-kick"),
     REJECT_STREAM("room-reject-stream"),
     CLEAR_STREAM("room-permit-stream"),
+    PERMIT_SET_STATUS("room-permit-set-status"),
+    REJECT_SET_STATUS("room-reject-set-status"),
     GHOST("room-ghost"),
     UNGHOST("room-unghost"),
     PERMIT_VIEW_CHANNEL("room-whitelist-add"),
-    REJECT_VIEW_CHANNEL("room-whitelist-remove");
+    CLEAR_VIEW_CHANNEL("room-whitelist-remove");
 
     public static final String ID = "room-permissions";
 

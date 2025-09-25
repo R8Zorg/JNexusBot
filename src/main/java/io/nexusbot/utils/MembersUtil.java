@@ -6,10 +6,14 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.nexusbot.database.entities.Blacklist;
+import io.nexusbot.database.services.BlacklistService;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
 
 public class MembersUtil {
+    private static BlacklistService blacklistService = new BlacklistService();
+
     public static CompletableFuture<List<Member>> loadMembers(GenericSelectMenuInteractionEvent<?, ?> event,
             List<Long> memberIds) {
         CompletableFuture<List<Member>> future = new CompletableFuture<>();
@@ -31,5 +35,14 @@ public class MembersUtil {
                     });
         }
         return future;
+    }
+
+    public static boolean inBlacklist(long userId) {
+        Blacklist blacklist = blacklistService.get(userId);
+        if (blacklist == null) {
+            return false;
+        }
+        return true;
+
     }
 }

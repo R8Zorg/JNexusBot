@@ -93,7 +93,8 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
                 .thenAccept(members -> onCompleteAction.accept(members));
     }
 
-    private void sendClearConnectMembersMenu(StringSelectInteractionEvent event, List<Member> rejectedMembers) {
+    private void sendClearConnectMembersMenu(StringSelectInteractionEvent event, List<Member> rejectedMembers,
+            String menuId) {
         if (rejectedMembers.isEmpty()) {
             EmbedUtil.replyEmbed(event, "Не удалось получить заблокированных участников", Color.RED);
             return;
@@ -105,7 +106,7 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
 
         event.replyEmbeds(embed)
                 .addActionRow(getMembersMenu(event, rejectedMembers,
-                        TempRoomPermissionsMenu.CLEAR_CONNECT.getValue()))
+                        menuId))
                 .setEphemeral(true)
                 .queue();
 
@@ -123,14 +124,14 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
 
         event.replyEmbeds(embed)
                 .addActionRow(
-                        getMembersMenu(event, acceptedMembers, TempRoomPermissionsMenu.REJECT_VIEW_CHANNEL.getValue()))
+                        getMembersMenu(event, acceptedMembers, TempRoomPermissionsMenu.CLEAR_VIEW_CHANNEL.getValue()))
                 .setEphemeral(true)
                 .queue();
     }
 
     private void rejectMemberConnect(StringSelectInteractionEvent event) {
         MessageEmbed embed = EmbedUtil.generateEmbed("""
-                Выберите участников, которому хотите запретить вход в канал.
+                Выберите участников, которомым хотите запретить вход в канал.
                 Если участника нет в списке, воспользуйтесь слеш командной `/room reject connect`
                 """, Color.GREEN);
 
@@ -146,7 +147,32 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
 
     private void clearMemberConnect(StringSelectInteractionEvent event) {
         handleMembersWithPermission(event, Permission.VOICE_CONNECT, PermissionOverride::getDenied,
-                members -> sendClearConnectMembersMenu(event, members), "В канале нет заблокированных пользователей");
+                members -> sendClearConnectMembersMenu(event, members,
+                        TempRoomPermissionsMenu.CLEAR_CONNECT.getValue()),
+                "В канале нет заблокированных пользователей");
+    }
+
+    private void permitMemberConnect(StringSelectInteractionEvent event) {
+        MessageEmbed embed = EmbedUtil.generateEmbed("""
+                Выберите участников, которым хотите разрешить вход в закрытый канал.
+                Если участника нет в списке, воспользуйтесь слеш командной `/room accept connect`
+                """, Color.GREEN);
+
+        event.replyEmbeds(embed)
+                .addActionRow(EntitySelectMenu.create(
+                        TempRoomPermissionsMenu.PERMIT_CONNECT.getValue(), SelectTarget.USER)
+                        .setPlaceholder("Выберите участника")
+                        .setMaxValues(DiscordConstants.MAX_SELECT_MENU_ITEMS)
+                        .build())
+                .setEphemeral(true)
+                .queue();
+    }
+
+    private void clearPermittedMemberConnect(StringSelectInteractionEvent event) {
+        handleMembersWithPermission(event, Permission.VOICE_CONNECT, PermissionOverride::getAllowed,
+                members -> sendClearConnectMembersMenu(event, members,
+                        TempRoomPermissionsMenu.CLEAR_PERMITTED_CONNECT.getValue()),
+                "В канале нет разрешённых пользователей");
     }
 
     private void kickMember(StringSelectInteractionEvent event, long ownerId) {
@@ -225,6 +251,26 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
                 });
     }
 
+    private void permitSetStatus(StringSelectInteractionEvent event) {
+        VoiceChannel room = event.getChannel().asVoiceChannel();
+        room.upsertPermissionOverride(event.getGuild().getPublicRole())
+                .grant(Permission.VOICE_SET_STATUS).queue(override -> {
+                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
+                    EmbedUtil.replyEmbed(event, "Право на изменение статуса всем участникам сервера включено",
+                            Color.GREEN);
+                });
+    }
+
+    private void rejectSetStatus(StringSelectInteractionEvent event) {
+        VoiceChannel room = event.getChannel().asVoiceChannel();
+        room.upsertPermissionOverride(event.getGuild().getPublicRole())
+                .deny(Permission.VOICE_SET_STATUS).queue(override -> {
+                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
+                    EmbedUtil.replyEmbed(event, "Право на изменение статуса всем участникам сервера отключено",
+                            Color.GREEN);
+                });
+    }
+
     @Override
     public void onStringSelectInteraction(StringSelectInteractionEvent event) {
         if (!event.getComponentId().equals(TempRoomPermissionsMenu.ID)) {
@@ -251,13 +297,19 @@ public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
             case UNLOCK -> unlockRoom(event);
             case REJECT_CONNECT -> rejectMemberConnect(event);
             case CLEAR_CONNECT -> clearMemberConnect(event);
+            case PERMIT_CONNECT -> permitMemberConnect(event);
+            case CLEAR_PERMITTED_CONNECT -> clearPermittedMemberConnect(event);
             case KICK -> kickMember(event, ownerId);
             case REJECT_STREAM -> rejectStream(event);
             case CLEAR_STREAM -> clearStream(event);
             case GHOST -> ghostRoom(event);
             case UNGHOST -> unghostRoom(event);
             case PERMIT_VIEW_CHANNEL -> permitViewChannel(event);
-            case REJECT_VIEW_CHANNEL -> clearViewChannel(event);
+            case CLEAR_VIEW_CHANNEL -> clearViewChannel(event);
+            case REJECT_SET_STATUS -> rejectSetStatus(event);
+            case PERMIT_SET_STATUS -> permitSetStatus(event);
+            default -> throw new IllegalArgumentException(
+                    "Unexpected value: " + TempRoomPermissionsMenu.fromValue(selectedOptionId));
         }
     }
 }

@@ -26,7 +26,7 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 public class SetupTempRooms {
     private TempRoomCreatorService creatorService = new TempRoomCreatorService();
 
-    @SubcommandGroup(parentName = "setup")
+    @SubcommandGroup(parentName = "setup", description = "Группа команд для управления настройками временных комнат")
     public void rooms(SlashCommandInteractionEvent event) {
     }
 

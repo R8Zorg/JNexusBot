@@ -108,9 +108,17 @@ public class MessageActionUtil {
                         "Выгнать участника и запретить вход в канал")
                 .addOption("Разблокировать доступ", TempRoomPermissionsMenu.CLEAR_CONNECT.getValue(),
                         "Убрать запрет на вход в канал участнику")
+                .addOption("Разрешить доступ", TempRoomPermissionsMenu.PERMIT_CONNECT.getValue(),
+                        "Разрешить участнику входить в закрытый канал")
+                .addOption("Сбросить доступ", TempRoomPermissionsMenu.CLEAR_PERMITTED_CONNECT.getValue(),
+                        "Сбросить участнику доступ ко входу в закрытый канал")
                 .addOption("Выгнать", TempRoomPermissionsMenu.KICK.getValue(), "Выгнать участника")
                 .addOption("Закрыть", TempRoomPermissionsMenu.LOCK.getValue(), "Закрыть вход в комнату")
-                .addOption("Открыть", TempRoomPermissionsMenu.UNLOCK.getValue(), "Открыть вход в комнату");
+                .addOption("Открыть", TempRoomPermissionsMenu.UNLOCK.getValue(), "Открыть вход в комнату")
+                .addOption("Разрешить изменение статуса",
+                        TempRoomPermissionsMenu.PERMIT_SET_STATUS.getValue(), "Разрешить другим менять статус канала")
+                .addOption("Запретить изменение статуса",
+                        TempRoomPermissionsMenu.REJECT_SET_STATUS.getValue(), "Запретить другим менять статус канала");
 
         if (isCustom) {
             roomSettingsMenuBuilder.addOption("Название", TempRoomSettingsMenu.NAME.getValue(),
@@ -124,7 +132,7 @@ public class MessageActionUtil {
                     .addOption("Разрешить видеть скрытый канал",
                             TempRoomPermissionsMenu.PERMIT_VIEW_CHANNEL.getValue())
                     .addOption("Запретить видеть скрытый канал",
-                            TempRoomPermissionsMenu.REJECT_VIEW_CHANNEL.getValue());
+                            TempRoomPermissionsMenu.CLEAR_VIEW_CHANNEL.getValue());
         }
         createdRoom.sendMessageEmbeds(embed)
                 .addActionRow(roomSettingsMenuBuilder.build())

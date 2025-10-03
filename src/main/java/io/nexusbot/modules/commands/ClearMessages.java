@@ -22,7 +22,7 @@ public class ClearMessages {
     @Command(description = "Удалить сообщения")
     @AdditionalSettings(defaultPermissions = Permission.MESSAGE_MANAGE)
     public void clear(SlashCommandInteractionEvent event,
-            @Option(name = "amount", description = "Количество") Integer amount,
+            @Option(name = "amount", description = "Количество. Не больше 100") Integer amount,
             @Option(name = "member", description = "Участник, чьи сообщения нужно удалить", required = false) Member member,
             // @Option(name = "regex", description = "Содержание сообщения должно
             // соответствовать этому правилу", required = false) String regex,
@@ -30,8 +30,11 @@ public class ClearMessages {
             // каналах", required = false) Boolean isEverywhere,
             @Option(name = "channel", description = "Канал, в котором нужно удалить сообщения", channelType = ChannelType.TEXT, required = false) TextChannel channel) {
         event.deferReply().setEphemeral(true).queue();
+
+        int messagesAmount = amount <= 100 ? amount : 100;
         List<Message> messages = new ArrayList<>();
         MessageChannel messageChannel = channel != null ? channel : event.getChannel();
+
         messageChannel.getIterableHistory()
                 .forEachAsync(message -> {
                     if (member == null) {
@@ -39,7 +42,7 @@ public class ClearMessages {
                     } else if (message.getAuthor().equals(member.getUser())) {
                         messages.add(message);
                     }
-                    return messages.size() < amount;
+                    return messages.size() < messagesAmount;
                 })
                 .thenRun(() -> messageChannel.purgeMessages(messages))
                 .thenRun(() -> EmbedUtil.replyEmbed(event.getHook(), "Удалено " + messages.size() + " сообщений",

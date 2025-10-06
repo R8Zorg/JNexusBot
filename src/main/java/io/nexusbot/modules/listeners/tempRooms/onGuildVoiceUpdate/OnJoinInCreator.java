@@ -1,6 +1,8 @@
 package io.nexusbot.modules.listeners.tempRooms.onGuildVoiceUpdate;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +30,9 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
@@ -207,7 +211,9 @@ public class OnJoinInCreator extends ListenerAdapter {
 
     private void updateRoomOverrides(GuildVoiceUpdateEvent event, VoiceChannel createdRoom,
             TempRoomCreator roomCreator, TempRoomSettings roomSettings) {
-        addMemberOverrides(createdRoom, event, event.getGuild().getMember(event.getJDA().getSelfUser()));
+        // addMemberOverrides(createdRoom, event,
+        // event.getGuild().getMember(event.getJDA().getSelfUser())); // INFO: added on
+        // initial create
         HashMap<Long, ChannelOverrides> initialOverrides = OverridesUtil.serrializeOverrides(
                 event.getGuild().getCategoryById(roomCreator.getTempRoomCategoryId()).getPermissionOverrides());
         HashMap<Long, ChannelOverrides> roomOverrides = roomSettings.getOverrides();
@@ -219,7 +225,8 @@ public class OnJoinInCreator extends ListenerAdapter {
                 OverridesUtil.updateChannelOverrides(createdRoom, roomOverrides, initialOverrides);
             }
         }
-        addMemberOverrides(createdRoom, event, event.getMember());
+        // addMemberOverrides(createdRoom, event, event.getMember()); // INFO: Added on
+        // initial create
     }
 
     private ChannelAction<VoiceChannel> createNewRoom(GuildVoiceUpdateEvent event, TempRoomSettings roomSettings,
@@ -259,6 +266,28 @@ public class OnJoinInCreator extends ListenerAdapter {
                 .setUserlimit(userLimit)
                 .setBitrate(roomSettings.getBitrate());
 
+        EnumSet<Permission> permissions = EnumSet.of(Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT,
+                Permission.VOICE_MOVE_OTHERS, Permission.VOICE_SET_STATUS,
+                Permission.MANAGE_CHANNEL, Permission.VOICE_STREAM);
+
+        Category roomCategory = guild.getCategoryById(roomCreator.getTempRoomCategoryId());
+        List<Member> enhancedPermissionsMembers = List.of(
+                guild.getMemberById(event.getJDA().getSelfUser().getIdLong()),
+                event.getMember());
+
+        for (Member member : enhancedPermissionsMembers) {
+            PermissionOverride categoryOverride = roomCategory.getPermissionOverride(member);
+            EnumSet<Permission> allowedPermsssions = categoryOverride.getAllowed();
+            allowedPermsssions.addAll(permissions);
+            newRoom.addPermissionOverride(member, allowedPermsssions,
+                    categoryOverride.getDenied());
+        }
+
+        // TODO: load members from DB. Go in FOR cycle. Check if member/role in initial category overrides.
+        // If so, create EnumSet<Permission> of this user/member from DB. Then add to this set .getAllowed, for other - .getDenied
+        // Don't forget about dublicates in this sets
+        // Else just add permissions from DB.
+
         return newRoom;
 
     }
@@ -268,7 +297,7 @@ public class OnJoinInCreator extends ListenerAdapter {
         if (event.getChannelJoined() == null) {
             return;
         }
-        if (MembersUtil.inBlacklist(event.getMember().getIdLong())) {
+        if (MembersUtil.inBlacklist(event.getMember().getIdLong())) { // WARN: can call rate limit
             event.getGuild().moveVoiceMember(event.getMember(), null).queue();
             return;
         }

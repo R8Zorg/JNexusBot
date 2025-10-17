@@ -1,8 +1,6 @@
 package io.nexusbot.modules.listeners.tempRooms.onGuildVoiceUpdate;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -277,17 +275,21 @@ public class OnJoinInCreator extends ListenerAdapter {
 
         for (Member member : enhancedPermissionsMembers) {
             PermissionOverride categoryOverride = roomCategory.getPermissionOverride(member);
-            if (categoryOverride == null){
-                continue;
+            EnumSet<Permission> allowedPermsssions = EnumSet.noneOf(Permission.class);
+            EnumSet<Permission> deniedPermsssions = EnumSet.noneOf(Permission.class);
+            if (categoryOverride != null) {
+                allowedPermsssions.addAll(categoryOverride.getAllowed());
+                deniedPermsssions.addAll(categoryOverride.getDenied());
             }
-            EnumSet<Permission> allowedPermsssions = categoryOverride.getAllowed();
             allowedPermsssions.addAll(permissions);
             newRoom.addPermissionOverride(member, allowedPermsssions,
-                    categoryOverride.getDenied());
+                    deniedPermsssions);
         }
 
-        // TODO: load members from DB. Go in FOR cycle. Check if member/role in initial category overrides.
-        // If so, create EnumSet<Permission> of this user/member from DB. Then add to this set .getAllowed, for other - .getDenied
+        // TODO: load members from DB. Go in FOR cycle. Check if member/role in initial
+        // category overrides.
+        // If so, create EnumSet<Permission> of this user/member from DB. Then add to
+        // this set .getAllowed, for other - .getDenied
         // Don't forget about dublicates in this sets
         // Else just add permissions from DB.
 

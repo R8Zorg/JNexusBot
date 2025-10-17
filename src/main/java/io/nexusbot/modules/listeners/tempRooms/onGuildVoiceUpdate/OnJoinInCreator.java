@@ -277,6 +277,9 @@ public class OnJoinInCreator extends ListenerAdapter {
 
         for (Member member : enhancedPermissionsMembers) {
             PermissionOverride categoryOverride = roomCategory.getPermissionOverride(member);
+            if (categoryOverride == null){
+                continue;
+            }
             EnumSet<Permission> allowedPermsssions = categoryOverride.getAllowed();
             allowedPermsssions.addAll(permissions);
             newRoom.addPermissionOverride(member, allowedPermsssions,

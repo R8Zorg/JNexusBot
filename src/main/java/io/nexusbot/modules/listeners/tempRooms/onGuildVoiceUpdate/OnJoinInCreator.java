@@ -324,6 +324,8 @@ public class OnJoinInCreator extends ListenerAdapter {
             });
         } catch (PermissionException e) {
             LOGGER.warn("Не удалось создать комнату по причине: " + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.warn("При создании канала произошла неизвестная ошибка: " + e.getMessage());
         }
     }
 }

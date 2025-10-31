@@ -254,10 +254,14 @@ public class OnJoinInCreator extends ListenerAdapter {
         }
 
         Guild guild = event.getGuild();
+
+        int maxBitrate = guild.getBoostTier().getMaxBitrate();
+        int savedBitrate = roomSettings.getBitrate();
+        int bitrate = savedBitrate > maxBitrate ? maxBitrate : savedBitrate;
         ChannelAction<VoiceChannel> newRoom = guild
                 .createVoiceChannel(roomName, guild.getCategoryById(roomCreator.getTempRoomCategoryId()))
                 .setUserlimit(userLimit)
-                .setBitrate(roomSettings.getBitrate());
+                .setBitrate(bitrate);
 
         return newRoom;
 

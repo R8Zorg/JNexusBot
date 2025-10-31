@@ -31,6 +31,7 @@ public class Main {
         JDA jda = JDABuilder.createDefault(dotenv.get("TOKEN"), gatewayIntents)
                 .addEventListeners(listenersManager.getAllListeners())
                 .setActivity(Activity.watching("битвы игроков"))
+                .setEventPassthrough(true)
                 .build()
                 .awaitReady();
         jda.updateCommands().addCommands(commandsManager.getSlashCommandData()).queue();

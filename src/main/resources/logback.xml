@@ -6,7 +6,12 @@
         </encoder>
     </appender>
 
-    <root level="info">
+    <!-- Показывать все ошибки и отладку JDA -->
+    <logger name="net.dv8tion.jda" level="DEBUG"/>
+    <logger name="net.dv8tion.jda.internal.requests.WebSocketClient" level="DEBUG"/>
+    <logger name="com.neovisionaries.ws.client" level="DEBUG"/>
+
+    <!-- Корень -->
+    <root level="DEBUG">
         <appender-ref ref="STDOUT" />
-    </root>
-</configuration>
+    </root></configuration>

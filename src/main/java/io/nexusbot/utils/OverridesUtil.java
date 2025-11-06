@@ -45,7 +45,10 @@ public class OverridesUtil {
             if (allow == 0 && deny == 0) {
                 continue;
             }
-            if (everyoneRoleId != null && id != everyoneRoleId && initialOverrideIds.contains(id)) {
+            if (everyoneRoleId != null && id != everyoneRoleId && initialOverrideIds.contains(id)) { // WARN:
+                                                                                                     // получается, уже
+                                                                                                     // можно убирать
+                                                                                                     // everyoneRoleId?
                 continue;
             }
 

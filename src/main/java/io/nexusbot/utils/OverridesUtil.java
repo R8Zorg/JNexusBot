@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 
 public class OverridesUtil {
@@ -31,6 +32,16 @@ public class OverridesUtil {
             serrializedOverrides.put(id, new ChannelOverrides(type, allow, deny));
         });
         return serrializedOverrides;
+    }
+
+    private static EnumSet<Permission> toEnumSet(long longPermissions) {
+       EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
+        for (Permission permission : Permission.values()) {
+            if ((longPermissions & permission.getRawValue()) != 0) {
+                permissions.add(permission);
+            }
+        }
+        return permissions;
     }
 
     public static List<EnumSet<Permission>> upsertOverrides(

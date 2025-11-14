@@ -279,9 +279,8 @@ public class OnJoinInCreator extends ListenerAdapter {
                 event.getMember());
 
         for (Member member : enhancedPermissionsMembers) {
-            List<EnumSet<Permission>> newPermissions = OverridesUtil.upsertOverrides(newRoom, permissions,
-                    roomCategory.getPermissionOverride(member));
-            newRoom.addPermissionOverride(member, newPermissions.get(0), newPermissions.get(1));
+            EnumSet<Permission> allowed = 
+            // newRoom.addPermissionOverride(member, newPermissions.get(0), newPermissions.get(1));
         }
 
         HashMap<Long, ChannelOverrides> overrides = roomSettings.getOverrides();
@@ -290,8 +289,7 @@ public class OnJoinInCreator extends ListenerAdapter {
 
             long id = entry.getKey();
             String type = override.getType();
-            PermissionOverride memberCategoryOverride = roomCategory.getPermissionOverride(
-                    type.equals("member") ? guild.getMemberById(id) : guild.getRoleById(id));
+            EnumSet<Permission> allowed = OverridesUtil.
             // List<EnumSet<Permission>> deniedPermissions = OverridesUtil.upsertOverrides(newRoom, allow, memberCategoryOverride);
 
         }

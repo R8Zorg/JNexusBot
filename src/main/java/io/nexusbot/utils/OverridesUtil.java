@@ -35,7 +35,7 @@ public class OverridesUtil {
     }
 
     private static EnumSet<Permission> toEnumSet(long longPermissions) {
-       EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
+        EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
         for (Permission permission : Permission.values()) {
             if ((longPermissions & permission.getRawValue()) != 0) {
                 permissions.add(permission);
@@ -55,6 +55,17 @@ public class OverridesUtil {
         }
         allowedPermsssions.addAll(permissions);
         return Arrays.asList(allowedPermsssions, deniedPermsssions);
+    }
+
+    public static EnumSet<Permission> getPermissions(
+            ChannelAction<VoiceChannel> voiceChannel, EnumSet<Permission> permissions,
+            PermissionOverride categoryOverrides) {
+        EnumSet<Permission> permissionsSet = EnumSet.noneOf(Permission.class);
+        if (categoryOverrides != null) {
+            permissionsSet.addAll(categoryOverrides.getAllowed());
+        }
+        permissionsSet.addAll(permissions);
+        return permissionsSet;
     }
 
     // public static void updateChannelOverrides(VoiceChannel voiceChannel,

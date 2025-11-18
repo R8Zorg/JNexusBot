@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,12 +58,12 @@ public class OverridesUtil {
         return Arrays.asList(allowedPermsssions, deniedPermsssions);
     }
 
-    public static EnumSet<Permission> getPermissions(
-            ChannelAction<VoiceChannel> voiceChannel, EnumSet<Permission> permissions,
-            PermissionOverride categoryOverrides) {
+    public static EnumSet<Permission> getMergedPermissions(
+            EnumSet<Permission> permissions, PermissionOverride categoryOverrides,
+            Function<PermissionOverride, EnumSet<Permission>> extractor) {
         EnumSet<Permission> permissionsSet = EnumSet.noneOf(Permission.class);
         if (categoryOverrides != null) {
-            permissionsSet.addAll(categoryOverrides.getAllowed());
+            extractor.apply(categoryOverrides);
         }
         permissionsSet.addAll(permissions);
         return permissionsSet;

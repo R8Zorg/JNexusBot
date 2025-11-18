@@ -27,6 +27,7 @@ import io.nexusbot.utils.OverridesUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.IPermissionHolder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.PermissionOverride;
@@ -279,8 +280,12 @@ public class OnJoinInCreator extends ListenerAdapter {
                 event.getMember());
 
         for (Member member : enhancedPermissionsMembers) {
-            EnumSet<Permission> allowed = 
-            // newRoom.addPermissionOverride(member, newPermissions.get(0), newPermissions.get(1));
+            PermissionOverride memberCategoryOverrides = roomCategory.getPermissionOverride(member);
+            EnumSet<Permission> allowed = OverridesUtil.getMergedPermissions(
+                    permissions, memberCategoryOverrides, PermissionOverride::getAllowed);
+            EnumSet<Permission> denied = OverridesUtil.getMergedPermissions(
+                    permissions, memberCategoryOverrides, PermissionOverride::getDenied);
+            newRoom.addPermissionOverride(member, allowed, denied);
         }
 
         HashMap<Long, ChannelOverrides> overrides = roomSettings.getOverrides();
@@ -289,8 +294,14 @@ public class OnJoinInCreator extends ListenerAdapter {
 
             long id = entry.getKey();
             String type = override.getType();
-            EnumSet<Permission> allowed = OverridesUtil.
-            // List<EnumSet<Permission>> deniedPermissions = OverridesUtil.upsertOverrides(newRoom, allow, memberCategoryOverride);
+            IPermissionHolder target = type.equals("member") ? guild.getMemberById(id) : guild.getRoleById(id);
+
+            PermissionOverride permissionOverride = roomCategory.getPermissionOverride(target);
+            EnumSet<Permission> allowed = OverridesUtil.getMergedPermissions(
+                    permissions, permissionOverride, PermissionOverride::getAllowed);
+            EnumSet<Permission> denied = OverridesUtil.getMergedPermissions(
+                    permissions, permissionOverride, PermissionOverride::getDenied);
+            newRoom.addPermissionOverride(target, allowed, denied);
 
         }
         // TODO: load members from DB. Go in FOR cycle. Check if member/role in initial

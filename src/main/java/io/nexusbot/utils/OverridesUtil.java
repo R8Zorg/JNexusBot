@@ -35,7 +35,7 @@ public class OverridesUtil {
         return serrializedOverrides;
     }
 
-    private static EnumSet<Permission> toEnumSet(long longPermissions) {
+    public static EnumSet<Permission> toEnumSet(long longPermissions) {
         EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
         for (Permission permission : Permission.values()) {
             if ((longPermissions & permission.getRawValue()) != 0) {

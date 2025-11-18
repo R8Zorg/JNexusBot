@@ -298,9 +298,9 @@ public class OnJoinInCreator extends ListenerAdapter {
 
             PermissionOverride permissionOverride = roomCategory.getPermissionOverride(target);
             EnumSet<Permission> allowed = OverridesUtil.getMergedPermissions(
-                    permissions, permissionOverride, PermissionOverride::getAllowed);
+                    OverridesUtil.toEnumSet(override.getAllow()), permissionOverride, PermissionOverride::getAllowed);
             EnumSet<Permission> denied = OverridesUtil.getMergedPermissions(
-                    permissions, permissionOverride, PermissionOverride::getDenied);
+                    OverridesUtil.toEnumSet(override.getDeny()), permissionOverride, PermissionOverride::getDenied);
             newRoom.addPermissionOverride(target, allowed, denied);
 
         }

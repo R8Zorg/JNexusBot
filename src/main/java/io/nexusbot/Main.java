@@ -22,13 +22,7 @@ public class Main {
         CommandsManager commandsManager = new CommandsManager("io.nexusbot.modules.commands");
         ListenersManager listenersManager = new ListenersManager("io.nexusbot.modules.listeners", commandsManager);
 
-        EnumSet<GatewayIntent> gatewayIntents = EnumSet.of(
-                GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES,
-                GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_EXPRESSIONS,
-                GatewayIntent.SCHEDULED_EVENTS, GatewayIntent.GUILD_VOICE_STATES,
-                GatewayIntent.GUILD_MEMBERS);
-
-        JDA jda = JDABuilder.createDefault(dotenv.get("TOKEN"), gatewayIntents)
+        JDA jda = JDABuilder.createDefault(dotenv.get("TOKEN"), EnumSet.allOf(GatewayIntent.class))
                 .addEventListeners(listenersManager.getAllListeners())
                 .setActivity(Activity.watching("битвы игроков"))
                 .build()

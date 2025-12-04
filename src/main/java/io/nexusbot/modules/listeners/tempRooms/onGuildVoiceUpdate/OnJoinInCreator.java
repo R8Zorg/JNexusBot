@@ -30,7 +30,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.IPermissionHolder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -200,39 +199,6 @@ public class OnJoinInCreator extends ListenerAdapter {
         }
     }
 
-    private void addMemberOverrides(VoiceChannel createdRoom, GuildVoiceUpdateEvent event, Member member) {
-        EnumSet<Permission> permissions = EnumSet.of(Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT,
-                Permission.VOICE_MOVE_OTHERS, Permission.VOICE_SET_STATUS,
-                Permission.MANAGE_CHANNEL, Permission.VOICE_STREAM);
-        createdRoom.upsertPermissionOverride(member)
-                .grant(permissions).queue();
-
-    }
-
-    // private void updateRoomOverrides(GuildVoiceUpdateEvent event, VoiceChannel
-    // createdRoom,
-    // TempRoomCreator roomCreator, TempRoomSettings roomSettings) {
-    // addMemberOverrides(createdRoom, event,
-    // event.getGuild().getMember(event.getJDA().getSelfUser())); // INFO: added on
-    // initial create
-    // HashMap<Long, ChannelOverrides> initialOverrides =
-    // OverridesUtil.serrializeOverrides(
-    // event.getGuild().getCategoryById(roomCreator.getTempRoomCategoryId()).getPermissionOverrides());
-    // HashMap<Long, ChannelOverrides> roomOverrides = roomSettings.getOverrides();
-    // if (!roomOverrides.isEmpty()) {
-    // if (roomCreator.getChannelMode().equals(ChannelMode.custom)) {
-    // OverridesUtil.updateChannelOverrides(createdRoom, roomOverrides,
-    // initialOverrides,
-    // event.getGuild().getPublicRole().getIdLong());
-    // } else {
-    // OverridesUtil.updateChannelOverrides(createdRoom, roomOverrides,
-    // initialOverrides);
-    // }
-    // }
-    // addMemberOverrides(createdRoom, event, event.getMember()); // INFO: Added on
-    // initial create
-    // }
-
     private ChannelAction<VoiceChannel> createNewRoom(GuildVoiceUpdateEvent event, TempRoomSettings roomSettings,
             TempRoomCreator roomCreator, List<Long> neededRolesIds) {
         String roomName = roomSettings.getName() != null ? roomSettings.getName()
@@ -280,12 +246,8 @@ public class OnJoinInCreator extends ListenerAdapter {
                 event.getMember());
 
         for (Member member : enhancedPermissionsMembers) {
-            PermissionOverride memberCategoryOverrides = roomCategory.getPermissionOverride(member);
-            EnumSet<Permission> allowed = OverridesUtil.getMergedPermissions(
-                    permissions, memberCategoryOverrides, PermissionOverride::getAllowed);
-            EnumSet<Permission> denied = OverridesUtil.getMergedPermissions(
-                    permissions, memberCategoryOverrides, PermissionOverride::getDenied);
-            newRoom.addPermissionOverride(member, allowed, denied);
+            OverridesUtil.addPermissionOverrides(member, roomCategory,
+                    permissions, EnumSet.noneOf(Permission.class), newRoom);
         }
 
         HashMap<Long, ChannelOverrides> overrides = roomSettings.getOverrides();
@@ -296,20 +258,11 @@ public class OnJoinInCreator extends ListenerAdapter {
             String type = override.getType();
             IPermissionHolder target = type.equals("member") ? guild.getMemberById(id) : guild.getRoleById(id);
 
-            PermissionOverride permissionOverride = roomCategory.getPermissionOverride(target);
-            EnumSet<Permission> allowed = OverridesUtil.getMergedPermissions(
-                    OverridesUtil.toEnumSet(override.getAllow()), permissionOverride, PermissionOverride::getAllowed);
-            EnumSet<Permission> denied = OverridesUtil.getMergedPermissions(
-                    OverridesUtil.toEnumSet(override.getDeny()), permissionOverride, PermissionOverride::getDenied);
-            newRoom.addPermissionOverride(target, allowed, denied);
+            OverridesUtil.addPermissionOverrides(target, roomCategory,
+                    Permission.getPermissions(override.getAllow()), Permission.getPermissions(override.getDeny()),
+                    newRoom);
 
         }
-        // TODO: load members from DB. Go in FOR cycle. Check if member/role in initial
-        // category overrides.
-        // If so, create EnumSet<Permission> of this user/member from DB. Then add to
-        // this set .getAllowed, for other - .getDenied
-        // Don't forget about dublicates in this sets
-        // Else just add permissions from DB.
 
         return newRoom;
 

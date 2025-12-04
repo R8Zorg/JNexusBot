@@ -1,26 +1,19 @@
 package io.nexusbot.utils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Function;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.nexusbot.componentsData.ChannelOverrides;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.IPermissionHolder;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 
 public class OverridesUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OverridesUtil.class);
 
     public static HashMap<Long, ChannelOverrides> serrializeOverrides(List<PermissionOverride> overrides) {
         HashMap<Long, ChannelOverrides> serrializedOverrides = new HashMap<>();
@@ -33,16 +26,6 @@ public class OverridesUtil {
             serrializedOverrides.put(id, new ChannelOverrides(type, allow, deny));
         });
         return serrializedOverrides;
-    }
-
-    public static EnumSet<Permission> toEnumSet(long longPermissions) {
-        EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
-        for (Permission permission : Permission.values()) {
-            if ((longPermissions & permission.getRawValue()) != 0) {
-                permissions.add(permission);
-            }
-        }
-        return permissions;
     }
 
     public static List<EnumSet<Permission>> upsertOverrides(
@@ -58,26 +41,22 @@ public class OverridesUtil {
         return Arrays.asList(allowedPermsssions, deniedPermsssions);
     }
 
-    public static EnumSet<Permission> getMergedPermissions(
-            EnumSet<Permission> permissions, PermissionOverride categoryOverrides,
-            Function<PermissionOverride, EnumSet<Permission>> extractor) {
-        EnumSet<Permission> permissionsSet = EnumSet.noneOf(Permission.class);
-        if (categoryOverrides != null) {
-            extractor.apply(categoryOverrides);
-        }
-        permissionsSet.addAll(permissions);
-        return permissionsSet;
-    }
+    public static void addPermissionOverrides(
+            IPermissionHolder target, Category category,
+            EnumSet<Permission> allowedPermissions, EnumSet<Permission> deniedPermissions,
+            ChannelAction<VoiceChannel> voiceChannel) {
+        PermissionOverride permissionOverride = category.getPermissionOverride(target);
 
-    // public static void updateChannelOverrides(VoiceChannel voiceChannel,
-    // HashMap<Long, ChannelOverrides> overwrites,
-    // HashMap<Long, ChannelOverrides> initialOverrides) {
-    // upsertOverrides(voiceChannel, overwrites, initialOverrides, null);
-    // }
-    //
-    // public static void updateChannelOverrides(VoiceChannel voiceChannel,
-    // HashMap<Long, ChannelOverrides> overwrites,
-    // HashMap<Long, ChannelOverrides> initialOverrides, long everyoneRoleId) {
-    // upsertOverrides(voiceChannel, overwrites, initialOverrides, everyoneRoleId);
-    // }
+        EnumSet<Permission> allowed = EnumSet.noneOf(Permission.class);
+        EnumSet<Permission> denied = EnumSet.noneOf(Permission.class);
+        if (permissionOverride != null) {
+
+            allowed.addAll(permissionOverride.getAllowed());
+            denied.addAll(permissionOverride.getDenied());
+        }
+        allowed.addAll(allowedPermissions);
+        denied.addAll(deniedPermissions);
+
+        voiceChannel.addPermissionOverride(target, allowed, denied);
+    }
 }

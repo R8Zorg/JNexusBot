@@ -96,8 +96,9 @@ public class MessageActionUtil {
                 .addOption("Битрейт", TempRoomSettingsMenu.BITRATE.getValue(), "Изменить битрейт канала")
                 .addOption("18+", TempRoomSettingsMenu.NSFW.getValue(),
                         "Поставить/убрать возрастное ограничение канала")
-                .addOption("Стать владельцем комнаты", TempRoomSettingsMenu.CLAIM.getValue(),
-                        "Загрузить настройки комнаты для нового владельца");
+                .addOption("Регион", TempRoomSettingsMenu.REGION.getValue(), "Поменять регион комнаты");
+        // .addOption("Стать владельцем комнаты", TempRoomSettingsMenu.CLAIM.getValue(),
+        // "Загрузить настройки комнаты для нового владельца");
 
         Builder roomPermissionsMenuBuilder = StringSelectMenu.create(TempRoomPermissionsMenu.ID)
                 .setPlaceholder("Поменять права канала")

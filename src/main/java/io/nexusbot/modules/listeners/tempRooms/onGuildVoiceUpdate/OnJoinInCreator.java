@@ -177,7 +177,7 @@ public class OnJoinInCreator extends ListenerAdapter {
             TextChannel infoChannel = event.getGuild().getChannelById(TextChannel.class, infoChannelId);
             if (infoChannel == null) {
                 EmbedUtil.sendEmbed(createdRoom,
-                        "Не удалось отправить сообщение в инфо-канал: канал удалён или его нет в базе данных.",
+                        "Не удалось отправить сообщение в инфо-канал: канал удалён или к нему нет доступа.",
                         Color.RED);
                 tempRoomService.saveOrUpdate(tempRoom);
             } else {
@@ -251,17 +251,18 @@ public class OnJoinInCreator extends ListenerAdapter {
         }
 
         HashMap<Long, ChannelOverrides> overrides = roomSettings.getOverrides();
-        for (Map.Entry<Long, ChannelOverrides> entry : overrides.entrySet()) {
-            ChannelOverrides override = entry.getValue();
+        if (overrides != null) {
+            for (Map.Entry<Long, ChannelOverrides> entry : overrides.entrySet()) {
+                ChannelOverrides override = entry.getValue();
 
-            long id = entry.getKey();
-            String type = override.getType();
-            IPermissionHolder target = type.equals("member") ? guild.getMemberById(id) : guild.getRoleById(id);
+                long id = entry.getKey();
+                String type = override.getType();
+                IPermissionHolder target = type.equals("member") ? guild.getMemberById(id) : guild.getRoleById(id);
 
-            OverridesUtil.addPermissionOverrides(target, roomCategory,
-                    Permission.getPermissions(override.getAllow()), Permission.getPermissions(override.getDeny()),
-                    newRoom);
-
+                OverridesUtil.addPermissionOverrides(target, roomCategory,
+                        Permission.getPermissions(override.getAllow()), Permission.getPermissions(override.getDeny()),
+                        newRoom);
+            }
         }
 
         return newRoom;

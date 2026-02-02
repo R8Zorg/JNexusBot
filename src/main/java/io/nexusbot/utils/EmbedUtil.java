@@ -84,6 +84,13 @@ public class EmbedUtil {
                 .build();
         channel.sendMessageEmbeds(embed).queue();
     }
+    public static void sendEmbed(MessageChannel channel, String description, Color color, boolean isSilent) {
+        MessageEmbed embed = new EmbedBuilder()
+                .setDescription(description)
+                .setColor(color)
+                .build();
+        channel.sendMessageEmbeds(embed).setSuppressedNotifications(isSilent).queue();
+    }
 
     public static MessageEmbed generateEmbed(String description, Color color) {
         return new EmbedBuilder()

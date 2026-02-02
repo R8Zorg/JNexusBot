@@ -83,7 +83,7 @@ public class TempRoomSettings {
         this.userLimit = userLimit;
     }
 
-    public HashMap<Long, ChannelOverrides> getOverrides() {
+    public HashMap<Long, ChannelOverrides> getOverrides() throws NullPointerException {
         return overrides;
     }
 

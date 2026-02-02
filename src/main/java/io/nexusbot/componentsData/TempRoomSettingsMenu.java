@@ -6,7 +6,8 @@ public enum TempRoomSettingsMenu {
     BITRATE("room-bitrate"),
     NSFW("room-nsfw"),
     CLAIM("room-claim"),
-    NAME("room-name");
+    NAME("room-name"),
+    REGION("room-region");
 
     public static final String ID = "room-settings";
 

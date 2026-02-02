@@ -3,7 +3,6 @@ package io.nexusbot.modules.commands;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import io.github.r8zorg.jdatools.annotations.AdditionalSettings;
 import io.github.r8zorg.jdatools.annotations.Command;

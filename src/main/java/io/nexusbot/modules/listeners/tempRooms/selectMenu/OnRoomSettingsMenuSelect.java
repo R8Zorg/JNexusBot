@@ -3,6 +3,7 @@ package io.nexusbot.modules.listeners.tempRooms.selectMenu;
 import java.awt.Color;
 
 import io.github.r8zorg.jdatools.annotations.EventListeners;
+import io.nexusbot.componentsData.DiscordConstants;
 import io.nexusbot.componentsData.GlobalIds;
 import io.nexusbot.componentsData.TempRoomSettingsMenu;
 import io.nexusbot.componentsData.TempRoomSettingsModal;
@@ -10,9 +11,12 @@ import io.nexusbot.database.entities.TempRoom;
 import io.nexusbot.database.services.TempRoomService;
 import io.nexusbot.utils.EmbedUtil;
 import io.nexusbot.utils.ModalUtil;
+import net.dv8tion.jda.api.Region;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu.Builder;
 
 @EventListeners
 public class OnRoomSettingsMenuSelect extends ListenerAdapter {
@@ -62,6 +66,18 @@ public class OnRoomSettingsMenuSelect extends ListenerAdapter {
                 .queue();
     }
 
+    private void chooseRegion(StringSelectInteractionEvent event) {
+        Builder selectMenuBuilder = StringSelectMenu.create(TempRoomSettingsMenu.REGION.getValue())
+                .setPlaceholder("Выберите регион");
+        for (Region region : DiscordConstants.REGIONS) {
+            selectMenuBuilder.addOption(region.getName(), region.getKey());
+        }
+        event.reply("")
+                .addActionRow(selectMenuBuilder.build())
+                .setEphemeral(true)
+                .queue();
+    }
+
     @Override
     public void onStringSelectInteraction(StringSelectInteractionEvent event) {
         if (!event.getComponentId().equals(TempRoomSettingsMenu.ID)) {
@@ -90,6 +106,7 @@ public class OnRoomSettingsMenuSelect extends ListenerAdapter {
             case NSFW -> setNsfw(event);
             case CLAIM -> setOwnership(event);
             case NAME -> setName(event);
+            case REGION -> chooseRegion(event);
         }
 
     }

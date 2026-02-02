@@ -4,16 +4,19 @@ import java.awt.Color;
 import java.util.List;
 import java.util.function.Consumer;
 
+import io.github.r8zorg.jdatools.annotations.Choice;
 import io.github.r8zorg.jdatools.annotations.Command;
 import io.github.r8zorg.jdatools.annotations.Option;
 import io.github.r8zorg.jdatools.annotations.SlashCommands;
 import io.github.r8zorg.jdatools.annotations.Subcommand;
 import io.github.r8zorg.jdatools.annotations.SubcommandGroup;
+import io.nexusbot.componentsData.DiscordConstants;
 import io.nexusbot.database.entities.TempRoom;
 import io.nexusbot.database.services.TempRoomService;
 import io.nexusbot.utils.EmbedUtil;
 import io.nexusbot.utils.TempRoomUtil;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.Region;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -179,11 +182,45 @@ public class TempRoomCommands {
                 error -> EmbedUtil.replyEmbed(event, "Не удалось выгнать участника: " + error.getMessage(), Color.RED));
     }
 
-    // @SubcommandGroup(parentName = "room", description = "Получить список участников")
+    @Subcommand(parentNames = "room", description = "Поменять регион голосового канала")
+    public void region(SlashCommandInteractionEvent event,
+            @Option(name = "region", description = "Регион", choices = {
+                    @Choice(name = "Automatic", value = "automatic"),
+                    @Choice(name = "Brazil", value = "brazil"),
+                    @Choice(name = "Hong Kong", value = "hongkong"),
+                    @Choice(name = "India", value = "india"),
+                    @Choice(name = "Japan", value = "japan"),
+                    @Choice(name = "Rotterdam", value = "rotterdam"),
+                    @Choice(name = "Singapore", value = "singapore"),
+                    @Choice(name = "South Korea", value = "south-korea"),
+                    @Choice(name = "South Africa", value = "southafrica"),
+                    @Choice(name = "Sydney", value = "sydney"),
+                    @Choice(name = "US Central", value = "us-central"),
+                    @Choice(name = "US East", value = "us-east"),
+                    @Choice(name = "US South", value = "us-south"),
+                    @Choice(name = "US West", value = "us-west")
+            }) String selectedRegion) {
+        if (denyNotVoiceChannel(event) || denyNotOwner(event)) {
+            return;
+        }
+        VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
+        Region region = DiscordConstants.REGIONS
+                .stream()
+                .filter(_region -> _region.getKey().equals(selectedRegion))
+                .findFirst()
+                .orElseThrow();
+        voiceChannel.getManager().setRegion(region).queue(
+                success -> EmbedUtil.replyEmbed(event, "Регион изменён на: " + region.getName(), Color.GREEN),
+                error -> EmbedUtil.replyEmbed(event, "Не удалось сменить регион: " + error.getMessage(), Color.RED));
+    }
+
+    // @SubcommandGroup(parentName = "room", description = "Получить список
+    // участников")
     public void get(SlashCommandInteractionEvent event) {
     }
 
-    // @Subcommand(parentNames = "room get", description = "Получить участников, заблокированных в канале")
+    // @Subcommand(parentNames = "room get", description = "Получить участников,
+    // заблокированных в канале")
     public void blocked(SlashCommandInteractionEvent event) {
         if (denyNotVoiceChannel(event) || denyNotOwner(event)) {
             return;

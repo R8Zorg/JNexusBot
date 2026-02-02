@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -26,9 +27,11 @@ import io.nexusbot.utils.OverridesUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.IPermissionHolder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
@@ -174,7 +177,7 @@ public class OnJoinInCreator extends ListenerAdapter {
             TextChannel infoChannel = event.getGuild().getChannelById(TextChannel.class, infoChannelId);
             if (infoChannel == null) {
                 EmbedUtil.sendEmbed(createdRoom,
-                        "Не удалось отправить сообщение в инфо-канал: канал удалён или его нет в базе данных.",
+                        "Не удалось отправить сообщение в инфо-канал: канал удалён или к нему нет доступа.",
                         Color.RED);
                 tempRoomService.saveOrUpdate(tempRoom);
             } else {
@@ -194,32 +197,6 @@ public class OnJoinInCreator extends ListenerAdapter {
         if (roomCreator.isRoleNeeded() && !neededRolesIds.isEmpty() && neededRole == null) {
             sendRoleNotFoundMessage(event, createdRoom, roomCreator, neededRolesIds);
         }
-    }
-
-    private void addMemberOverrides(VoiceChannel createdRoom, GuildVoiceUpdateEvent event, Member member) {
-        EnumSet<Permission> permissions = EnumSet.of(Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT,
-                Permission.VOICE_MOVE_OTHERS, Permission.VOICE_SET_STATUS,
-                Permission.MANAGE_CHANNEL, Permission.VOICE_STREAM);
-        createdRoom.upsertPermissionOverride(member)
-                .grant(permissions).queue();
-
-    }
-
-    private void updateRoomOverrides(GuildVoiceUpdateEvent event, VoiceChannel createdRoom,
-            TempRoomCreator roomCreator, TempRoomSettings roomSettings) {
-        addMemberOverrides(createdRoom, event, event.getGuild().getMember(event.getJDA().getSelfUser()));
-        HashMap<Long, ChannelOverrides> initialOverrides = OverridesUtil.serrializeOverrides(
-                event.getGuild().getCategoryById(roomCreator.getTempRoomCategoryId()).getPermissionOverrides());
-        HashMap<Long, ChannelOverrides> roomOverrides = roomSettings.getOverrides();
-        if (!roomOverrides.isEmpty()) {
-            if (roomCreator.getChannelMode().equals(ChannelMode.custom)) {
-                OverridesUtil.updateChannelOverrides(createdRoom, roomOverrides, initialOverrides,
-                        event.getGuild().getPublicRole().getIdLong());
-            } else {
-                OverridesUtil.updateChannelOverrides(createdRoom, roomOverrides, initialOverrides);
-            }
-        }
-        addMemberOverrides(createdRoom, event, event.getMember());
     }
 
     private ChannelAction<VoiceChannel> createNewRoom(GuildVoiceUpdateEvent event, TempRoomSettings roomSettings,
@@ -263,6 +240,35 @@ public class OnJoinInCreator extends ListenerAdapter {
                 .setUserlimit(userLimit)
                 .setBitrate(bitrate);
 
+        EnumSet<Permission> permissions = EnumSet.of(Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT,
+                Permission.VOICE_MOVE_OTHERS, Permission.VOICE_SET_STATUS,
+                Permission.MANAGE_CHANNEL, Permission.VOICE_STREAM);
+
+        Category roomCategory = guild.getCategoryById(roomCreator.getTempRoomCategoryId());
+        List<Member> enhancedPermissionsMembers = List.of(
+                guild.getMemberById(event.getJDA().getSelfUser().getIdLong()),
+                event.getMember());
+
+        for (Member member : enhancedPermissionsMembers) {
+            OverridesUtil.addPermissionOverrides(member, roomCategory,
+                    permissions, EnumSet.noneOf(Permission.class), newRoom);
+        }
+
+        HashMap<Long, ChannelOverrides> overrides = roomSettings.getOverrides();
+        if (overrides != null) {
+            for (Map.Entry<Long, ChannelOverrides> entry : overrides.entrySet()) {
+                ChannelOverrides override = entry.getValue();
+
+                long id = entry.getKey();
+                String type = override.getType();
+                IPermissionHolder target = type.equals("member") ? guild.getMemberById(id) : guild.getRoleById(id);
+
+                OverridesUtil.addPermissionOverrides(target, roomCategory,
+                        Permission.getPermissions(override.getAllow()), Permission.getPermissions(override.getDeny()),
+                        newRoom);
+            }
+        }
+
         return newRoom;
 
     }
@@ -272,7 +278,7 @@ public class OnJoinInCreator extends ListenerAdapter {
         if (event.getChannelJoined() == null) {
             return;
         }
-        if (MembersUtil.inBlacklist(event.getMember().getIdLong())) {
+        if (MembersUtil.inBlacklist(event.getMember().getIdLong())) { // WARN: can call rate limit
             event.getGuild().moveVoiceMember(event.getMember(), null).queue();
             return;
         }
@@ -296,7 +302,7 @@ public class OnJoinInCreator extends ListenerAdapter {
             ChannelAction<VoiceChannel> newRoom = createNewRoom(event, roomSettings, roomCreator, neededRolesIds);
             newRoom.queue(createdRoom -> {
                 try {
-                    updateRoomOverrides(event, createdRoom, roomCreator, roomSettings);
+                    // updateRoomOverrides(event, createdRoom, roomCreator, roomSettings);
                 } catch (InsufficientPermissionException e) {
                     LOGGER.warn("Не удалось обновить права канала: {}", e.getMessage());
                     createdRoom.delete().queue();

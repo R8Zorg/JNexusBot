@@ -200,6 +200,9 @@ public class TempRoomCommands {
                     @Choice(name = "US South", value = "us-south"),
                     @Choice(name = "US West", value = "us-west")
             }) String selectedRegion) {
+        if (denyNotVoiceChannel(event) || denyNotOwner(event)) {
+            return;
+        }
         VoiceChannel voiceChannel = event.getChannel().asVoiceChannel();
         Region region = DiscordConstants.REGIONS
                 .stream()

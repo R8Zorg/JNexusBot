@@ -138,6 +138,7 @@ public class MessageActionUtil {
         createdRoom.sendMessageEmbeds(embed)
                 .addActionRow(roomSettingsMenuBuilder.build())
                 .addActionRow(roomPermissionsMenuBuilder.build())
+                .setSuppressedNotifications(true)
                 .queue();
     }
 }

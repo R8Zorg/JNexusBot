@@ -255,20 +255,22 @@ public class OnJoinInCreator extends ListenerAdapter {
         }
 
         HashMap<Long, ChannelOverrides> overrides = roomSettings.getOverrides();
-        if (overrides != null) {
-            for (Map.Entry<Long, ChannelOverrides> entry : overrides.entrySet()) {
-                ChannelOverrides override = entry.getValue();
+        if (overrides == null) {
+            return newRoom;
+        }
 
-                long id = entry.getKey();
-                String type = override.getType();
-                IPermissionHolder target = type.equals("member") ? guild.getMemberById(id) : guild.getRoleById(id);
-                if (target == null) {
-                    continue;
-                }
-                OverridesUtil.addPermissionOverrides(target, roomCategory,
-                        Permission.getPermissions(override.getAllow()), Permission.getPermissions(override.getDeny()),
-                        newRoom);
+        for (Map.Entry<Long, ChannelOverrides> entry : overrides.entrySet()) {
+            ChannelOverrides override = entry.getValue();
+
+            long id = entry.getKey();
+            String type = override.getType();
+            IPermissionHolder target = type.equals("member") ? guild.getMemberById(id) : guild.getRoleById(id);
+            if (target == null) {
+                continue;
             }
+            OverridesUtil.addPermissionOverrides(target, roomCategory,
+                    Permission.getPermissions(override.getAllow()), Permission.getPermissions(override.getDeny()),
+                    newRoom);
         }
 
         return newRoom;

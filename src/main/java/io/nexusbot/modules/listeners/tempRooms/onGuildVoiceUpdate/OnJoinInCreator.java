@@ -262,7 +262,9 @@ public class OnJoinInCreator extends ListenerAdapter {
                 long id = entry.getKey();
                 String type = override.getType();
                 IPermissionHolder target = type.equals("member") ? guild.getMemberById(id) : guild.getRoleById(id);
-
+                if (target == null) {
+                    return null;
+                }
                 OverridesUtil.addPermissionOverrides(target, roomCategory,
                         Permission.getPermissions(override.getAllow()), Permission.getPermissions(override.getDeny()),
                         newRoom);
@@ -300,6 +302,9 @@ public class OnJoinInCreator extends ListenerAdapter {
         List<Long> neededRolesIds = creatorService.getNeededRolesIds(joinedChannelId);
         try {
             ChannelAction<VoiceChannel> newRoom = createNewRoom(event, roomSettings, roomCreator, neededRolesIds);
+            if (newRoom == null) {
+                return;
+            }
             newRoom.queue(createdRoom -> {
                 try {
                     // updateRoomOverrides(event, createdRoom, roomCreator, roomSettings);

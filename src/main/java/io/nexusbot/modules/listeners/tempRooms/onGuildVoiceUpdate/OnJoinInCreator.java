@@ -307,13 +307,6 @@ public class OnJoinInCreator extends ListenerAdapter {
             }
             newRoom.queue(createdRoom -> {
                 try {
-                    // updateRoomOverrides(event, createdRoom, roomCreator, roomSettings);
-                } catch (InsufficientPermissionException e) {
-                    LOGGER.warn("Не удалось обновить права канала: {}", e.getMessage());
-                    createdRoom.delete().queue();
-                    return;
-                }
-                try {
                     event.getGuild().moveVoiceMember(event.getMember(), createdRoom).queue(success -> {
                         onceMemberMoved(event, createdRoom, roomCreator, roomSettings, neededRolesIds);
                     }, error -> {

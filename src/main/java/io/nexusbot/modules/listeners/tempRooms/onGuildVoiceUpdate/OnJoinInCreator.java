@@ -264,13 +264,23 @@ public class OnJoinInCreator extends ListenerAdapter {
 
             long id = entry.getKey();
             String type = override.getType();
-            IPermissionHolder target = type.equals("member") ? guild.getMemberById(id) : guild.getRoleById(id);
-            if (target == null) {
-                continue;
+            EnumSet<Permission> allow = Permission.getPermissions(override.getAllow());
+            EnumSet<Permission> deny = Permission.getPermissions(override.getDeny());
+
+            if ("role".equals(type)) {
+                Role role = guild.getRoleById(id);
+                if (role == null) {
+                    continue;
+                }
+                OverridesUtil.addPermissionOverrides(role, roomCategory, allow, deny, newRoom);
+            } else {
+                // TODO: replace complete to queue
+                Member member = guild.retrieveMemberById(id).complete();
+                if (member == null) {
+                    continue;
+                }
+                OverridesUtil.addPermissionOverrides(member, roomCategory, allow, deny, newRoom);
             }
-            OverridesUtil.addPermissionOverrides(target, roomCategory,
-                    Permission.getPermissions(override.getAllow()), Permission.getPermissions(override.getDeny()),
-                    newRoom);
         }
 
         return newRoom;

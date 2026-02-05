@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.IPermissionHolder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -204,7 +205,6 @@ public class OnJoinInCreator extends ListenerAdapter {
         String roomName = roomSettings.getName() != null ? roomSettings.getName()
                 : event.getMember().getUser().getName() + "'s channel";
 
-        // TODO: rewrite this?
         int userLimit = roomSettings.getUserLimit();
         boolean isRoleNeeded = creatorService.isRoleNeeded(event.getChannelJoined().getIdLong());
         if (isRoleNeeded) {
@@ -245,6 +245,26 @@ public class OnJoinInCreator extends ListenerAdapter {
                 Permission.MANAGE_CHANNEL, Permission.VOICE_STREAM);
 
         Category roomCategory = guild.getCategoryById(roomCreator.getTempRoomCategoryId());
+        for (PermissionOverride po : roomCategory.getPermissionOverrides()) {
+            IPermissionHolder holder;
+            long id = po.getIdLong();
+
+            if (po.isRoleOverride()) {
+                Role role = guild.getRoleById(id);
+                if (role == null) {
+                    continue;
+                }
+                holder = role;
+            } else {
+                Member member = guild.getMemberById(id);
+                if (member == null) {
+                    continue;
+                }
+                holder = member;
+            }
+            newRoom.addPermissionOverride(holder, po.getAllowedRaw(), po.getDeniedRaw());
+        }
+
         List<Member> enhancedPermissionsMembers = List.of(
                 guild.getMemberById(event.getJDA().getSelfUser().getIdLong()),
                 event.getMember());
@@ -274,7 +294,7 @@ public class OnJoinInCreator extends ListenerAdapter {
                 }
                 OverridesUtil.addPermissionOverrides(role, roomCategory, allow, deny, newRoom);
             } else {
-                // TODO: replace complete to queue
+                // TODO: complete -> queue?
                 Member member = guild.retrieveMemberById(id).complete();
                 if (member == null) {
                     continue;
@@ -284,7 +304,6 @@ public class OnJoinInCreator extends ListenerAdapter {
         }
 
         return newRoom;
-
     }
 
     @Override

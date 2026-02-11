@@ -1,4 +1,4 @@
-package io.nexusbot.modules.selectMenus;
+package io.nexusbot.modules.setup;
 
 import java.awt.Color;
 
@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionE
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 @EventListeners
-public class OnMainMenuSelect extends ListenerAdapter {
+public class OnSetupMenuSelect extends ListenerAdapter {
     private void tempRooms(StringSelectInteractionEvent event) {
         MessageEmbed embed = new EmbedBuilder()
                 .setTitle("Временные голосовые комнаты (каналы)")

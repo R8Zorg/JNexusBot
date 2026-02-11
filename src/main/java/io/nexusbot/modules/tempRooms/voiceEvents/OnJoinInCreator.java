@@ -36,6 +36,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -295,11 +296,14 @@ public class OnJoinInCreator extends ListenerAdapter {
                 OverridesUtil.addPermissionOverrides(role, roomCategory, allow, deny, newRoom);
             } else {
                 // TODO: complete -> queue?
-                Member member = guild.retrieveMemberById(id).complete();
-                if (member == null) {
-                    continue;
+                try {
+                    Member member = guild.retrieveMemberById(id).complete();
+                    if (member == null) {
+                        continue;
+                    }
+                    OverridesUtil.addPermissionOverrides(member, roomCategory, allow, deny, newRoom);
+                } catch (ErrorResponseException e) {
                 }
-                OverridesUtil.addPermissionOverrides(member, roomCategory, allow, deny, newRoom);
             }
         }
 
@@ -358,6 +362,7 @@ public class OnJoinInCreator extends ListenerAdapter {
             LOGGER.warn("Не удалось создать комнату по причине: " + e.getMessage());
         } catch (Exception e) {
             LOGGER.warn("При создании канала произошла неизвестная ошибка: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

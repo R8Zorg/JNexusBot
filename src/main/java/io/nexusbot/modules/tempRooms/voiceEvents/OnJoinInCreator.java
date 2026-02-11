@@ -1,4 +1,4 @@
-package io.nexusbot.modules.tempRooms.onGuildVoiceUpdate;
+package io.nexusbot.modules.tempRooms.voiceEvents;
 
 import java.awt.Color;
 import java.util.EnumSet;

@@ -1,4 +1,4 @@
-package io.nexusbot.modules.tempRooms.selectMenu;
+package io.nexusbot.modules.tempRooms.permissionsSelectMenu;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu.Builder;
 
 @EventListeners
-public class OnRoomPermissionsMenuSelect extends ListenerAdapter {
+public class MainMenuSelect extends ListenerAdapter {
     private TempRoomService tempRoomService = new TempRoomService();
 
     private void lockRoom(StringSelectInteractionEvent event) {

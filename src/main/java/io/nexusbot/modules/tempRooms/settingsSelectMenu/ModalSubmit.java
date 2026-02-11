@@ -1,4 +1,4 @@
-package io.nexusbot.modules.tempRooms;
+package io.nexusbot.modules.tempRooms.settingsSelectMenu;
 
 import java.awt.Color;
 import java.util.HashMap;
@@ -13,10 +13,10 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 @EventListeners
-public class OnRoomSettingsModalSubmit extends ListenerAdapter {
+public class ModalSubmit extends ListenerAdapter {
     private final Map<String, Consumer<ModalInteractionEvent>> handlers = new HashMap<>();
 
-    public OnRoomSettingsModalSubmit() {
+    public ModalSubmit() {
         handlers.put(TempRoomSettingsModal.STATUS.getValue(), this::setStatus);
         handlers.put(TempRoomSettingsModal.LIMIT.getValue(), this::setLimit);
         handlers.put(TempRoomSettingsModal.BITRATE.getValue(), this::setBitrate);

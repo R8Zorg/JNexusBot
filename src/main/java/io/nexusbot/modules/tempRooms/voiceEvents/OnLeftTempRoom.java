@@ -1,4 +1,4 @@
-package io.nexusbot.modules.tempRooms.onGuildVoiceUpdate;
+package io.nexusbot.modules.tempRooms.voiceEvents;
 
 import io.github.r8zorg.jdatools.annotations.EventListeners;
 import io.nexusbot.database.entities.TempRoom;

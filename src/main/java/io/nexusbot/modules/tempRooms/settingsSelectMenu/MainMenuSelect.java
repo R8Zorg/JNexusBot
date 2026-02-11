@@ -1,4 +1,4 @@
-package io.nexusbot.modules.tempRooms.selectMenu;
+package io.nexusbot.modules.tempRooms.settingsSelectMenu;
 
 import java.awt.Color;
 
@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu.Builder;
 
 @EventListeners
-public class OnRoomSettingsMenuSelect extends ListenerAdapter {
+public class MainMenuSelect extends ListenerAdapter {
     private TempRoomService tempRoomService = new TempRoomService();
 
     private void setStatus(StringSelectInteractionEvent event) {

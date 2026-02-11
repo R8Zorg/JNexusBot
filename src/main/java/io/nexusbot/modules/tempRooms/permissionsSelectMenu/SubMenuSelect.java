@@ -1,4 +1,4 @@
-package io.nexusbot.modules.tempRooms.selectMenu;
+package io.nexusbot.modules.tempRooms.permissionsSelectMenu;
 
 import java.awt.Color;
 import java.util.HashMap;
@@ -25,11 +25,11 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 
 @EventListeners
-public class OnRoomPermissionsSubMenuSelect extends ListenerAdapter {
+public class SubMenuSelect extends ListenerAdapter {
     private final Map<String, Consumer<StringSelectInteractionEvent>> stringMenuHandler = new HashMap<>();
     private final Map<String, Consumer<EntitySelectInteractionEvent>> entityMenuHandler = new HashMap<>();
 
-    public OnRoomPermissionsSubMenuSelect() {
+    public SubMenuSelect() {
         stringMenuHandler.put(TempRoomPermissionsMenu.CLEAR_CONNECT.getValue(), this::clearConnect);
         stringMenuHandler.put(TempRoomPermissionsMenu.CLEAR_PERMITTED_CONNECT.getValue(), this::clearPermittedConnect);
         stringMenuHandler.put(TempRoomPermissionsMenu.KICK.getValue(), this::kickMembers);

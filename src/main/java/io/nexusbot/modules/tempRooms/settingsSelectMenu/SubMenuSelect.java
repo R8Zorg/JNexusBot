@@ -1,4 +1,4 @@
-package io.nexusbot.modules.tempRooms.selectMenu;
+package io.nexusbot.modules.tempRooms.settingsSelectMenu;
 
 import java.awt.Color;
 import java.util.HashMap;
@@ -15,10 +15,10 @@ import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionE
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 @EventListeners
-public class OnRoomSettingsSubMenuSelect extends ListenerAdapter {
+public class SubMenuSelect extends ListenerAdapter {
     private final Map<String, Consumer<StringSelectInteractionEvent>> stringMenuHandler = new HashMap<>();
 
-    public OnRoomSettingsSubMenuSelect() {
+    public SubMenuSelect() {
         stringMenuHandler.put(TempRoomSettingsMenu.REGION.getValue(), this::changeRegion);
     }
 

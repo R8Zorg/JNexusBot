@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 
 @SlashCommands
-public class TempRoomCommands {
+public class Commands {
     private TempRoomService roomService = new TempRoomService();
 
     private boolean denyNotVoiceChannel(SlashCommandInteractionEvent event) {

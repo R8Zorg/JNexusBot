@@ -12,6 +12,7 @@ public class SetupMenu {
     @Subcommand(parentNames = "setup", description = "Меню с информацией о настройке бота")
     public void menu(SlashCommandInteractionEvent event) {
         event.reply("")
+                .setEphemeral(true)
                 .addActionRow(
                         StringSelectMenu.create(MainMenu.id)
                                 .addOption("Ничего", GlobalIds.NOTHING.getValue(), "Ничего не выбирать")

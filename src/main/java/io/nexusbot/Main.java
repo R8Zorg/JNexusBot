@@ -19,8 +19,9 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         Dotenv dotenv = Dotenv.load();
 
-        CommandsManager commandsManager = new CommandsManager("io.nexusbot.modules.commands");
-        ListenersManager listenersManager = new ListenersManager("io.nexusbot.modules.listeners", commandsManager);
+        String modulesPath = "io.nexusbot.modules";
+        CommandsManager commandsManager = new CommandsManager(modulesPath);
+        ListenersManager listenersManager = new ListenersManager(modulesPath, commandsManager);
 
         JDA jda = JDABuilder.createDefault(dotenv.get("TOKEN"), EnumSet.allOf(GatewayIntent.class))
                 .addEventListeners(listenersManager.getAllListeners())

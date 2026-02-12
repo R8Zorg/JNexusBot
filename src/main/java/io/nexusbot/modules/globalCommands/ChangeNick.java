@@ -41,9 +41,14 @@ public class ChangeNick {
             EmbedUtil.replyEmbed(event, "Вам запрещено испольовать эту команду", Color.RED);
             return;
         }
-        event.getMember().modifyNickname(null).queue(
-                success -> EmbedUtil.replyEmbed(event, "Ник успешно сброшен", Color.GREEN),
-                error -> EmbedUtil.replyEmbed(event, "Возникла ошибка при сбросе никнейма: " + error.getMessage(),
-                        Color.RED));
+        try {
+            event.getMember().modifyNickname(null).queue(
+                    success -> EmbedUtil.replyEmbed(event, "Ник успешно сброшен", Color.GREEN),
+                    error -> EmbedUtil.replyEmbed(event, "Возникла ошибка при сбросе никнейма: " + error.getMessage(),
+                            Color.RED));
+        } catch (HierarchyException e) {
+            EmbedUtil.replyEmbed(event, "Невозможно изменить никнейм участнику с ролью, равной или превышающей мою.",
+                    Color.RED);
+        }
     }
 }

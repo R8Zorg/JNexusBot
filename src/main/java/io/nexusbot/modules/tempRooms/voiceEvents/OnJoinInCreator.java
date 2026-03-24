@@ -315,9 +315,14 @@ public class OnJoinInCreator extends ListenerAdapter {
         if (event.getChannelJoined() == null) {
             return;
         }
-        if (MembersUtil.inBlacklist(event.getMember().getIdLong())) { // WARN: can call rate limit
-            event.getGuild().moveVoiceMember(event.getMember(), null).queue();
-            return;
+        if (MembersUtil.inBlacklist(event.getMember().getIdLong())) {
+            try {
+                event.getGuild().moveVoiceMember(event.getMember(), null)
+                        .queueAfter(1, TimeUnit.SECONDS);
+                return;
+
+            } catch (Exception e) {
+            }
         }
         long joinedChannelId = event.getChannelJoined().getIdLong();
         TempRoomCreator roomCreator = creatorService.get(joinedChannelId);

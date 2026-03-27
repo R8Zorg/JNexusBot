@@ -15,7 +15,7 @@ public class TempRoomSettingsService extends AbstractCrudDao<TempRoomSettings, T
     public HashMap<Long, ChannelOverrides> getOverrides(long ownerId, long guildId) {
         TempRoomSettingsPK pk = new TempRoomSettingsPK(ownerId, guildId);
         TempRoomSettings overwrites = get(pk);
-        return overwrites != null ? overwrites.getOverrides() : null;
+        return overwrites != null ? overwrites.getOverrides() : new HashMap<>();
     }
 
     public void setOverrides(long ownerId, long guildId, HashMap<Long, ChannelOverrides> newOverrides) {

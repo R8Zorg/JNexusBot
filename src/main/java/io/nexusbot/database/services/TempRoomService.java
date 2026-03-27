@@ -1,42 +1,25 @@
 package io.nexusbot.database.services;
 
-import io.nexusbot.database.dao.TempRoomDao;
+import java.util.function.Function;
+
+import io.nexusbot.database.dao.AbstractCrudDao;
 import io.nexusbot.database.entities.TempRoom;
-import io.nexusbot.database.interfaces.ITempRoom;
 
-public class TempRoomService implements ITempRoom {
-    private final TempRoomDao voiceChannelDao = new TempRoomDao();
-
-    @Override
-    public TempRoom get(long roomId) {
-        return voiceChannelDao.get(roomId);
+public class TempRoomService extends AbstractCrudDao<TempRoom, Long> {
+    public TempRoomService() {
+        super(TempRoom.class);
     }
 
-    public TempRoom getOrCreate(long roomId, long ownerId, long categoryId) {
+    private <T> T extractField(long roomId, Function<TempRoom, T> extractor) {
         TempRoom tempRoom = get(roomId);
-        if (tempRoom == null) {
-            tempRoom = new TempRoom(roomId, ownerId, categoryId);
-        }
-        return tempRoom != null ? tempRoom : null;
+        return tempRoom == null ? null : extractor.apply(tempRoom);
     }
 
-    @Override
     public Long getOwnerId(long roomId) {
-        return voiceChannelDao.getOwnerId(roomId);
+        return extractField(roomId, TempRoom::getOwnerId);
     }
 
-    @Override
-    public void saveOrUpdate(TempRoom tempRoom) {
-        voiceChannelDao.saveOrUpdate(tempRoom);
-    }
-
-    @Override
-    public void remove(TempRoom voiceChannel) {
-        voiceChannelDao.remove(voiceChannel);
-    }
-
-    @Override
     public Long getCategoryId(long roomId) {
-        return voiceChannelDao.getCategoryId(roomId);
+        return extractField(roomId, TempRoom::getCategoryId);
     }
 }

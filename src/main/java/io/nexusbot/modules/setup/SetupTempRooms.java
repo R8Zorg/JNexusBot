@@ -245,7 +245,7 @@ public class SetupTempRooms {
             return;
         }
 
-        creatorService.remove(tempRoomCreator);
+        creatorService.delete(tempRoomCreator);
         EmbedUtil.replyEmbed(event.getHook(), "Настройки удалены", Color.GREEN);
     }
 }

@@ -81,7 +81,7 @@ public class GuildManagement {
         Guild providedGuild = getGuildOrRepyError(event, guildId);
         try {
             GuildInfo guild = guildService.get(Long.parseLong(guildId));
-            guildService.remove(guild);
+            guildService.delete(guild);
             EmbedUtil.replyEmbed(event,
                     "Сервер (" + providedGuild.getName() + ") [" + providedGuild.getId() + "] убран", Color.GREEN);
         } catch (IllegalArgumentException e) {

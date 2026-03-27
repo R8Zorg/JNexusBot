@@ -43,7 +43,7 @@ public class BlacklistCommands {
     public void remove(SlashCommandInteractionEvent event,
             @Option(name = "user", description = "Участник или его ID") User user) {
         try {
-            blacklistService.remove(user.getIdLong());
+            blacklistService.delete(user.getIdLong());
             EmbedUtil.replyEmbed(event, "Пользователь удалён из чёрного списка", Color.GREEN);
         } catch (Exception e) {
             EmbedUtil.replyEmbed(event, "Не удалось убрать пользователя из базы данных" + e.getMessage(),

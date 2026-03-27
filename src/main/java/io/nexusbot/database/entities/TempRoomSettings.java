@@ -34,6 +34,9 @@ public class TempRoomSettings {
     public TempRoomSettings(long ownerId, long guildId) {
         tempRoomSettingsPK = new TempRoomSettingsPK(ownerId, guildId);
     }
+    public TempRoomSettings(TempRoomSettingsPK pk) {
+        tempRoomSettingsPK = pk;
+    }
 
     public TempRoomSettingsPK getTempRoomSettingsPK() {
         return tempRoomSettingsPK;

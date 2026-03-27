@@ -1,20 +1,80 @@
 package io.nexusbot.database.services;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
-import io.nexusbot.database.dao.TempRoomCreatorDao;
+import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+import io.nexusbot.database.HibernateUtil;
+import io.nexusbot.database.dao.AbstractCrudDao;
 import io.nexusbot.database.entities.TempRoomCreator;
-import io.nexusbot.database.interfaces.ITempRoomCreator;
 
-public class TempRoomCreatorService implements ITempRoomCreator {
-    private final TempRoomCreatorDao voiceCreatorDao = new TempRoomCreatorDao();
-
+public class TempRoomCreatorService extends AbstractCrudDao<TempRoomCreator, Long> {
     public TempRoomCreatorService() {
+        super(TempRoomCreator.class);
     }
 
-    @Override
-    public TempRoomCreator get(long roomCreatorId) {
-        return voiceCreatorDao.get(roomCreatorId);
+    private <T> T extractField(long roomCreatorId, Function<TempRoomCreator, T> extractor) {
+        TempRoomCreator roomCreator = get(roomCreatorId);
+        return roomCreator == null ? null : extractor.apply(roomCreator);
+    }
+
+    public Long getTempRoomCategoryId(long roomCreatorId) {
+        return extractField(roomCreatorId, TempRoomCreator::getTempRoomCategoryId);
+    }
+
+    public Integer getUserLimit(long roomCreatorId) {
+        return extractField(roomCreatorId, TempRoomCreator::getUserLimit);
+    }
+
+    public String getDefaultTempChannelName(long roomCreatorId) {
+        return extractField(roomCreatorId, TempRoomCreator::getDefaultTempChannelName);
+    }
+
+    public String getChannelMode(long roomCreatorId) {
+        return extractField(roomCreatorId, TempRoomCreator::getChannelMode);
+    }
+
+    public boolean isRoleNeeded(long roomCreatorId) {
+        return extractField(roomCreatorId, TempRoomCreator::isRoleNeeded);
+    }
+
+    public String getRoleNotFoundMessage(long roomCreatorId) {
+        return extractField(roomCreatorId, TempRoomCreator::getRoleNotFoundMessage);
+    }
+
+    public List<Long> getNeededRolesIds(long roomCreatorId) {
+        TempRoomCreator roomCreator = get(roomCreatorId);
+        if (roomCreator == null) {
+            return Collections.emptyList();
+        }
+        Hibernate.initialize(roomCreator.getNeededRolesIds());
+        return roomCreator.getNeededRolesIds();
+    }
+
+    // TODO: нужен ли сеттер?
+    public void setNeededRolesIds(long roomCreatorId, List<Long> rolesIds) {
+        TempRoomCreator roomCreator = get(roomCreatorId);
+        if (roomCreator == null) {
+            throw new NullPointerException("RoomCreator doesn't exists in database");
+        }
+        roomCreator.setNeededRolesIds(rolesIds);
+        saveOrUpdate(roomCreator);
+    }
+
+    public Long getLogChannelId(long roomCreatorId) {
+        return extractField(roomCreatorId, TempRoomCreator::getLogChannelId);
+    }
+
+    public void saveOrUpdate(TempRoomCreator voiceChannelCreator) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Transaction ta = session.beginTransaction();
+            session.merge(voiceChannelCreator);
+            ta.commit();
+        }
     }
 
     public TempRoomCreator getOrCreate(long roomCreatorId) {
@@ -25,58 +85,4 @@ public class TempRoomCreatorService implements ITempRoomCreator {
         return tempRoomCreator;
     }
 
-    @Override
-    public Long getTempRoomCategoryId(long roomCreatorId) {
-        return voiceCreatorDao.getTempRoomCategoryId(roomCreatorId);
-    }
-
-    @Override
-    public Integer getUserLimit(long roomCreatorId) {
-        return voiceCreatorDao.getUserLimit(roomCreatorId);
-    }
-
-    @Override
-    public String getDefaultTempChannelName(long roomCreatorId) {
-        return voiceCreatorDao.getDefaultTempChannelName(roomCreatorId);
-    }
-
-    @Override
-    public String getChannelMode(long roomCreatorId) {
-        return voiceCreatorDao.getChannelMode(roomCreatorId);
-    }
-
-    @Override
-    public boolean isRoleNeeded(long roomCreatorId) {
-        return voiceCreatorDao.isRoleNeeded(roomCreatorId);
-    }
-
-    @Override
-    public String getRoleNotFoundMessage(long roomCreatorId) {
-        return voiceCreatorDao.getRoleNotFoundMessage(roomCreatorId);
-    }
-
-    @Override
-    public List<Long> getNeededRolesIds(long roomCreatorId) {
-        return voiceCreatorDao.getNeededRolesIds(roomCreatorId);
-    }
-
-    @Override
-    public void setNeededRolesIds(long roomCreatorId, List<Long> rolesIds) {
-        voiceCreatorDao.setNeededRolesIds(roomCreatorId, rolesIds);
-    }
-
-    @Override
-    public Long getLogChannelId(long roomCreatorId) {
-        return voiceCreatorDao.getLogChannelId(roomCreatorId);
-    }
-
-    @Override
-    public void saveOrUpdate(TempRoomCreator roomCreator) {
-        voiceCreatorDao.saveOrUpdate(roomCreator);
-    }
-
-    @Override
-    public void remove(TempRoomCreator voiceChannelCreator) {
-        voiceCreatorDao.remove(voiceChannelCreator);
-    }
 }

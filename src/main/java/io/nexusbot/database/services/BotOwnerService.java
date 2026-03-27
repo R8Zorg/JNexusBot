@@ -2,57 +2,41 @@ package io.nexusbot.database.services;
 
 import java.util.List;
 
-import org.hibernate.ObjectNotFoundException;
-
 import io.github.r8zorg.jdatools.OwnersRegistry;
-import io.nexusbot.database.dao.BotOwnerDao;
+import io.nexusbot.database.dao.AbstractCrudDao;
 import io.nexusbot.database.entities.BotOwner;
-import io.nexusbot.database.interfaces.IBotOwner;
 
-public class BotOwnerService implements IBotOwner {
-    private final BotOwnerDao botOwnerDao = new BotOwnerDao();
-
+public class BotOwnerService extends AbstractCrudDao<BotOwner, Long> {
     public BotOwnerService() {
-    }
-
-    @Override
-    public BotOwner get(long userId) throws ObjectNotFoundException {
-        return botOwnerDao.get(userId);
-    }
-
-    @Override
-    public List<BotOwner> getAll() {
-        return botOwnerDao.getAll();
+        super(BotOwner.class);
     }
 
     public List<Long> getAllIds() {
-        return botOwnerDao.getAll()
+        return getAll()
                 .stream()
                 .map(BotOwner::getId)
                 .toList();
     }
 
     @Override
-    public void add(BotOwner botOwner) {
-        botOwnerDao.add(botOwner);
+    public void create(BotOwner botOwner) {
+        super.create(botOwner);
         OwnersRegistry.addOwner(botOwner.getId());
     }
 
     public void add(long userId) {
         BotOwner botOwner = new BotOwner(userId);
-        botOwnerDao.add(botOwner);
-        OwnersRegistry.addOwner(botOwner.getId());
+        create(botOwner);
     }
 
     @Override
-    public void remove(BotOwner botOwner) throws IllegalArgumentException {
-        botOwnerDao.remove(botOwner);
+    public void delete(BotOwner botOwner) {
+        super.delete(botOwner);
         OwnersRegistry.removeOwner(botOwner.getId());
     }
 
-    public void remove(long userId) throws IllegalArgumentException {
-        BotOwner botOwner = botOwnerDao.get(userId);
-        botOwnerDao.remove(botOwner);
-        OwnersRegistry.removeOwner(botOwner.getId());
+    public void delete(long userId) {
+        BotOwner botOwner = get(userId);
+        delete(botOwner);
     }
 }

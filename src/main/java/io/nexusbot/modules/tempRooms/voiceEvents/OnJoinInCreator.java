@@ -58,7 +58,7 @@ public class OnJoinInCreator extends ListenerAdapter {
     private void deleteRoomFromDbAndGuild(VoiceChannel createdRoom) {
         TempRoom tempRoom = tempRoomService.get(createdRoom.getIdLong());
         if (tempRoom != null) {
-            tempRoomService.remove(tempRoom);
+            tempRoomService.delete(tempRoom);
         }
         createdRoom.delete().queue(success -> {
         }, error -> {

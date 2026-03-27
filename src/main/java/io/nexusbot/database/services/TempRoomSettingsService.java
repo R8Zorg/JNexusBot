@@ -1,6 +1,8 @@
 package io.nexusbot.database.services;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import io.nexusbot.componentsData.ChannelOverrides;
 import io.nexusbot.database.dao.AbstractCrudDao;
@@ -12,10 +14,15 @@ public class TempRoomSettingsService extends AbstractCrudDao<TempRoomSettings, T
         super(TempRoomSettings.class);
     }
 
-    public HashMap<Long, ChannelOverrides> getOverrides(long ownerId, long guildId) {
-        TempRoomSettingsPK pk = new TempRoomSettingsPK(ownerId, guildId);
-        TempRoomSettings overwrites = get(pk);
-        return overwrites != null ? overwrites.getOverrides() : new HashMap<>();
+    public Map<Long, ChannelOverrides> getOverrides(TempRoomSettingsPK pk) {
+        TempRoomSettings settings = get(pk);
+        return settings != null
+                ? Collections.unmodifiableMap(settings.getOverrides())
+                : Collections.emptyMap();
+    }
+
+    public Map<Long, ChannelOverrides> getOverrides(long ownerId, long guildId) {
+        return getOverrides(new TempRoomSettingsPK(ownerId, guildId));
     }
 
     public void setOverrides(long ownerId, long guildId, HashMap<Long, ChannelOverrides> newOverrides) {

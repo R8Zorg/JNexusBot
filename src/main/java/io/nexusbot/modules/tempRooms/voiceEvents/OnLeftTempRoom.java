@@ -30,7 +30,7 @@ public class OnLeftTempRoom extends ListenerAdapter {
                 MessageActionUtil.deleteInfoMessage(event.getGuild(), tempRoom.getChannelLogId(),
                         tempRoom.getLogMessageId());
             }
-            tempRoomService.remove(tempRoom);
+            tempRoomService.delete(tempRoom);
             return;
         } else {
             Long channelId = tempRoom.getChannelLogId();

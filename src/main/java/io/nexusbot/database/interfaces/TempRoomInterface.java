@@ -1,6 +1,6 @@
 package io.nexusbot.database.interfaces;
 
-public interface ITempRoom {
+public interface TempRoomInterface {
     Long getOwnerId(long roomId);
 
     Long getCategoryId(long roomId);

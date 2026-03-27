@@ -2,7 +2,7 @@ package io.nexusbot.database.interfaces;
 
 import java.util.List;
 
-public interface ITempRoomCreator {
+public interface TempRoomCreatorInterface {
     Long getTempRoomCategoryId(long roomCreatorId);
 
     Integer getUserLimit(long roomCreatorId);

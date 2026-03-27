@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.nexusbot.componentsData.ChannelOverrides;
-import io.nexusbot.database.dao.AbstractCrudDao;
+import io.nexusbot.database.dao.CrudDao;
 import io.nexusbot.database.entities.TempRoomSettings;
 import io.nexusbot.database.entities.TempRoomSettingsPK;
 
-public class TempRoomSettingsService extends AbstractCrudDao<TempRoomSettings, TempRoomSettingsPK> {
+public class TempRoomSettingsService extends CrudDao<TempRoomSettings, TempRoomSettingsPK> {
     public TempRoomSettingsService() {
         super(TempRoomSettings.class);
     }

@@ -9,10 +9,10 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import io.nexusbot.database.HibernateUtil;
-import io.nexusbot.database.dao.AbstractCrudDao;
+import io.nexusbot.database.dao.CrudDao;
 import io.nexusbot.database.entities.TempRoomCreator;
 
-public class TempRoomCreatorService extends AbstractCrudDao<TempRoomCreator, Long> {
+public class TempRoomCreatorService extends CrudDao<TempRoomCreator, Long> {
     public TempRoomCreatorService() {
         super(TempRoomCreator.class);
     }

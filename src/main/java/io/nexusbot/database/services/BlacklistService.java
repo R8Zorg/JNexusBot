@@ -1,9 +1,9 @@
 package io.nexusbot.database.services;
 
-import io.nexusbot.database.dao.AbstractCrudDao;
+import io.nexusbot.database.dao.CrudDao;
 import io.nexusbot.database.entities.Blacklist;
 
-public class BlacklistService extends AbstractCrudDao<Blacklist, Long> {
+public class BlacklistService extends CrudDao<Blacklist, Long> {
 
     public BlacklistService() {
         super(Blacklist.class);

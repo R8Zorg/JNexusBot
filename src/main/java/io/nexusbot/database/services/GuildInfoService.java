@@ -4,10 +4,10 @@ import java.util.NoSuchElementException;
 
 import org.hibernate.ObjectNotFoundException;
 
-import io.nexusbot.database.dao.AbstractCrudDao;
+import io.nexusbot.database.dao.CrudDao;
 import io.nexusbot.database.entities.GuildInfo;
 
-public class GuildInfoService extends AbstractCrudDao<GuildInfo, Long> {
+public class GuildInfoService extends CrudDao<GuildInfo, Long> {
 
     public GuildInfoService() {
         super(GuildInfo.class);

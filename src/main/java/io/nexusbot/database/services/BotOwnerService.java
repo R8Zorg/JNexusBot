@@ -3,10 +3,10 @@ package io.nexusbot.database.services;
 import java.util.List;
 
 import io.github.r8zorg.jdatools.OwnersRegistry;
-import io.nexusbot.database.dao.AbstractCrudDao;
+import io.nexusbot.database.dao.CrudDao;
 import io.nexusbot.database.entities.BotOwner;
 
-public class BotOwnerService extends AbstractCrudDao<BotOwner, Long> {
+public class BotOwnerService extends CrudDao<BotOwner, Long> {
     public BotOwnerService() {
         super(BotOwner.class);
     }

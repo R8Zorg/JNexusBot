@@ -10,10 +10,10 @@ import org.hibernate.Transaction;
 import io.nexusbot.database.HibernateUtil;
 import io.nexusbot.database.interfaces.Crud;
 
-public abstract class AbstractCrudDao<T, K> implements Crud<T, K> {
+public abstract class CrudDao<T, K> implements Crud<T, K> {
     private final Class<T> entityClass;
 
-    public AbstractCrudDao(Class<T> entityClass) {
+    public CrudDao(Class<T> entityClass) {
         this.entityClass = entityClass;
     }
 

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import io.github.r8zorg.jdatools.OwnersRegistry;
 import io.github.r8zorg.jdatools.annotations.EventListeners;
+import io.nexusbot.database.entities.BotOwner;
 import io.nexusbot.database.services.BotOwnerService;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -18,7 +19,11 @@ public class OnStartup extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        List<Long> botOwnerIds = botOwnerService.getAllIds();
+        List<Long> botOwnerIds = botOwnerService
+                .getAll()
+                .stream()
+                .map(BotOwner::getId)
+                .toList();
         if (botOwnerIds.isEmpty()) {
             LOGGER.info("Owners list is empty. Adding default value");
             long botOwnerId = 389787190986670082L;

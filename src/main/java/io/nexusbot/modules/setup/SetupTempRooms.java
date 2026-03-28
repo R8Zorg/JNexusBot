@@ -175,8 +175,7 @@ public class SetupTempRooms {
             tempRoomCreator.setRoleNeeded(false);
             tempRoomCreator.setRoleNotFoundMessage(null);
             tempRoomCreator.setLogChannelId(null);
-            creatorService.saveOrUpdate(tempRoomCreator);
-            creatorService.setNeededRolesIds(roomCreator.getIdLong(), Collections.emptyList());
+            tempRoomCreator.setNeededRolesIds(Collections.emptyList());
             return;
         }
         if (userLimit != null) {
@@ -195,7 +194,7 @@ public class SetupTempRooms {
             tempRoomCreator.setRoleNotFoundMessage(null);
         }
         if (neededRolesIds != null) {
-            creatorService.setNeededRolesIds(roomCreator.getIdLong(), Collections.emptyList());
+            tempRoomCreator.setNeededRolesIds(Collections.emptyList());
         }
         if (infoChannel != null) {
             tempRoomCreator.setLogChannelId(null);

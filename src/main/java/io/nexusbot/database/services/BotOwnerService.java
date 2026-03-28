@@ -1,7 +1,5 @@
 package io.nexusbot.database.services;
 
-import java.util.List;
-
 import io.github.r8zorg.jdatools.OwnersRegistry;
 import io.nexusbot.database.dao.CrudDao;
 import io.nexusbot.database.entities.BotOwner;
@@ -9,13 +7,6 @@ import io.nexusbot.database.entities.BotOwner;
 public class BotOwnerService extends CrudDao<BotOwner, Long> {
     public BotOwnerService() {
         super(BotOwner.class);
-    }
-
-    public List<Long> getAllIds() {
-        return getAll()
-                .stream()
-                .map(BotOwner::getId)
-                .toList();
     }
 
     @Override

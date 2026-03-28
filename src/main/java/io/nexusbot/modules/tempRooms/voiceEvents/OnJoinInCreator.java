@@ -339,7 +339,7 @@ public class OnJoinInCreator extends ListenerAdapter {
         TempRoomSettings roomSettings = roomSettingsService.getOrCreate(
                 event.getMember().getIdLong(), guild.getIdLong());
 
-        List<Long> neededRolesIds = creatorService.getNeededRolesIds(joinedChannelId);
+        List<Long> neededRolesIds = roomCreator.getNeededRolesIds();
         try {
             ChannelAction<VoiceChannel> newRoom = createNewRoom(event, roomSettings, roomCreator, neededRolesIds);
             newRoom.queue(createdRoom -> {

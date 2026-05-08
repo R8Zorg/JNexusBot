@@ -8,6 +8,7 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
@@ -27,7 +28,7 @@ public class TempRoomCreator {
     private boolean roleNeeded = false;
     private String roleNotFoundMessage;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "temp_room_creator_needed_roles_ids", joinColumns = @JoinColumn(name = "guild_id"))
     @Column(name = "role_id")
     private List<Long> neededRolesIds = new ArrayList<>();

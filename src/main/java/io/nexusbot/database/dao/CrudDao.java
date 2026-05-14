@@ -45,7 +45,7 @@ public abstract class CrudDao<T, K> implements Crud<T, K> {
     }
 
     @Override
-    public void create(Object entity) {
+    public void create(T entity) {
         executeInVoidTransaction(session -> session.persist(entity));
     }
 
@@ -61,12 +61,12 @@ public abstract class CrudDao<T, K> implements Crud<T, K> {
     }
 
     @Override
-    public void saveOrUpdate(Object entity) {
+    public void saveOrUpdate(T entity) {
         executeInVoidTransaction(session -> session.merge(entity));
     }
 
     @Override
-    public void delete(Object entity) {
+    public void delete(T entity) {
         executeInVoidTransaction(session -> session.remove(entity));
     }
 

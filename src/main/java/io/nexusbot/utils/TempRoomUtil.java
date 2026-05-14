@@ -32,7 +32,7 @@ public class TempRoomUtil {
         settings.setOverrides(existingOverrides);
     }
 
-    public static void saveOverrides(long ownerId, PermissionOverride override) {
+    public static void saveOverride(long ownerId, PermissionOverride override) {
         TempRoomSettings settings = settingsService.getOrCreate(ownerId, override.getGuild().getIdLong());
         setOverrides(settings, override);
         settingsService.saveOrUpdate(settings);

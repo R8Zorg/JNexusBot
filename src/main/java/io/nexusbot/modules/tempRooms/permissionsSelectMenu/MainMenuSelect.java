@@ -37,7 +37,7 @@ public class MainMenuSelect extends ListenerAdapter {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
                 .deny(Permission.VOICE_CONNECT).queue(override -> {
-                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
+                    TempRoomUtil.saveOverride(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event, "Канал закрыт", Color.GREEN);
                 });
     }
@@ -46,7 +46,7 @@ public class MainMenuSelect extends ListenerAdapter {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
                 .clear(Permission.VOICE_CONNECT).queue(override -> {
-                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
+                    TempRoomUtil.saveOverride(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event, "Канал открыт", Color.GREEN);
                 });
     }
@@ -197,7 +197,7 @@ public class MainMenuSelect extends ListenerAdapter {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
                 .deny(Permission.VIEW_CHANNEL).queue(override -> {
-                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
+                    TempRoomUtil.saveOverride(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event, "Канал скрыт", Color.GREEN);
                 });
     }
@@ -206,7 +206,7 @@ public class MainMenuSelect extends ListenerAdapter {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
                 .clear(Permission.VIEW_CHANNEL).queue(override -> {
-                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
+                    TempRoomUtil.saveOverride(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event, "Канал явлен", Color.GREEN);
                 });
     }
@@ -237,7 +237,7 @@ public class MainMenuSelect extends ListenerAdapter {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
                 .deny(Permission.VOICE_STREAM).queue(override -> {
-                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
+                    TempRoomUtil.saveOverride(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event, "Право на включение стрима и вебкамеры отключено", Color.GREEN);
                 });
     }
@@ -246,7 +246,7 @@ public class MainMenuSelect extends ListenerAdapter {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
                 .clear(Permission.VOICE_STREAM).queue(override -> {
-                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
+                    TempRoomUtil.saveOverride(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event, "Право на включение стрима и вебкамеры сброшено", Color.GREEN);
                 });
     }
@@ -255,7 +255,7 @@ public class MainMenuSelect extends ListenerAdapter {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
                 .grant(Permission.VOICE_SET_STATUS).queue(override -> {
-                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
+                    TempRoomUtil.saveOverride(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event, "Право на изменение статуса всем участникам сервера включено",
                             Color.GREEN);
                 });
@@ -265,7 +265,7 @@ public class MainMenuSelect extends ListenerAdapter {
         VoiceChannel room = event.getChannel().asVoiceChannel();
         room.upsertPermissionOverride(event.getGuild().getPublicRole())
                 .deny(Permission.VOICE_SET_STATUS).queue(override -> {
-                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
+                    TempRoomUtil.saveOverride(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event, "Право на изменение статуса всем участникам сервера отключено",
                             Color.GREEN);
                 });

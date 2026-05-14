@@ -95,7 +95,7 @@ public class Commands {
 
         getUpdateChannelPermissionAction(event, member, override -> override.setDenied(Permission.VOICE_CONNECT)).queue(
                 override -> {
-                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
+                    TempRoomUtil.saveOverride(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event,
                             member.getAsMention() + " больше не может подключиться к каналу", Color.GREEN);
                 },
@@ -116,7 +116,7 @@ public class Commands {
 
         getUpdateChannelPermissionAction(event, member, override -> override.clear(Permission.VIEW_CHANNEL)).queue(
                 override -> {
-                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
+                    TempRoomUtil.saveOverride(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event,
                             member.getAsMention() + " больше не видит скрытый канал", Color.GREEN);
                 },
@@ -133,7 +133,7 @@ public class Commands {
 
         getUpdateChannelPermissionAction(event, member, override -> override.clear(Permission.VIEW_CHANNEL)).queue(
                 override -> {
-                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
+                    TempRoomUtil.saveOverride(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event,
                             "право на подключение сброшено для " + member.getAsMention(), Color.GREEN);
                 },
@@ -154,7 +154,7 @@ public class Commands {
 
         getUpdateChannelPermissionAction(event, member, override -> override.grant(Permission.VIEW_CHANNEL)).queue(
                 override -> {
-                    TempRoomUtil.saveOverrides(event.getMember().getIdLong(), override);
+                    TempRoomUtil.saveOverride(event.getMember().getIdLong(), override);
                     EmbedUtil.replyEmbed(event,
                             member.getAsMention() + " теперь может видеть скрытый канал", Color.GREEN);
                 },

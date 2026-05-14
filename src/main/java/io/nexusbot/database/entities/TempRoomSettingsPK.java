@@ -6,15 +6,15 @@ import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class TempRoomSettingsPK implements Serializable {
-    protected long ownerId;
-    protected long guildId;
+    private long ownerId;
+    private long guildId;
 
     public TempRoomSettingsPK(long ownerId, long guildId) {
         this.ownerId = ownerId;
         this.guildId = guildId;
     }
 
-    public TempRoomSettingsPK() {
+    protected TempRoomSettingsPK() {
     }
 
     public long getOwnerId() {

@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntConsumer;
 
@@ -23,9 +26,11 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 @SlashCommands
 public class ClearMessages {
+    private final int DELAY = 300;
+
     private void processMessagesDeleting(
             List<MessageChannel> channels, int index, int amount, Member member, AtomicInteger totalDeleted,
-            SlashCommandInteractionEvent event, long progressMessageId) {
+            SlashCommandInteractionEvent event, long progressMessageId, ScheduledExecutorService executor) {
         if (index >= channels.size()) {
             event.getHook()
                     .editMessageEmbedsById(progressMessageId,
@@ -51,7 +56,9 @@ public class ClearMessages {
                                         "\nУдалено сообщений: " + totalDeleted.get(),
                                 Color.CYAN))
                 .queue();
-        processMessagesDeleting(channels, index + 1, amount, member, totalDeleted, event, progressMessageId);
+        executor.schedule(() -> {
+            processMessagesDeleting(channels, index + 1, amount, member, totalDeleted, event, progressMessageId, executor);
+        }, DELAY, TimeUnit.MILLISECONDS);
     }
 
     private void deleteMessages(MessageChannel messageChannel, int messagesAmount, Member member,
@@ -109,6 +116,7 @@ public class ClearMessages {
                 .toList();
 
         AtomicInteger totalMessagesDeleted = new AtomicInteger();
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         event.getHook()
                 .sendMessageEmbeds(
                         EmbedUtil.generateEmbed(
@@ -117,7 +125,7 @@ public class ClearMessages {
                                 Color.CYAN))
                 .queue(progressMessage -> {
                     processMessagesDeleting(channels, 0, amount, member, totalMessagesDeleted, event,
-                            progressMessage.getIdLong());
+                            progressMessage.getIdLong(), executor);
                 });
 
     }

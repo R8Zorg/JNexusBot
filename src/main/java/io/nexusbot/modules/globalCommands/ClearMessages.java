@@ -57,7 +57,8 @@ public class ClearMessages {
                                 Color.CYAN))
                 .queue();
         executor.schedule(() -> {
-            processMessagesDeleting(channels, index + 1, amount, member, totalDeleted, event, progressMessageId, executor);
+            processMessagesDeleting(channels, index + 1, amount, member, totalDeleted, event, progressMessageId,
+                    executor);
         }, DELAY, TimeUnit.MILLISECONDS);
     }
 
@@ -93,40 +94,41 @@ public class ClearMessages {
             @Option(name = "member", description = "Участник, чьи сообщения нужно удалить", required = false) Member member,
             // @Option(name = "content", description = "Содержание сообщения должно
             // соответствовать этому правилу", required = false) String content,
-            @Option(name = "everywhere", description = "Удалить сообщения во всех каналах?", required = false) Boolean everywhere,
+            // @Option(name = "everywhere", description = "Удалить сообщения во всех
+            // каналах?", required = false) Boolean everywhere,
             @Option(name = "channel", description = "Канал, в котором нужно удалить сообщения", channelType = ChannelType.TEXT, required = false) TextChannel channel) {
         event.deferReply().setEphemeral(true).queue();
 
         int messagesAmount = Math.min(amount, 100);
 
-        if (everywhere == null || !everywhere) {
-            MessageChannel targetChannel = channel != null ? channel : event.getChannel();
-            deleteMessages(targetChannel, messagesAmount, member,
-                    deletedAmount -> EmbedUtil.replyEmbed(event.getHook(),
-                            "Удалено сообщений: " + deletedAmount
-                                    + "\n(Сообщения старше 14 дней (если были) пропущены)",
-                            Color.GREEN));
-            return;
-        }
-
-        Guild guild = event.getGuild();
-        List<MessageChannel> channels = guild.getChannels().stream()
-                .filter(_channel -> _channel instanceof MessageChannel)
-                .map(_channel -> (MessageChannel) _channel)
-                .toList();
-
-        AtomicInteger totalMessagesDeleted = new AtomicInteger();
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        event.getHook()
-                .sendMessageEmbeds(
-                        EmbedUtil.generateEmbed(
-                                "Обработано каналов: 0" + "/" + channels.size() +
-                                        "Удалено сообщений: 0/" + amount,
-                                Color.CYAN))
-                .queue(progressMessage -> {
-                    processMessagesDeleting(channels, 0, amount, member, totalMessagesDeleted, event,
-                            progressMessage.getIdLong(), executor);
-                });
+        MessageChannel targetChannel = channel != null ? channel : event.getChannel();
+        deleteMessages(targetChannel, messagesAmount, member,
+            deletedAmount -> EmbedUtil.replyEmbed(event.getHook(),
+                "Удалено сообщений: " + deletedAmount
+                + "\n(Сообщения старше 14 дней (если были) пропущены)",
+                Color.GREEN));
+        return;
+        // if (everywhere == null || !everywhere) {
+        // }
+        //
+        // Guild guild = event.getGuild();
+        // List<MessageChannel> channels = guild.getChannels().stream()
+        //         .filter(_channel -> _channel instanceof MessageChannel)
+        //         .map(_channel -> (MessageChannel) _channel)
+        //         .toList();
+        //
+        // AtomicInteger totalMessagesDeleted = new AtomicInteger();
+        // ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        // event.getHook()
+        //         .sendMessageEmbeds(
+        //                 EmbedUtil.generateEmbed(
+        //                         "Обработано каналов: 0" + "/" + channels.size() +
+        //                                 "Удалено сообщений: 0/" + amount,
+        //                         Color.CYAN))
+        //         .queue(progressMessage -> {
+        //             processMessagesDeleting(channels, 0, amount, member, totalMessagesDeleted, event,
+        //                     progressMessage.getIdLong(), executor);
+        //         });
 
     }
 }

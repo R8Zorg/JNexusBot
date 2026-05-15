@@ -55,45 +55,45 @@ public class ClearMessages {
             @Option(name = "member", description = "Участник, чьи сообщения нужно удалить", required = false) Member member,
             // @Option(name = "content", description = "Содержание сообщения должно
             // соответствовать этому правилу", required = false) String content,
-            @Option(name = "everywhere", description = "Удалить сообщения во всех каналах?", required = false) Boolean everywhere,
+            // @Option(name = "everywhere", description = "Удалить сообщения во всех каналах?", required = false) Boolean everywhere,
             @Option(name = "channel", description = "Канал, в котором нужно удалить сообщения", channelType = ChannelType.TEXT, required = false) TextChannel channel) {
         event.deferReply().setEphemeral(true).queue();
 
         int messagesAmount = Math.min(amount, 100);
 
-        if (everywhere == null || !everywhere) {
-            MessageChannel targetChannel = channel != null ? channel : event.getChannel();
-            deleteMessages(targetChannel, messagesAmount, member,
-                    deletedAmount -> EmbedUtil.replyEmbed(event.getHook(),
-                            "Удалено сообщений: " + deletedAmount
-                                    + "\n(Сообщения старше 14 дней (если были) пропущены)",
-                            Color.GREEN));
-            return;
-        }
+        MessageChannel targetChannel = channel != null ? channel : event.getChannel();
+        deleteMessages(targetChannel, messagesAmount, member,
+            deletedAmount -> EmbedUtil.replyEmbed(event.getHook(),
+                "Удалено сообщений: " + deletedAmount
+                + "\n(Сообщения старше 14 дней (если были) пропущены)",
+                Color.GREEN));
+        return;
+        // if (everywhere == null || !everywhere) {
+        // }
 
-        Guild guild = event.getGuild();
-        List<MessageChannel> messageChannels = guild.getChannels().stream()
-                .filter(_channel -> _channel instanceof MessageChannel)
-                .map(_channel -> (MessageChannel) _channel)
-                .toList();
-        AtomicInteger completedChannels = new AtomicInteger();
-        AtomicInteger totalMessagesDeleted = new AtomicInteger();
-
-        for (MessageChannel targetChannel : messageChannels) {
-            deleteMessages(targetChannel, messagesAmount, member,
-                    deletedAmount -> {
-                        totalMessagesDeleted.addAndGet(deletedAmount);
-                        if (completedChannels.incrementAndGet() == messageChannels.size()) {
-                            EmbedUtil.replyEmbed(
-                                    event.getHook(),
-                                    "Очистка завершена." +
-                                            "\nКаналов обработано: " + completedChannels.get() +
-                                            "\nУдалено сообщений: " + totalMessagesDeleted +
-                                            "\n(Сообщения старше 14 дней (если были) пропущены)",
-                                    Color.GREEN);
-                        }
-                    });
-        }
+        // Guild guild = event.getGuild();
+        // List<MessageChannel> messageChannels = guild.getChannels().stream()
+        //         .filter(_channel -> _channel instanceof MessageChannel)
+        //         .map(_channel -> (MessageChannel) _channel)
+        //         .toList();
+        // AtomicInteger completedChannels = new AtomicInteger();
+        // AtomicInteger totalMessagesDeleted = new AtomicInteger();
+        //
+        // for (MessageChannel targetChannel : messageChannels) {
+        //     deleteMessages(targetChannel, messagesAmount, member,
+        //             deletedAmount -> {
+        //                 totalMessagesDeleted.addAndGet(deletedAmount);
+        //                 if (completedChannels.incrementAndGet() == messageChannels.size()) {
+        //                     EmbedUtil.replyEmbed(
+        //                             event.getHook(),
+        //                             "Очистка завершена." +
+        //                                     "\nКаналов обработано: " + completedChannels.get() +
+        //                                     "\nУдалено сообщений: " + totalMessagesDeleted +
+        //                                     "\n(Сообщения старше 14 дней (если были) пропущены)",
+        //                             Color.GREEN);
+        //                 }
+        //             });
+        // }
 
     }
 }

@@ -48,7 +48,7 @@ public class ClearMessages {
                 .editMessageEmbedsById(progressMessageId,
                         EmbedUtil.generateEmbed(
                                 "Обработано каналов: " + (index + 1) + "/" + channels.size() +
-                                        "Удалено сообщений: " + totalDeleted.get(),
+                                        "\nУдалено сообщений: " + totalDeleted.get(),
                                 Color.CYAN))
                 .queue();
         processMessagesDeleting(channels, index + 1, amount, member, totalDeleted, event, progressMessageId);

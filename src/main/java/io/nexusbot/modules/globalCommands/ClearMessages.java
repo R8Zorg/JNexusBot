@@ -23,6 +23,37 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 @SlashCommands
 public class ClearMessages {
+    private void processMessagesDeleting(
+            List<MessageChannel> channels, int index, int amount, Member member, AtomicInteger totalDeleted,
+            SlashCommandInteractionEvent event, long progressMessageId) {
+        if (index >= channels.size()) {
+            event.getHook()
+                    .editMessageEmbedsById(progressMessageId,
+                            EmbedUtil.generateEmbed(
+                                    "Очистка завершена." +
+                                            "\nКаналов обработано: " + channels.size() +
+                                            "\nУдалено сообщений: " + totalDeleted.get() +
+                                            "\n(Сообщения старше 14 дней (если были) пропущены)",
+                                    Color.GREEN))
+                    .queue();
+            return;
+        }
+
+        MessageChannel channel = channels.get(index);
+
+        deleteMessages(channel, amount, member, deleted -> {
+            totalDeleted.addAndGet(deleted);
+        });
+        event.getHook()
+                .editMessageEmbedsById(progressMessageId,
+                        EmbedUtil.generateEmbed(
+                                "Обработано каналов: " + (index + 1) + "/" + channels.size() +
+                                        "Удалено сообщений: " + totalDeleted.get(),
+                                Color.CYAN))
+                .queue();
+        processMessagesDeleting(channels, index + 1, amount, member, totalDeleted, event, progressMessageId);
+    }
+
     private void deleteMessages(MessageChannel messageChannel, int messagesAmount, Member member,
             IntConsumer callback) {
         List<Message> messages = new ArrayList<>();
@@ -55,45 +86,39 @@ public class ClearMessages {
             @Option(name = "member", description = "Участник, чьи сообщения нужно удалить", required = false) Member member,
             // @Option(name = "content", description = "Содержание сообщения должно
             // соответствовать этому правилу", required = false) String content,
-            // @Option(name = "everywhere", description = "Удалить сообщения во всех каналах?", required = false) Boolean everywhere,
+            @Option(name = "everywhere", description = "Удалить сообщения во всех каналах?", required = false) Boolean everywhere,
             @Option(name = "channel", description = "Канал, в котором нужно удалить сообщения", channelType = ChannelType.TEXT, required = false) TextChannel channel) {
         event.deferReply().setEphemeral(true).queue();
 
         int messagesAmount = Math.min(amount, 100);
 
-        MessageChannel targetChannel = channel != null ? channel : event.getChannel();
-        deleteMessages(targetChannel, messagesAmount, member,
-            deletedAmount -> EmbedUtil.replyEmbed(event.getHook(),
-                "Удалено сообщений: " + deletedAmount
-                + "\n(Сообщения старше 14 дней (если были) пропущены)",
-                Color.GREEN));
-        return;
-        // if (everywhere == null || !everywhere) {
-        // }
+        if (everywhere == null || !everywhere) {
+            MessageChannel targetChannel = channel != null ? channel : event.getChannel();
+            deleteMessages(targetChannel, messagesAmount, member,
+                    deletedAmount -> EmbedUtil.replyEmbed(event.getHook(),
+                            "Удалено сообщений: " + deletedAmount
+                                    + "\n(Сообщения старше 14 дней (если были) пропущены)",
+                            Color.GREEN));
+            return;
+        }
 
-        // Guild guild = event.getGuild();
-        // List<MessageChannel> messageChannels = guild.getChannels().stream()
-        //         .filter(_channel -> _channel instanceof MessageChannel)
-        //         .map(_channel -> (MessageChannel) _channel)
-        //         .toList();
-        // AtomicInteger completedChannels = new AtomicInteger();
-        // AtomicInteger totalMessagesDeleted = new AtomicInteger();
-        //
-        // for (MessageChannel targetChannel : messageChannels) {
-        //     deleteMessages(targetChannel, messagesAmount, member,
-        //             deletedAmount -> {
-        //                 totalMessagesDeleted.addAndGet(deletedAmount);
-        //                 if (completedChannels.incrementAndGet() == messageChannels.size()) {
-        //                     EmbedUtil.replyEmbed(
-        //                             event.getHook(),
-        //                             "Очистка завершена." +
-        //                                     "\nКаналов обработано: " + completedChannels.get() +
-        //                                     "\nУдалено сообщений: " + totalMessagesDeleted +
-        //                                     "\n(Сообщения старше 14 дней (если были) пропущены)",
-        //                             Color.GREEN);
-        //                 }
-        //             });
-        // }
+        Guild guild = event.getGuild();
+        List<MessageChannel> channels = guild.getChannels().stream()
+                .filter(_channel -> _channel instanceof MessageChannel)
+                .map(_channel -> (MessageChannel) _channel)
+                .toList();
+
+        AtomicInteger totalMessagesDeleted = new AtomicInteger();
+        event.getHook()
+                .sendMessageEmbeds(
+                        EmbedUtil.generateEmbed(
+                                "Обработано каналов: 0" + "/" + channels.size() +
+                                        "Удалено сообщений: 0/" + amount,
+                                Color.CYAN))
+                .queue(progressMessage -> {
+                    processMessagesDeleting(channels, 0, amount, member, totalMessagesDeleted, event,
+                            progressMessage.getIdLong());
+                });
 
     }
 }

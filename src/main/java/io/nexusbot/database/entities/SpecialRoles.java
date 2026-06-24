@@ -11,6 +11,7 @@ public class SpecialRoles {
     private long guildId;
 
     private Long muteRoleId;
+    private Long defaultRoleId;
 
     public SpecialRoles() {
     }
@@ -33,5 +34,13 @@ public class SpecialRoles {
 
     public void setMuteRoleId(long mutedRoleId) {
         this.muteRoleId = mutedRoleId;
+    }
+
+    public Long getDefaultRoleId() {
+        return defaultRoleId;
+    }
+
+    public void setDefaultRoleId(Long defaultRoleId) {
+        this.defaultRoleId = defaultRoleId;
     }
 }

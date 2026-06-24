@@ -23,7 +23,7 @@ record MessageInfo(long messageId, long channelId, String contentRaw) {
 }
 
 // @EventListeners
-public class AutomaticScumMessagesRemover extends ListenerAdapter {
+public class AutomaticScamMessagesRemover extends ListenerAdapter {
     private final short messagesAmount = 3;
     private HashMap<Long, List<MessageInfo>> sentMessages = new HashMap<>();
     private SpecialRolesService specialRolesService = new SpecialRolesService();

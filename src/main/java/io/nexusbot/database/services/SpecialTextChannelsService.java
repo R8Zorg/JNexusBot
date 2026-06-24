@@ -13,4 +13,12 @@ public class SpecialTextChannelsService extends CrudDao<SpecialTextChannels, Lon
         return super.get(guildId);
     }
 
+    public SpecialTextChannels getOrCreate(Long guildId) {
+        SpecialTextChannels textChannels = super.get(guildId);
+        if (textChannels == null) {
+            textChannels = new SpecialTextChannels(guildId);
+        }
+        return textChannels;
+    }
+
 }

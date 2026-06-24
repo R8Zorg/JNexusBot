@@ -13,4 +13,12 @@ public class SpecialRolesService extends CrudDao<SpecialRoles, Long> {
         return super.get(guildId);
     }
 
+
+    public SpecialRoles getOrCreate(Long guildId) {
+        SpecialRoles specialRoles = super.get(guildId);
+        if (specialRoles == null) {
+            specialRoles = new SpecialRoles(guildId);
+        }
+        return specialRoles;
+    }
 }

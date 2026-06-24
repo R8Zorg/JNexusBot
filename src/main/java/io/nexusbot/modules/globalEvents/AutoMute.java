@@ -114,9 +114,7 @@ public class AutoMute extends ListenerAdapter {
             deleteMessages(_channel, memberId, scamContent);
         }
 
-        System.out.println("=".repeat(20));
         if (logChannel != null) {
-            System.out.println("-".repeat(20));
             EmbedUtil.sendEmbed(logChannel,
                     member.getAsMention() + " `(" + member.getIdLong() + ")`" + " получает мьют за скам рассылку.",
                     Color.ORANGE);

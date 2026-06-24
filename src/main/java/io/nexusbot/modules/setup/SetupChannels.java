@@ -29,4 +29,13 @@ public class SetupChannels {
         specialTextChannelsService.saveOrUpdate(specialTextChannels);
         EmbedUtil.replyEmbed(event, "Сохранено.", Color.GREEN);
     }
+
+    @Subcommand(parentNames = "setup channel", description = "Канал для выдачи мьюта написавшего в него участника")
+    public void mute(SlashCommandInteractionEvent event,
+            @Option(name = "channel", description = "Канал", channelType = ChannelType.TEXT) TextChannel channel) {
+        SpecialTextChannels specialTextChannels = new SpecialTextChannels(event.getGuild().getIdLong());
+        specialTextChannels.setMuteChannelId(channel.getIdLong());
+        specialTextChannelsService.saveOrUpdate(specialTextChannels);
+        EmbedUtil.replyEmbed(event, "Сохранено.", Color.GREEN);
+    }
 }

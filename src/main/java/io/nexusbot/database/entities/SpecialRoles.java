@@ -10,7 +10,7 @@ public class SpecialRoles {
     @Id
     private long guildId;
 
-    private long muteRoleId;
+    private Long muteRoleId;
 
     public SpecialRoles() {
     }

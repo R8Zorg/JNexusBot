@@ -23,7 +23,7 @@ public class SetupRoles {
     @Subcommand(parentNames = "setup role")
     public void mute(SlashCommandInteractionEvent event,
             @Option(name = "role", description = "Мьют роль") Role role) {
-            SpecialRoles specialRoles = new SpecialRoles(event.getGuild().getIdLong());
+            SpecialRoles specialRoles = specialRolesService.getOrCreate(event.getGuild().getIdLong());
             specialRoles.setMuteRoleId(role.getIdLong());
             specialRolesService.saveOrUpdate(specialRoles);
             EmbedUtil.replyEmbed(event, "Мьют-роль сохранена.", Color.GREEN);

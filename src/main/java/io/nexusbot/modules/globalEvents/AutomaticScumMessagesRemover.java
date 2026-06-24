@@ -19,12 +19,10 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-// Если участник получил мьют, проверить все его следующие отправленные сообщения после этого
-
 record MessageInfo(long messageId, long channelId, String contentRaw) {
 }
 
-@EventListeners
+// @EventListeners
 public class AutomaticScumMessagesRemover extends ListenerAdapter {
     private final short messagesAmount = 3;
     private HashMap<Long, List<MessageInfo>> sentMessages = new HashMap<>();

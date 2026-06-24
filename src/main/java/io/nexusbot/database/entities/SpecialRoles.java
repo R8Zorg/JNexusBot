@@ -27,7 +27,7 @@ public class SpecialRoles {
         this.guildId = guildId;
     }
 
-    public long getMuteRoleId() {
+    public Long getMuteRoleId() {
         return muteRoleId;
     }
 

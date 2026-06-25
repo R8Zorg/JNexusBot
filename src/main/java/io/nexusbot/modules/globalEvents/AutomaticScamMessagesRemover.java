@@ -11,42 +11,49 @@ import io.nexusbot.database.entities.SpecialTextChannels;
 import io.nexusbot.database.services.SpecialRolesService;
 import io.nexusbot.database.services.SpecialTextChannelsService;
 import io.nexusbot.utils.EmbedUtil;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-record MessageInfo(long messageId, long channelId, String contentRaw) {
-}
-
-// @EventListeners
+@EventListeners
 public class AutomaticScamMessagesRemover extends ListenerAdapter {
-    private final short messagesAmount = 3;
-    private HashMap<Long, List<MessageInfo>> sentMessages = new HashMap<>();
+    private static final short MESSAGES_AMOUNT = 2;
+    private HashMap<Long, List<String>> sentMessages = new HashMap<>();
     private SpecialRolesService specialRolesService = new SpecialRolesService();
     private SpecialTextChannelsService specialTextChannelsService = new SpecialTextChannelsService();
+    private static final int MESSAGES_HISTORY_POOL = 5;
+
+    private void deleteMessages(MessageChannel channel, long memberId, String contentRaw) {
+        channel.getHistory()
+                .retrievePast(MESSAGES_HISTORY_POOL)
+                .queue(history -> {
+                    history.stream()
+                            .filter(message -> message.getAuthor().getIdLong() == memberId)
+                            .filter(message -> message.getContentRaw().equals(contentRaw))
+                            .forEach(message -> channel.deleteMessageById(message.getIdLong()).queue());
+                });
+    }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         long userId = event.getAuthor().getIdLong();
-        Message receivedMessage = event.getMessage();
+        String receivedContentRaw = event.getMessage().getContentRaw();
         if (sentMessages.get(userId) == null) {
-            sentMessages.put(userId, new ArrayList<MessageInfo>(List.of(
-                    new MessageInfo(receivedMessage.getIdLong(), receivedMessage.getChannelIdLong(),
-                            receivedMessage.getContentRaw()))));
+            sentMessages.put(userId, new ArrayList<String>(
+                    List.of(receivedContentRaw)));
         } else {
-            List<MessageInfo> memberMessages = sentMessages.get(userId);
-            String lastMessageContentRaw = memberMessages.getLast().contentRaw();
+            List<String> messagesContentRaw = sentMessages.get(userId);
+            String lastMessageContentRaw = messagesContentRaw.getLast();
 
-            if (lastMessageContentRaw.equals(receivedMessage.getContentRaw())) {
-                memberMessages.add(new MessageInfo(receivedMessage.getIdLong(), receivedMessage.getChannelIdLong(),
-                        receivedMessage.getContentRaw()));
-                if (memberMessages.size() >= messagesAmount) {
+            if (lastMessageContentRaw.equals(receivedContentRaw)) {
+                messagesContentRaw.add(receivedContentRaw);
+                if (messagesContentRaw.size() >= MESSAGES_AMOUNT) {
                     Guild guild = event.getGuild();
-                    String logMessage = event.getMember().getAsMention() + " помечен(а) за рассылку скама.\n";
+                    String logMessage = event.getMember().getAsMention() + " помечен(а) за рассылку скама";
 
                     SpecialRoles specialRoles = specialRolesService.get(guild.getIdLong());
                     if (specialRoles != null) {
@@ -55,16 +62,27 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
                             Role muteRole = guild.getRoleById(muteRoleId);
                             if (muteRole != null) {
                                 guild.addRoleToMember(event.getMember(), muteRole).queue();
-                                logMessage += "И был замьючен.\n";
+                                logMessage += " и был замьючен";
                             }
                         }
                     }
-                    logMessage += "Каналы, в которых удалены сообщения:\n";
-                    for (MessageInfo messageInfo : memberMessages) {
-                        GuildMessageChannel channel = guild.getChannelById(GuildMessageChannel.class,
-                                messageInfo.channelId());
-                        channel.deleteMessageById(messageInfo.messageId()).queue();
-                        logMessage += channel.getAsMention() + "\n";
+                    logMessage += ".";
+
+                    Long defaultRoleId = specialRoles.getDefaultRoleId();
+                    Role defaultRole = defaultRoleId != null
+                            ? guild.getRoleById(defaultRoleId)
+                            : null;
+                    Role targetRole = defaultRole != null
+                            ? defaultRole
+                            : guild.getPublicRole();
+
+                    List<MessageChannel> channels = guild.getChannels().stream()
+                            .filter(_channel -> _channel instanceof MessageChannel)
+                            .filter(_channel -> targetRole.hasPermission(_channel, Permission.MESSAGE_SEND))
+                            .map(_channel -> (MessageChannel) _channel)
+                            .toList();
+                    for (MessageChannel _channel : channels) {
+                        deleteMessages(_channel, userId, receivedContentRaw);
                     }
                     sentMessages.remove(userId);
 

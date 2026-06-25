@@ -61,7 +61,7 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
                         if (muteRoleId != null) {
                             Role muteRole = guild.getRoleById(muteRoleId);
                             if (muteRole != null) {
-                                guild.addRoleToMember(event.getMember(), muteRole).queue();
+                                guild.addRoleToMember(event.getAuthor(), muteRole).queue();
                                 logMessage += " и был замьючен";
                             }
                         }

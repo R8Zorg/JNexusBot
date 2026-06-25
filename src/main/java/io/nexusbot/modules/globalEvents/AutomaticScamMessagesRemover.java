@@ -53,7 +53,7 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
                 messagesContentRaw.add(receivedContentRaw);
                 if (messagesContentRaw.size() >= MESSAGES_AMOUNT) {
                     Guild guild = event.getGuild();
-                    String logMessage = event.getMember().getAsMention() + " помечен(а) за рассылку скама";
+                    String logMessage = event.getAuthor().getAsMention() + " помечен(а) за рассылку скама";
 
                     SpecialRoles specialRoles = specialRolesService.get(guild.getIdLong());
                     if (specialRoles != null) {

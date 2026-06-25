@@ -40,6 +40,10 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        if (event.getAuthor().isBot()) {
+            return;
+        }
+
         long userId = event.getAuthor().getIdLong();
         String receivedContentRaw = event.getMessage().getContentRaw();
         if (sentMessages.get(userId) == null) {

@@ -2,8 +2,9 @@ package io.nexusbot.modules.globalEvents;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.github.r8zorg.jdatools.annotations.EventListeners;
 import io.nexusbot.database.entities.SpecialRoles;
@@ -19,10 +20,13 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+record MessageInfo(long channelId, String messageContent) {
+}
+
 @EventListeners
 public class AutomaticScamMessagesRemover extends ListenerAdapter {
     private static final short MESSAGES_AMOUNT = 2;
-    private HashMap<Long, List<String>> sentMessages = new HashMap<>();
+    private Map<Long, List<String>> sentMessages = new ConcurrentHashMap<>();
     private SpecialRolesService specialRolesService = new SpecialRolesService();
     private SpecialTextChannelsService specialTextChannelsService = new SpecialTextChannelsService();
     private static final int MESSAGES_HISTORY_POOL = 5;

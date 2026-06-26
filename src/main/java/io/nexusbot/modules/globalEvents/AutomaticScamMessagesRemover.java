@@ -1,6 +1,8 @@
 package io.nexusbot.modules.globalEvents;
 
 import java.awt.Color;
+import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,30 +16,36 @@ import io.nexusbot.database.services.SpecialTextChannelsService;
 import io.nexusbot.utils.EmbedUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-record MessageInfo(long channelId, String messageContent) {
+record MessageInfo(long channelId, String messageContent, OffsetDateTime messageCreationTime) {
 }
 
 @EventListeners
 public class AutomaticScamMessagesRemover extends ListenerAdapter {
     private static final short MESSAGES_AMOUNT = 2;
-    private Map<Long, List<String>> sentMessages = new ConcurrentHashMap<>();
+    private static final int MESSAGES_HISTORY_POOL = 5;
+    private static final long MINIMAL_MESSAGE_DELAY_MS = 600;
+
+    private Map<Long, List<MessageInfo>> sentMessages = new ConcurrentHashMap<>();
     private SpecialRolesService specialRolesService = new SpecialRolesService();
     private SpecialTextChannelsService specialTextChannelsService = new SpecialTextChannelsService();
-    private static final int MESSAGES_HISTORY_POOL = 5;
 
-    private void deleteMessages(MessageChannel channel, long memberId, String contentRaw) {
+    private void deleteMessages(MessageChannel channel, long memberId, String contentRaw,
+            OffsetDateTime firstMessageCreationTime) {
         channel.getHistory()
                 .retrievePast(MESSAGES_HISTORY_POOL)
                 .queue(history -> {
                     history.stream()
                             .filter(message -> message.getAuthor().getIdLong() == memberId)
                             .filter(message -> message.getContentRaw().equals(contentRaw))
+                            .filter(message -> message.getTimeCreated().isAfter(firstMessageCreationTime)
+                                    || message.getTimeCreated().isEqual(firstMessageCreationTime))
                             .forEach(message -> channel.deleteMessageById(message.getIdLong()).queue());
                 });
     }
@@ -50,18 +58,34 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
 
         long userId = event.getAuthor().getIdLong();
         String receivedContentRaw = event.getMessage().getContentRaw();
-        if (sentMessages.get(userId) == null) {
-            sentMessages.put(userId, new ArrayList<String>(
-                    List.of(receivedContentRaw)));
-        } else {
-            List<String> messagesContentRaw = sentMessages.get(userId);
-            String lastMessageContentRaw = messagesContentRaw.getLast();
+        Message receivedMessage = event.getMessage();
+        long receivedChannelId = event.getChannel().getIdLong();
 
-            if (lastMessageContentRaw.equals(receivedContentRaw)) {
-                messagesContentRaw.add(receivedContentRaw);
-                if (messagesContentRaw.size() >= MESSAGES_AMOUNT) {
+        MessageInfo messageInfo = new MessageInfo(receivedChannelId, receivedMessage.getContentRaw(),
+                receivedMessage.getTimeCreated());
+
+        if (sentMessages.get(userId) == null) {
+            sentMessages.put(userId, new ArrayList<MessageInfo>(
+                    List.of(messageInfo)));
+        } else {
+            List<MessageInfo> messagesInfo = sentMessages.get(userId);
+            MessageInfo lastMessageInfo = messagesInfo.getLast();
+
+            long messageDelayMs = Duration.between(
+                    lastMessageInfo.messageCreationTime(),
+                    receivedMessage.getTimeCreated()).toMillis();
+            System.out.println(messageDelayMs);
+            if (messageDelayMs > MINIMAL_MESSAGE_DELAY_MS) {
+                sentMessages.remove(userId);
+                return;
+            }
+
+            if (lastMessageInfo.channelId() != receivedChannelId
+                    && lastMessageInfo.messageContent().equals(receivedContentRaw)) {
+                messagesInfo.add(messageInfo);
+                if (messagesInfo.size() >= MESSAGES_AMOUNT) {
                     Guild guild = event.getGuild();
-                    String logMessage = event.getAuthor().getAsMention() + " помечен(а) за рассылку скама";
+                    String logMessage = event.getAuthor().getAsMention() + " помечается за рассылку скам сообщений";
 
                     SpecialRoles specialRoles = specialRolesService.get(guild.getIdLong());
                     if (specialRoles != null) {
@@ -70,7 +94,7 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
                             Role muteRole = guild.getRoleById(muteRoleId);
                             if (muteRole != null) {
                                 guild.addRoleToMember(event.getAuthor(), muteRole).queue();
-                                logMessage += " и был замьючен";
+                                logMessage += " и получает мьют";
                             }
                         }
                     }
@@ -89,8 +113,9 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
                             .filter(_channel -> targetRole.hasPermission(_channel, Permission.MESSAGE_SEND))
                             .map(_channel -> (MessageChannel) _channel)
                             .toList();
+                    OffsetDateTime firstMessageSentTime = messagesInfo.getFirst().messageCreationTime();
                     for (MessageChannel _channel : channels) {
-                        deleteMessages(_channel, userId, receivedContentRaw);
+                        deleteMessages(_channel, userId, receivedContentRaw, firstMessageSentTime);
                     }
                     sentMessages.remove(userId);
 

@@ -74,7 +74,6 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
             long messageDelayMs = Duration.between(
                     lastMessageInfo.messageCreationTime(),
                     receivedMessage.getTimeCreated()).toMillis();
-            System.out.println(messageDelayMs);
             if (messageDelayMs > MINIMAL_MESSAGE_DELAY_MS) {
                 sentMessages.remove(userId);
                 return;

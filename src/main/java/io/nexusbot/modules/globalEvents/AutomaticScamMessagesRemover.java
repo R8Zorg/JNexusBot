@@ -1,7 +1,6 @@
 package io.nexusbot.modules.globalEvents;
 
 import java.awt.Color;
-import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,12 +17,13 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-record MessageInfo(long channelId, String messageContent, OffsetDateTime messageCreationTime) {
+record MessageInfo(long channelId, int messageContentHashcode, OffsetDateTime messageCreationTime) {
 }
 
 @EventListeners
@@ -35,18 +35,34 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
     private SpecialRolesService specialRolesService = new SpecialRolesService();
     private SpecialTextChannelsService specialTextChannelsService = new SpecialTextChannelsService();
 
-    private void deleteMessages(MessageChannel channel, long memberId, String contentRaw,
+    private void deleteMessages(MessageChannel channel, long memberId, int messageHashcode,
             OffsetDateTime firstMessageCreationTime) {
         channel.getHistory()
                 .retrievePast(MESSAGES_HISTORY_POOL)
                 .queue(history -> {
                     history.stream()
                             .filter(message -> message.getAuthor().getIdLong() == memberId)
-                            .filter(message -> message.getContentRaw().equals(contentRaw))
+                            .filter(message -> getMessageHashcode(message) == messageHashcode)
                             .filter(message -> message.getTimeCreated().isAfter(firstMessageCreationTime)
                                     || message.getTimeCreated().isEqual(firstMessageCreationTime))
                             .forEach(message -> channel.deleteMessageById(message.getIdLong()).queue());
                 });
+    }
+
+    private int getMessageHashcode(Message message) {
+        String messageContent = message.getContentRaw();
+        List<Attachment> attachments = message.getAttachments();
+        for (Attachment attachment : attachments) {
+            messageContent += String.format(
+                    "%s|%d|%s|%d|%d",
+                    attachment.getFileName(),
+                    attachment.getSize(),
+                    attachment.getContentType(),
+                    attachment.getWidth(),
+                    attachment.getHeight());
+        }
+        return messageContent.hashCode();
+
     }
 
     @Override
@@ -56,11 +72,11 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
         }
 
         long userId = event.getAuthor().getIdLong();
-        String receivedContentRaw = event.getMessage().getContentRaw();
         Message receivedMessage = event.getMessage();
         long receivedChannelId = event.getChannel().getIdLong();
+        int receivedMessageHashcode = getMessageHashcode(receivedMessage);
 
-        MessageInfo messageInfo = new MessageInfo(receivedChannelId, receivedMessage.getContentRaw(),
+        MessageInfo messageInfo = new MessageInfo(receivedChannelId, receivedMessageHashcode,
                 receivedMessage.getTimeCreated());
 
         if (sentMessages.get(userId) == null) {
@@ -70,13 +86,12 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
             List<MessageInfo> messagesInfo = sentMessages.get(userId);
             MessageInfo lastMessageInfo = messagesInfo.getLast();
 
-            if (!lastMessageInfo.messageContent().equals(receivedContentRaw)) {
+            if (lastMessageInfo.messageContentHashcode() != receivedMessageHashcode) {
                 sentMessages.remove(userId);
                 return;
             }
 
-            if (lastMessageInfo.channelId() != receivedChannelId
-                    && lastMessageInfo.messageContent().equals(receivedContentRaw)) {
+            if (lastMessageInfo.channelId() != receivedChannelId) {
                 messagesInfo.add(messageInfo);
                 if (messagesInfo.size() >= MESSAGES_AMOUNT) {
                     Guild guild = event.getGuild();
@@ -90,6 +105,8 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
                             if (muteRole != null) {
                                 guild.addRoleToMember(event.getAuthor(), muteRole).queue();
                                 logMessage += " и получает мьют";
+                                // TODO: отправить сообщение в чат замьюченных, на котором можно нажать кнопку
+                                // для снятия роли, подтверждая смену пароля
                             }
                         }
                     }
@@ -110,7 +127,7 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
                             .toList();
                     OffsetDateTime firstMessageSentTime = messagesInfo.getFirst().messageCreationTime();
                     for (MessageChannel _channel : channels) {
-                        deleteMessages(_channel, userId, receivedContentRaw, firstMessageSentTime);
+                        deleteMessages(_channel, userId, receivedMessageHashcode, firstMessageSentTime);
                     }
                     sentMessages.remove(userId);
 

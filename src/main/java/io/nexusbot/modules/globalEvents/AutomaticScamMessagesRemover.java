@@ -42,9 +42,9 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
                 .queue(history -> {
                     history.stream()
                             .filter(message -> message.getAuthor().getIdLong() == memberId)
-                            .filter(message -> getMessageHashcode(message) == messageHashcode)
                             .filter(message -> message.getTimeCreated().isAfter(firstMessageCreationTime)
                                     || message.getTimeCreated().isEqual(firstMessageCreationTime))
+                            .filter(message -> getMessageHashcode(message) == messageHashcode)
                             .forEach(message -> channel.deleteMessageById(message.getIdLong()).queue());
                 });
     }

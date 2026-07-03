@@ -112,10 +112,10 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
                     }
                     logMessage += ".";
 
-                    Long defaultRoleId = specialRoles.getDefaultRoleId();
-                    Role defaultRole = defaultRoleId != null
-                            ? guild.getRoleById(defaultRoleId)
-                            : null;
+                    Role defaultRole = specialRoles == null
+                            ? null
+                            : guild.getRoleById(specialRoles.getDefaultRoleId());
+
                     Role targetRole = defaultRole != null
                             ? defaultRole
                             : guild.getPublicRole();

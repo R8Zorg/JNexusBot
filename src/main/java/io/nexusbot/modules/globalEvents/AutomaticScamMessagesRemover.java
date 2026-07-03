@@ -28,9 +28,9 @@ record MessageInfo(long channelId, String messageContent, OffsetDateTime message
 
 @EventListeners
 public class AutomaticScamMessagesRemover extends ListenerAdapter {
-    private static final short MESSAGES_AMOUNT = 2;
+    private static final short MESSAGES_AMOUNT = 3;
     private static final int MESSAGES_HISTORY_POOL = 5;
-    private static final long MINIMAL_MESSAGE_DELAY_MS = 600;
+    // private static final long MINIMAL_MESSAGE_DELAY_MS = 600;
 
     private Map<Long, List<MessageInfo>> sentMessages = new ConcurrentHashMap<>();
     private SpecialRolesService specialRolesService = new SpecialRolesService();
@@ -71,13 +71,13 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
             List<MessageInfo> messagesInfo = sentMessages.get(userId);
             MessageInfo lastMessageInfo = messagesInfo.getLast();
 
-            long messageDelayMs = Duration.between(
-                    lastMessageInfo.messageCreationTime(),
-                    receivedMessage.getTimeCreated()).toMillis();
-            if (messageDelayMs > MINIMAL_MESSAGE_DELAY_MS) {
-                sentMessages.remove(userId);
-                return;
-            }
+            // long messageDelayMs = Duration.between(
+            //         lastMessageInfo.messageCreationTime(),
+            //         receivedMessage.getTimeCreated()).toMillis();
+            // if (messageDelayMs > MINIMAL_MESSAGE_DELAY_MS) {
+            //     sentMessages.remove(userId);
+            //     return;
+            // }
 
             if (lastMessageInfo.channelId() != receivedChannelId
                     && lastMessageInfo.messageContent().equals(receivedContentRaw)) {

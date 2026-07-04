@@ -5,6 +5,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.github.r8zorg.jdatools.annotations.EventListeners;
@@ -112,13 +113,10 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
                     }
                     logMessage += ".";
 
-                    Role defaultRole = specialRoles == null
-                            ? null
-                            : guild.getRoleById(specialRoles.getDefaultRoleId());
-
-                    Role targetRole = defaultRole != null
-                            ? defaultRole
-                            : guild.getPublicRole();
+                    Role targetRole = Optional.ofNullable(specialRoles)
+                            .map(SpecialRoles::getDefaultRoleId)
+                            .map(guild::getRoleById)
+                            .orElse(guild.getPublicRole());
 
                     List<MessageChannel> channels = guild.getChannels().stream()
                             .filter(_channel -> _channel instanceof MessageChannel)

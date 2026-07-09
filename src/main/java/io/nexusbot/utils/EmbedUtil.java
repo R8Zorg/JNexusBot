@@ -45,6 +45,7 @@ public class EmbedUtil {
                 .build();
         hook.sendMessageEmbeds(embed).setEphemeral(true).queue();
     }
+
     public static void replyEmbed(InteractionHook hook, String description, Color color, boolean ephemeral) {
         MessageEmbed embed = new EmbedBuilder()
                 .setDescription(description)
@@ -84,6 +85,16 @@ public class EmbedUtil {
                 .build();
         channel.sendMessageEmbeds(embed).queue();
     }
+
+    public static void sendEmbed(MessageChannel channel, String description, Color color, String footerText) {
+        MessageEmbed embed = new EmbedBuilder()
+                .setDescription(description)
+                .setColor(color)
+                .setFooter(footerText)
+                .build();
+        channel.sendMessageEmbeds(embed).queue();
+    }
+
     public static void sendEmbed(MessageChannel channel, String description, Color color, boolean isSilent) {
         MessageEmbed embed = new EmbedBuilder()
                 .setDescription(description)

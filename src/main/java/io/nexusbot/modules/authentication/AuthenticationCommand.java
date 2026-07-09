@@ -18,6 +18,10 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
+/*
+ * TODO: команда создаёт эмбед с кнопкой.
+ * Нажатие на кнопку генерирует выпадающий список
+ * */
 @SlashCommands
 public class AuthenticationCommand {
     private static final int ANSWERS_COUNT = 4;

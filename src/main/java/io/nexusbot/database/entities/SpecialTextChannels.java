@@ -14,6 +14,7 @@ public class SpecialTextChannels {
     private Long adminsChannelId;
     private Long moderatorsChannelId;
     private Long textLogChannelId;
+    private Long errorLogChannelId;
 
     public SpecialTextChannels() {
     }
@@ -60,5 +61,13 @@ public class SpecialTextChannels {
 
     public void setTextLogChannelId(Long textLogChannelId) {
         this.textLogChannelId = textLogChannelId;
+    }
+
+    public Long getErrorLogChannelId() {
+        return errorLogChannelId;
+    }
+
+    public void setErrorLogChannelId(Long errorLogChannelId) {
+        this.errorLogChannelId = errorLogChannelId;
     }
 }

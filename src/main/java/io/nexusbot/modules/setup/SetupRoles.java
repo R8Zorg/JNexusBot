@@ -1,6 +1,7 @@
 package io.nexusbot.modules.setup;
 
 import java.awt.Color;
+import java.util.function.Consumer;
 
 import io.github.r8zorg.jdatools.annotations.Option;
 import io.github.r8zorg.jdatools.annotations.SlashCommands;
@@ -16,6 +17,13 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 public class SetupRoles {
     private SpecialRolesService specialRolesService = new SpecialRolesService();
 
+    private void saveRoleAndReply(SlashCommandInteractionEvent event, Consumer<SpecialRoles> action) {
+        var specialRoles = specialRolesService.getOrCreate(event.getGuild().getIdLong());
+        action.accept(specialRoles);
+        specialRolesService.saveOrUpdate(specialRoles);
+        EmbedUtil.replyEmbed(event, "Сохранено.", Color.GREEN);
+    }
+
     @SubcommandGroup(parentName = "setup", description = "Группа команд для указания ролей")
     public void role(SlashCommandInteractionEvent event) {
     }
@@ -23,19 +31,13 @@ public class SetupRoles {
     @Subcommand(parentNames = "setup role")
     public void mute(SlashCommandInteractionEvent event,
             @Option(name = "role", description = "Мьют роль") Role role) {
-        SpecialRoles specialRoles = specialRolesService.getOrCreate(event.getGuild().getIdLong());
-        specialRoles.setMuteRoleId(role.getIdLong());
-        specialRolesService.saveOrUpdate(specialRoles);
-        EmbedUtil.replyEmbed(event, "Мьют-роль сохранена.", Color.GREEN);
+        saveRoleAndReply(event, speialRoles -> speialRoles.setMuteRoleId(role.getIdLong()));
     }
 
     @Subcommand(parentNames = "setup role", name = "deafult")
     public void _default(SlashCommandInteractionEvent event,
             @Option(name = "role", description = "Роль, заменяющая everyone") Role role) {
-        SpecialRoles specialRoles = specialRolesService.getOrCreate(event.getGuild().getIdLong());
-        specialRoles.setDefaultRoleId(role.getIdLong());
-        specialRolesService.saveOrUpdate(specialRoles);
-        EmbedUtil.replyEmbed(event, "Стандартная роль сохранена.", Color.GREEN);
+        saveRoleAndReply(event, speialRoles -> speialRoles.setDefaultRoleId(role.getIdLong()));
     }
 
 }

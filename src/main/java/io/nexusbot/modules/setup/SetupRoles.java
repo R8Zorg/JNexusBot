@@ -23,10 +23,19 @@ public class SetupRoles {
     @Subcommand(parentNames = "setup role")
     public void mute(SlashCommandInteractionEvent event,
             @Option(name = "role", description = "Мьют роль") Role role) {
-            SpecialRoles specialRoles = specialRolesService.getOrCreate(event.getGuild().getIdLong());
-            specialRoles.setMuteRoleId(role.getIdLong());
-            specialRolesService.saveOrUpdate(specialRoles);
-            EmbedUtil.replyEmbed(event, "Мьют-роль сохранена.", Color.GREEN);
+        SpecialRoles specialRoles = specialRolesService.getOrCreate(event.getGuild().getIdLong());
+        specialRoles.setMuteRoleId(role.getIdLong());
+        specialRolesService.saveOrUpdate(specialRoles);
+        EmbedUtil.replyEmbed(event, "Мьют-роль сохранена.", Color.GREEN);
+    }
+
+    @Subcommand(parentNames = "setup role", name = "deafult")
+    public void _default(SlashCommandInteractionEvent event,
+            @Option(name = "role", description = "Роль, заменяющая everyone") Role role) {
+        SpecialRoles specialRoles = specialRolesService.getOrCreate(event.getGuild().getIdLong());
+        specialRoles.setDefaultRoleId(role.getIdLong());
+        specialRolesService.saveOrUpdate(specialRoles);
+        EmbedUtil.replyEmbed(event, "Стандартная роль сохранена.", Color.GREEN);
     }
 
 }

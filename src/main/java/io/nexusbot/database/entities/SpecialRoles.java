@@ -32,8 +32,8 @@ public class SpecialRoles {
         return muteRoleId;
     }
 
-    public void setMuteRoleId(long mutedRoleId) {
-        this.muteRoleId = mutedRoleId;
+    public void setMuteRoleId(long muteRoleId) {
+        this.muteRoleId = muteRoleId;
     }
 
     public Long getDefaultRoleId() {

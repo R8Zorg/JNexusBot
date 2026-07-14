@@ -34,6 +34,12 @@ public class SetupChannels {
         saveLogChannel(event, service -> service.setErrorLogChannelId(logChannel.getIdLong()));
     }
 
+    @Subcommand(parentNames = "setup channel", description = "Канал для замьюченных участников")
+    public void muted_members(SlashCommandInteractionEvent event,
+            @Option(name = "channel", description = "Канал для замьюченных участников", channelType = ChannelType.TEXT) TextChannel logChannel) {
+        saveLogChannel(event, service -> service.setMutedMembersChannelId(logChannel.getIdLong()));
+    }
+
     private void saveLogChannel(SlashCommandInteractionEvent event, Consumer<SpecialTextChannels> updater) {
         var specialTextChannels = specialTextChannelsService.getOrCreate(event.getGuild().getIdLong());
         updater.accept(specialTextChannels);

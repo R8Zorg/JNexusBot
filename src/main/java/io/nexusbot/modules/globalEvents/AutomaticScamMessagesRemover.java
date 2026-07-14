@@ -24,6 +24,11 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+/* TODO: логировать время между отправленными сообщениями.
+ * Если они имитируют обычного участника, бот успеет выдать мьют до отправки 4го сообщения.
+ * Тогда можно будет сохранять отправленные сообщения вместо прохода по всем каналам.
+*/
+
 record MessageInfo(long channelId, int messageContentHashcode, OffsetDateTime messageCreationTime) {
 }
 
@@ -55,7 +60,7 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
         List<Attachment> attachments = message.getAttachments();
         for (Attachment attachment : attachments) {
             messageContent += String.format(
-                    "%s|%d|%s|%d|%d",
+                    "|%s|%d|%s|%d|%d",
                     attachment.getFileName(),
                     attachment.getSize(),
                     attachment.getContentType(),

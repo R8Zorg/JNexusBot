@@ -1,6 +1,7 @@
 package io.nexusbot.modules.setup;
 
 import java.awt.Color;
+import java.util.function.Consumer;
 
 import io.github.r8zorg.jdatools.annotations.Option;
 import io.github.r8zorg.jdatools.annotations.SlashCommands;
@@ -23,10 +24,20 @@ public class SetupRoles {
     @Subcommand(parentNames = "setup role")
     public void mute(SlashCommandInteractionEvent event,
             @Option(name = "role", description = "Мьют роль") Role role) {
-            SpecialRoles specialRoles = specialRolesService.getOrCreate(event.getGuild().getIdLong());
-            specialRoles.setMuteRoleId(role.getIdLong());
-            specialRolesService.saveOrUpdate(specialRoles);
-            EmbedUtil.replyEmbed(event, "Мьют-роль сохранена.", Color.GREEN);
+        saveRoles(event, service -> service.setMuteRoleId(role.getIdLong()));
+    }
+
+    @Subcommand(parentNames = "setup role", name = "default")
+    public void _default(SlashCommandInteractionEvent event,
+            @Option(name = "role", description = "Мьют роль") Role role) {
+        saveRoles(event, service -> service.setDefaultRoleId(role.getIdLong()));
+    }
+
+    private void saveRoles(SlashCommandInteractionEvent event, Consumer<SpecialRoles> updater) {
+        var specialRoles = specialRolesService.getOrCreate(event.getGuild().getIdLong());
+        updater.accept(specialRoles);
+        specialRolesService.saveOrUpdate(specialRoles);
+        EmbedUtil.replyEmbed(event, "Сохранено", Color.GREEN);
     }
 
 }

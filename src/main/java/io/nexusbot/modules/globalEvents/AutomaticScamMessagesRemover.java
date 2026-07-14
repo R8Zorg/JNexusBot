@@ -120,9 +120,8 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
             return;
         }
 
-        if (messageInfo.channelIds.contains(channelId)
-                || !isMessagesEqual(messageInfo, messageSignature)) {
-            sentMessages.invalidate(userId);
+        if (!isMessagesEqual(messageInfo, messageSignature)) {
+            sentMessages.put(userId, new MessageInfo(messageSignature, message.getTimeCreated(), channelId));
             return;
         }
 
@@ -132,7 +131,7 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
         if (messageInfo.messagesCount >= MESSAGES_AMOUNT) {
             messageInfo.targeted = true;
             StringBuilder logMessage = new StringBuilder(
-                    event.getAuthor().getAsMention() + " помечается за рассылку скам сообщений");
+                    event.getAuthor().getAsMention() + " помечается за спам");
 
             Guild guild = event.getGuild();
             SpecialRoles specialRoles = specialRolesService.get(guild.getIdLong());

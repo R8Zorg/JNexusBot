@@ -55,7 +55,7 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
         List<Attachment> attachments = message.getAttachments();
         for (Attachment attachment : attachments) {
             messageContent += String.format(
-                    "%s|%d|%s|%d|%d",
+                    "|%s|%d|%s|%d|%d",
                     attachment.getFileName(),
                     attachment.getSize(),
                     attachment.getContentType(),

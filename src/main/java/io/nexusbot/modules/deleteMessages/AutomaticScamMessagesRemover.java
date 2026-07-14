@@ -120,7 +120,8 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
             return;
         }
 
-        if (!isMessagesEqual(messageInfo, messageSignature)) {
+        if (messageInfo.channelIds.contains(channelId)
+                || !isMessagesEqual(messageInfo, messageSignature)) {
             sentMessages.put(userId, new MessageInfo(messageSignature, message.getTimeCreated(), channelId));
             return;
         }

@@ -1,4 +1,4 @@
-package io.nexusbot.modules.globalCommands;
+package io.nexusbot.modules.deleteMessages;
 
 import java.awt.Color;
 import java.time.OffsetDateTime;

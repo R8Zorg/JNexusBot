@@ -1,4 +1,4 @@
-package io.nexusbot.modules.globalEvents;
+package io.nexusbot.modules.deleteMessages;
 
 import java.awt.Color;
 import java.time.Duration;

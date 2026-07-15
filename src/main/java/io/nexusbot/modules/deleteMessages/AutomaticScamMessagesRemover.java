@@ -54,48 +54,6 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
     private Cache<Long, MessageInfo> sentMessages = Caffeine.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(CACHE_INFO_LIVE_MINUTES)).build();
 
-    private void deleteMessages(Guild guild, long memberId, MessageInfo messageInfo) {
-        List<GuildMessageChannel> channels = messageInfo.channelIds.stream()
-                .map(id -> guild.getChannelById(GuildMessageChannel.class, id))
-                .filter(Objects::nonNull)
-                .toList();
-        for (MessageChannel channel : channels) {
-            channel.getHistory()
-                    .retrievePast(MESSAGES_HISTORY_POOL)
-                    .queue(history -> {
-                        List<Message> messages = history.stream()
-                                .filter(message -> message.getAuthor().getIdLong() == memberId)
-                                .filter(message -> message.getTimeCreated().isAfter(messageInfo.firstMessageTime)
-                                        || message.getTimeCreated().isEqual(messageInfo.firstMessageTime))
-                                .filter(message -> getMessageSignature(message).equals(messageInfo.messageSignature))
-                                .toList();
-                        if (!messages.isEmpty()) {
-                            channel.purgeMessages(messages);
-                        }
-                    });
-        }
-    }
-
-    private String getMessageSignature(Message message) {
-        StringBuilder messageContent = new StringBuilder(message.getContentRaw());
-        List<Attachment> attachments = message.getAttachments();
-        for (Attachment attachment : attachments) {
-            messageContent.append(String.format(
-                    "|%s|%d|%s|%d|%d",
-                    attachment.getFileName(),
-                    attachment.getSize(),
-                    attachment.getContentType(),
-                    attachment.getWidth(),
-                    attachment.getHeight()));
-        }
-        return messageContent.toString();
-
-    }
-
-    private boolean isMessagesEqual(MessageInfo messageInfo, String messageSignature) {
-        return messageInfo.messageSignature.equals(messageSignature);
-    }
-
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) {
@@ -163,5 +121,47 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
             }
             return;
         }
+    }
+
+    private void deleteMessages(Guild guild, long memberId, MessageInfo messageInfo) {
+        List<GuildMessageChannel> channels = messageInfo.channelIds.stream()
+                .map(id -> guild.getChannelById(GuildMessageChannel.class, id))
+                .filter(Objects::nonNull)
+                .toList();
+        for (MessageChannel channel : channels) {
+            channel.getHistory()
+                    .retrievePast(MESSAGES_HISTORY_POOL)
+                    .queue(history -> {
+                        List<Message> messages = history.stream()
+                                .filter(message -> message.getAuthor().getIdLong() == memberId)
+                                .filter(message -> message.getTimeCreated().isAfter(messageInfo.firstMessageTime)
+                                        || message.getTimeCreated().isEqual(messageInfo.firstMessageTime))
+                                .filter(message -> getMessageSignature(message).equals(messageInfo.messageSignature))
+                                .toList();
+                        if (!messages.isEmpty()) {
+                            channel.purgeMessages(messages);
+                        }
+                    });
+        }
+    }
+
+    private String getMessageSignature(Message message) {
+        StringBuilder messageContent = new StringBuilder(message.getContentRaw());
+        List<Attachment> attachments = message.getAttachments();
+        for (Attachment attachment : attachments) {
+            messageContent.append(String.format(
+                    "|%s|%d|%s|%d|%d",
+                    attachment.getFileName(),
+                    attachment.getSize(),
+                    attachment.getContentType(),
+                    attachment.getWidth(),
+                    attachment.getHeight()));
+        }
+        return messageContent.toString();
+
+    }
+
+    private boolean isMessagesEqual(MessageInfo messageInfo, String messageSignature) {
+        return messageInfo.messageSignature.equals(messageSignature);
     }
 }

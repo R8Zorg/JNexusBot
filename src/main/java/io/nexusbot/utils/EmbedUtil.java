@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -38,6 +39,22 @@ public class EmbedUtil {
         event.replyEmbeds(embed).setEphemeral(ephemeral).queue();
     }
 
+    public static void replyEmbed(ButtonInteractionEvent event, String description, Color color) {
+        MessageEmbed embed = new EmbedBuilder()
+                .setDescription(description)
+                .setColor(color)
+                .build();
+        event.replyEmbeds(embed).setEphemeral(true).queue();
+    }
+    public static void replyEmbed(ButtonInteractionEvent event, String description, Color color,
+            boolean ephemeral) {
+        MessageEmbed embed = new EmbedBuilder()
+                .setDescription(description)
+                .setColor(color)
+                .build();
+        event.replyEmbeds(embed).setEphemeral(ephemeral).queue();
+    }
+
     public static void replyEmbed(InteractionHook hook, String description, Color color) {
         MessageEmbed embed = new EmbedBuilder()
                 .setDescription(description)
@@ -45,6 +62,7 @@ public class EmbedUtil {
                 .build();
         hook.sendMessageEmbeds(embed).setEphemeral(true).queue();
     }
+
     public static void replyEmbed(InteractionHook hook, String description, Color color, boolean ephemeral) {
         MessageEmbed embed = new EmbedBuilder()
                 .setDescription(description)
@@ -84,6 +102,7 @@ public class EmbedUtil {
                 .build();
         channel.sendMessageEmbeds(embed).queue();
     }
+
     public static void sendEmbed(MessageChannel channel, String description, Color color, boolean isSilent) {
         MessageEmbed embed = new EmbedBuilder()
                 .setDescription(description)

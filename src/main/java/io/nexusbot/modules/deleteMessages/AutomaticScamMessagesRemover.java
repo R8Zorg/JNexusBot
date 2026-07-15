@@ -13,6 +13,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.github.r8zorg.jdatools.annotations.EventListeners;
+import io.nexusbot.componentsData.GlobalIds;
 import io.nexusbot.database.entities.SpecialRoles;
 import io.nexusbot.database.entities.SpecialTextChannels;
 import io.nexusbot.database.services.SpecialRolesService;
@@ -27,6 +28,8 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 class MessageInfo {
     public final String messageSignature;
@@ -93,9 +96,10 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
                     event.getAuthor().getAsMention() + " помечается за спам");
 
             Guild guild = event.getGuild();
-            SpecialRoles specialRoles = specialRolesService.get(guild.getIdLong());
+            SpecialRoles rolesService = specialRolesService.get(guild.getIdLong());
+            SpecialTextChannels channelsService = specialTextChannelsService.get(guild.getIdLong());
 
-            Role muteRole = Optional.ofNullable(specialRoles)
+            Role muteRole = Optional.ofNullable(rolesService)
                     .map(SpecialRoles::getMuteRoleId)
                     .map(guild::getRoleById)
                     .orElse(null);
@@ -103,15 +107,32 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
             if (muteRole != null) {
                 guild.addRoleToMember(event.getAuthor(), muteRole).queue();
                 logMessage.append(" и получает мьют");
-                // TODO: отправить сообщение в чат замьюченных, на котором можно нажать кнопку
-                // для снятия роли, подтверждая смену пароля
+
+                TextChannel mutedChannel = Optional.ofNullable(channelsService)
+                        .map(SpecialTextChannels::getMutedMembersChannelId)
+                        .map(guild::getTextChannelById)
+                        .orElse(null);
+
+                if (mutedChannel != null) {
+                    var embed = EmbedUtil.generateEmbed(
+                            event.getAuthor().getAsMention() + ", ты помечаешься за спам рассылку.\n" +
+                                    "‼️ Если тебя взломали, обязательно смени пароль ‼️\n\n" +
+                                    "⚠️ Если тебя замьютили по ошибке, пожалуйста, сообщи об этом администрации\n\n\n" +
+                                    "👇 Нажми на кнопку ниже для снятия мьют роли.",
+                            Color.ORANGE);
+                    mutedChannel.sendMessageEmbeds(embed)
+                            .addComponents(ActionRow.of(
+                                    Button.success(GlobalIds.UNMUTE_BUTTON.getValue() + " " + userId, "Снять роль")))
+                            .queue();
+
+                }
             }
 
             logMessage.append(".");
 
             deleteMessages(guild, userId, messageInfo);
 
-            TextChannel logChannel = Optional.ofNullable(specialTextChannelsService.get(guild.getIdLong()))
+            TextChannel logChannel = Optional.ofNullable(channelsService)
                     .map(SpecialTextChannels::getTextLogChannelId)
                     .map(guild::getTextChannelById)
                     .orElse(null);

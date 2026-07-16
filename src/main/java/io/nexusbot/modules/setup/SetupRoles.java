@@ -31,13 +31,20 @@ public class SetupRoles {
     @Subcommand(parentNames = "setup role")
     public void mute(SlashCommandInteractionEvent event,
             @Option(name = "role", description = "Мьют роль") Role role) {
-        saveRoleAndReply(event, speialRoles -> speialRoles.setMuteRoleId(role.getIdLong()));
+        saveRoles(event, service -> service.setMuteRoleId(role.getIdLong()));
     }
 
-    @Subcommand(parentNames = "setup role", name = "deafult")
+    @Subcommand(parentNames = "setup role", name = "default")
     public void _default(SlashCommandInteractionEvent event,
-            @Option(name = "role", description = "Роль, заменяющая everyone") Role role) {
-        saveRoleAndReply(event, speialRoles -> speialRoles.setDefaultRoleId(role.getIdLong()));
+            @Option(name = "role", description = "Мьют роль") Role role) {
+        saveRoles(event, service -> service.setDefaultRoleId(role.getIdLong()));
+    }
+
+    private void saveRoles(SlashCommandInteractionEvent event, Consumer<SpecialRoles> updater) {
+        var specialRoles = specialRolesService.getOrCreate(event.getGuild().getIdLong());
+        updater.accept(specialRoles);
+        specialRolesService.saveOrUpdate(specialRoles);
+        EmbedUtil.replyEmbed(event, "Сохранено", Color.GREEN);
     }
 
 }

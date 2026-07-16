@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -30,6 +31,22 @@ public class EmbedUtil {
     }
 
     public static void replyEmbed(SlashCommandInteractionEvent event, String description, Color color,
+            boolean ephemeral) {
+        MessageEmbed embed = new EmbedBuilder()
+                .setDescription(description)
+                .setColor(color)
+                .build();
+        event.replyEmbeds(embed).setEphemeral(ephemeral).queue();
+    }
+
+    public static void replyEmbed(ButtonInteractionEvent event, String description, Color color) {
+        MessageEmbed embed = new EmbedBuilder()
+                .setDescription(description)
+                .setColor(color)
+                .build();
+        event.replyEmbeds(embed).setEphemeral(true).queue();
+    }
+    public static void replyEmbed(ButtonInteractionEvent event, String description, Color color,
             boolean ephemeral) {
         MessageEmbed embed = new EmbedBuilder()
                 .setDescription(description)
@@ -82,15 +99,6 @@ public class EmbedUtil {
         MessageEmbed embed = new EmbedBuilder()
                 .setDescription(description)
                 .setColor(color)
-                .build();
-        channel.sendMessageEmbeds(embed).queue();
-    }
-
-    public static void sendEmbed(MessageChannel channel, String description, Color color, String footerText) {
-        MessageEmbed embed = new EmbedBuilder()
-                .setDescription(description)
-                .setColor(color)
-                .setFooter(footerText)
                 .build();
         channel.sendMessageEmbeds(embed).queue();
     }

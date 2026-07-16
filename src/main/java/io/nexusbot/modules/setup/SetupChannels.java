@@ -32,12 +32,25 @@ public class SetupChannels {
     @Subcommand(parentNames = "setup channel", description = "Канал для логов, связанных с сообщениями")
     public void text_log(SlashCommandInteractionEvent event,
             @Option(name = "channel", description = "Канал для текстовых логов", channelType = ChannelType.TEXT) TextChannel logChannel) {
-        saveLogChannelAndReply(event, textChannels -> textChannels.setTextLogChannelId(logChannel.getIdLong()));
+        saveLogChannel(event, service -> service.setTextLogChannelId(logChannel.getIdLong()));
     }
 
-    @Subcommand(parentNames = "setup channel", description = "Канал для логов, связанных с сообщениями")
+    @Subcommand(parentNames = "setup channel", description = "Канал для логов ошибок")
     public void error_log(SlashCommandInteractionEvent event,
             @Option(name = "channel", description = "Канал для логов ошибок", channelType = ChannelType.TEXT) TextChannel logChannel) {
-        saveLogChannelAndReply(event, textChannels -> textChannels.setErrorLogChannelId(logChannel.getIdLong()));
+        saveLogChannel(event, service -> service.setErrorLogChannelId(logChannel.getIdLong()));
+    }
+
+    @Subcommand(parentNames = "setup channel", description = "Канал для замьюченных участников")
+    public void muted_members(SlashCommandInteractionEvent event,
+            @Option(name = "channel", description = "Канал для замьюченных участников", channelType = ChannelType.TEXT) TextChannel logChannel) {
+        saveLogChannel(event, service -> service.setMutedMembersChannelId(logChannel.getIdLong()));
+    }
+
+    private void saveLogChannel(SlashCommandInteractionEvent event, Consumer<SpecialTextChannels> updater) {
+        var specialTextChannels = specialTextChannelsService.getOrCreate(event.getGuild().getIdLong());
+        updater.accept(specialTextChannels);
+        specialTextChannelsService.saveOrUpdate(specialTextChannels);
+        EmbedUtil.replyEmbed(event, "Сохранено.", Color.GREEN);
     }
 }

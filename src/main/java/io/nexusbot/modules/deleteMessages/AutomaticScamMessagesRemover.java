@@ -14,8 +14,10 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.github.r8zorg.jdatools.annotations.EventListeners;
 import io.nexusbot.componentsData.GlobalIds;
+import io.nexusbot.database.entities.AutoSpamRemove;
 import io.nexusbot.database.entities.SpecialRoles;
 import io.nexusbot.database.entities.SpecialTextChannels;
+import io.nexusbot.database.services.AutoSpamRemoveService;
 import io.nexusbot.database.services.SpecialRolesService;
 import io.nexusbot.database.services.SpecialTextChannelsService;
 import io.nexusbot.utils.EmbedUtil;
@@ -53,6 +55,7 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
 
     private SpecialRolesService specialRolesService = new SpecialRolesService();
     private SpecialTextChannelsService specialTextChannelsService = new SpecialTextChannelsService();
+    private AutoSpamRemoveService autoSpamRemoveService = new AutoSpamRemoveService();
 
     private Cache<Long, MessageInfo> sentMessages = Caffeine.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(CACHE_INFO_LIVE_MINUTES)).build();
@@ -60,6 +63,10 @@ public class AutomaticScamMessagesRemover extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) {
+            return;
+        }
+        AutoSpamRemove autoSpamRemove = autoSpamRemoveService.get(event.getGuild().getIdLong());
+        if (autoSpamRemove == null || !autoSpamRemove.isTurnOn()) {
             return;
         }
 

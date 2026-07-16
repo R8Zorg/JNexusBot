@@ -28,7 +28,7 @@ public class OnAnswerSelect extends ListenerAdapter {
     private SpecialTextChannelsService channelsService = new SpecialTextChannelsService();
     private VerificationService verificationService = new VerificationService();
     private static final int MAX_ATTEMPTS = 3;
-    private static final int TIMEOUT_MINUTES = 20;
+    private static final int TIMEOUT_MINUTES = 5;
 
     @Override
     public void onStringSelectInteraction(StringSelectInteractionEvent event) {
@@ -57,7 +57,7 @@ public class OnAnswerSelect extends ListenerAdapter {
             int userAttempts = verification.getMemberAttempts();
 
             if (userAttempts % MAX_ATTEMPTS == 0) {
-                var timeoutEnd = OffsetDateTime.now().plusSeconds(TIMEOUT_MINUTES);
+                var timeoutEnd = OffsetDateTime.now().plusMinutes(TIMEOUT_MINUTES);
                 var embed = EmbedUtil.generateEmbed(
                         member.getAsMention() + " не справляется с заданием с " + userAttempts + "й попытки.\n"
                                 + "Попытки сбросятся <t:" + timeoutEnd.toEpochSecond() + ":R>",

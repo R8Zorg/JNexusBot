@@ -18,13 +18,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 public class SetupChannels {
     private SpecialTextChannelsService specialTextChannelsService = new SpecialTextChannelsService();
 
-    private void saveLogChannelAndReply(SlashCommandInteractionEvent event, Consumer<SpecialTextChannels> action) {
-        var specialTextChannels = specialTextChannelsService.getOrCreate(event.getGuild().getIdLong());
-        action.accept(specialTextChannels);
-        specialTextChannelsService.saveOrUpdate(specialTextChannels);
-        EmbedUtil.replyEmbed(event, "Сохранено.", Color.GREEN);
-    }
-
     @SubcommandGroup(parentName = "setup", description = "Группа команд для указания текстовых каналов")
     public void channel(SlashCommandInteractionEvent event) {
     }

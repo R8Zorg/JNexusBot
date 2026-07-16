@@ -1,10 +1,8 @@
-package io.nexusbot.modules.authentication;
+package io.nexusbot.modules.verification;
 
 import java.awt.Color;
 import java.time.OffsetDateTime;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 import io.github.r8zorg.jdatools.annotations.EventListeners;
 import io.nexusbot.componentsData.GlobalIds;
@@ -12,6 +10,7 @@ import io.nexusbot.database.entities.SpecialRoles;
 import io.nexusbot.database.entities.SpecialTextChannels;
 import io.nexusbot.database.services.SpecialRolesService;
 import io.nexusbot.database.services.SpecialTextChannelsService;
+import io.nexusbot.database.services.VerificationService;
 import io.nexusbot.utils.EmbedUtil;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -20,28 +19,25 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 @EventListeners
 public class OnAnswerSelect extends ListenerAdapter {
     private SpecialRolesService rolesService = new SpecialRolesService();
     private SpecialTextChannelsService channelsService = new SpecialTextChannelsService();
-    private Map<Long, Integer> userAttempts = new ConcurrentHashMap<>();
-    private Map<Long, OffsetDateTime> userTimeouts = new ConcurrentHashMap<>();
+    private VerificationService verificationService = new VerificationService();
     private static final int MAX_ATTEMPTS = 3;
-    private static final int TIMEOUT_MINUTES = 30;
+    private static final int TIMEOUT_MINUTES = 20;
 
     @Override
     public void onStringSelectInteraction(StringSelectInteractionEvent event) {
-        if (!event.getComponentId().equals(GlobalIds.AUTHENTICATION_ID.getValue())) {
+        if (!event.getComponentId().equals(GlobalIds.VERIFICATION_BUTTON.getValue())) {
             return;
         }
         Member member = event.getMember();
         long memberId = member.getIdLong();
-
-        OffsetDateTime userTimeout = userTimeouts.get(memberId);
-        if (userTimeout != null && OffsetDateTime.now().isBefore(userTimeout)) {
-            return;
-        }
+        long guildId = event.getGuild().getIdLong();
 
         String selectedOptionId = event.getSelectedOptions().get(0).getValue();
         var parameters = selectedOptionId.split(" ");
@@ -49,27 +45,35 @@ public class OnAnswerSelect extends ListenerAdapter {
         int num2 = Integer.parseInt(parameters[1]);
         int rightAnswer = Integer.parseInt(parameters[2]);
 
-        if (num1 + num2 != rightAnswer) {
-            Integer userAttemp = userAttempts.get(memberId);
-            if (userAttemp == null) {
-                userAttemp = 1;
-            } else {
-                userAttemp += 1;
-            }
-            userAttempts.put(memberId, userAttemp);
+        var verification = verificationService.getOrCreate(memberId, guildId);
 
-            if (userAttemp >= MAX_ATTEMPTS) {
-                var timeoutEnd = OffsetDateTime.now().plusMinutes(TIMEOUT_MINUTES);
-                EmbedUtil.sendEmbed(event.getChannel(),
-                        member.getAsMention() + " не справляется с заданием " + userAttemp + "й раз.\n"
+        OffsetDateTime userTimeout = verification.getMemberTimeout();
+        if (userTimeout != null && OffsetDateTime.now().isBefore(userTimeout)) {
+            EmbedUtil.replyEmbed(event, "Попытки сбросятся <t:" + userTimeout.toEpochSecond() + ":R>", Color.RED);
+            return;
+        }
+        if (num1 + num2 != rightAnswer) {
+            verification.addMemberAttempts(1);
+            int userAttempts = verification.getMemberAttempts();
+
+            if (userAttempts % MAX_ATTEMPTS == 0) {
+                var timeoutEnd = OffsetDateTime.now().plusSeconds(TIMEOUT_MINUTES);
+                var embed = EmbedUtil.generateEmbed(
+                        member.getAsMention() + " не справляется с заданием с " + userAttempts + "й попытки.\n"
                                 + "Попытки сбросятся <t:" + timeoutEnd.toEpochSecond() + ":R>",
                         Color.ORANGE);
-                userTimeouts.put(memberId, timeoutEnd);
-            } else {
-                EmbedUtil.replyEmbed(event,
-                        "Неверный ответ. Осталось попыток: " + (MAX_ATTEMPTS - userAttemp),
-                        Color.RED);
+
+                event.getChannel().sendMessageEmbeds(embed)
+                        .addComponents(ActionRow.of(
+                                Button.danger(GlobalIds.DELETE_NOTIFICATION_MESSAGE_BUTTON.getValue(), "✖️")))
+                        .queue();
+                verification.setMemberTimeout(timeoutEnd);
             }
+            EmbedUtil.replyEmbed(event,
+                    "Неверный ответ. Осталось попыток: "
+                            + (MAX_ATTEMPTS - (userAttempts % MAX_ATTEMPTS)) % MAX_ATTEMPTS,
+                    Color.RED);
+            verificationService.saveOrUpdate(verification);
             return;
         }
         event.deferReply(true).queue();
@@ -102,8 +106,5 @@ public class OnAnswerSelect extends ListenerAdapter {
                     Color.RED);
         }
         EmbedUtil.replyEmbed(event.getHook(), "Доступ выдан.", Color.GREEN);
-        userAttempts.remove(memberId);
-        userTimeouts.remove(memberId);
-
     }
 }

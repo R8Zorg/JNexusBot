@@ -4,7 +4,9 @@ public enum GlobalIds {
     NOTHING("nothing"),
     BASE_MODAL_ID("-modal"),
     BASE_MODAL_TEXT_INPUT_ID("text-input"),
-    UNMUTE_BUTTON("unmute-button");
+    UNMUTE_BUTTON("unmute-button"),
+    VERIFICATION_BUTTON("authentication-button"),
+    DELETE_NOTIFICATION_MESSAGE_BUTTON("delete-message-button");
 
     private final String value;
 
